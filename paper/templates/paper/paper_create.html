@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Add Paper</title>
+</head>
+
+<body>
+  <h1>새 글 작성</h1>
+  <form method="POST">
+    {% csrf_token %}
+    <input type="text" name="title" placeholder="title" required><br>
+    <input type="text" name="author" placeholder="author" required><br>
+    <input type="date" name="publish_date" placeholder="publish_date" required><br>
+    <button type="submit">작성</button>
+  </form>
+  <a href="{% url 'paper_list' %}">목록으로</a>
+</body>
+
+</html>
