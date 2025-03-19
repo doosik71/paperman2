@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .card {
+    width: 18rem;
+  }
+</style>
+<h4 class="m-3 text-center">Topic List</h4>
+
+<div class="d-flex flex-wrap gap-3 justify-content-center my-3">
+  {% for topic in topics %}
+  <div class="card">
+      <div class="card-body">
+          <h5 class="card-title text-center">{{ topic.title }}</h5>
+          <p class="card-subtitle text-center">{{ topic.keywords }}</p>
+      </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="m-3 text-center"><a href="{% url 'topic_create' %}" class="btn btn-primary">Create new topic</a></div>
+{% endblock %}
