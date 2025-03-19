@@ -1,13 +1,23 @@
 {% extends "base.html" %}
-
 {% block content %}
-
-<h1>새 글 작성</h1>
-<form method="POST">
-  {% csrf_token %}
-  <input type="text" name="title" placeholder="title" required><br>
-  <input type="text" name="keywords" placeholder="keywords"><br>
-  <button type="submit">작성</button>
-</form>
-<a href="{% url 'topic_list' %}">목록으로</a>
+<h1 class="m-3 text-center">New Topic</h1>
+<div class="d-flex justify-content-center">
+  <div class="col-3 mx-auto">
+    <form method="POST">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="title" class="title">Title</label>
+        <input type="text" class="form-control" id="title" name="title" placeholder="Title" required>
+      </div>
+      <div class="mb-3">
+        <label for="keywords" class="form-label">Keywords</label>
+        <input type="text" class="form-control" id="keywords" name="keywords" placeholder="Keywords">
+        <div class="form-text">Keywords are separated by commas.</div>
+      </div>
+      <div class="mb-3 text-center">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

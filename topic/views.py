@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Topic
 
 def topic_list(request):
@@ -13,3 +13,29 @@ def topic_create(request):
                              keywords=keywords)
         return redirect("topic_list")
     return render(request, "topic/topic_create.html")
+
+def topic_detail(request, id):
+    topic = get_object_or_404(Topic, id=id)
+    return render(request, 'topic/topic_detail.html', {'topic': topic})
+
+def topic_update(request, id):
+    topic = get_object_or_404(Topic, id=id)
+    
+    if request.method == 'POST':
+        title = request.POST["title"]
+        keywords = request.POST["keywords"]
+
+        topic = get_object_or_404(Topic, id=id)
+        topic.title = title
+        topic.keywords = keywords
+        topic.save()
+
+    return redirect('topic_list')
+
+def topic_delete(request, id):
+    topic = get_object_or_404(Topic, id=id)
+    
+    if request.method == 'POST':
+        topic.delete()
+    
+    return redirect('topic_list')
