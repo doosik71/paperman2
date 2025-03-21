@@ -1,35 +1,127 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="m-3 text-center">New Topic</h1>
 <div class="d-flex justify-content-center">
-  <div class="col-3 mx-auto">
+  <div class="col-12">
     <form id="topic-form" method="POST">
       {% csrf_token %}
-      <div class="mb-3">
-        <label for="title" class="title">Title</label>
-        <input type="text" class="form-control" id="title" name="title" placeholder="Title" required
-          value="{{ topic.title }}">
-      </div>
-      <div class="mb-3">
-        <label for="keywords" class="form-label">Keywords</label>
-        <input type="text" class="form-control" id="keywords" name="keywords" placeholder="Keywords"
-          value="{{ topic.keywords }}">
-        <div class="form-text">Keywords are separated by commas.</div>
-      </div>
-      <div class="d-flex m-3 justify-content-center">
-        <button type="button" class="btn btn-primary mx-2"
-          onclick="setFormAction('{% url 'topic_update' topic.id %}')">Update</button>
-        <button type="button" class="btn btn-danger mx-2"
-          onclick="setFormAction('{% url 'topic_delete' topic.id %}')">Delete</button>
+      <div class="container-xxl my-2">
+        <div class="row my-2">
+          <div class="col-1">
+            <label for="title" class="form-label mt-1">Title</label>
+          </div>
+          <div class="col-4">
+            <input type="text" class="form-control" id="title" name="title" placeholder="Title" required
+              value="{{ topic.title }}">
+          </div>
+          <div class="col-1">
+            <label for="keywords" class="form-label mt-1 text-right">Keywords</label>
+          </div>
+          <div class="col-4">
+            <input type="text" class="form-control" id="keywords" name="keywords" placeholder="Keywords"
+              value="{{ topic.keywords }}" required>
+          </div>
+          <div class="col-1">
+            <button type="button" class="btn btn-primary mx-2"
+              onclick="setFormAction('{% url 'topic_update' topic.id %}')">Update</button>
+          </div>
+          <div class="col-1">
+            <button type="button" class="btn btn-danger mx-2"
+              onclick="setFormAction('{% url 'topic_delete' topic.id %}')">Delete</button>
+          </div>
+        </div>
       </div>
     </form>
+    <div class="container-xxl my-3 mx-auto text-center">
+      <button type="button" class="btn btn-success mx-2" onclick="searchPaper()">Search</button>
+      <button type="button" class="btn btn-info mx-2" onclick="add()">Add</button>
+    </div>
   </div>
 </div>
 <script>
   function setFormAction(actionUrl) {
     var form = document.getElementById('topic-form');
+    var title = document.getElementById('title').value;
+    var keywords = document.getElementById('keywords').value;
+
+    if (title.trim() === "" || keywords.trim() === "") {
+      alert("Title and Keywords are required!");
+      return;
+    }
+
     form.action = actionUrl;
     form.submit();
+  }
+
+  async function searchPaper() {
+    var keywords = document.getElementById('keywords').value;
+
+    if (keywords.trim() === "") {
+      alert("Keywords are required!");
+      return;
+    }
+
+    try {
+      const papers = await getArxivList(keywords, 100);
+
+      Array.from(papers).forEach(paper => {
+        const title = paper.getElementsByTagName('title')[0].textContent;
+        const authorNodeList = paper.getElementsByTagName('author');
+        const author = Array.from(authorNodeList).map(a => a.getElementsByTagName('name')[0].textContent).join(', ');
+        const publish_date = paper.getElementsByTagName('published')[0].textContent.split('T')[0];
+        const url = paper.getElementsByTagName('id')[0].textContent;
+        const note = paper.getElementsByTagName('summary')[0].textContent;
+        const pdf_url = url.replace('/abs/', '/pdf/');
+
+        addPaper({
+          title: title,
+          author: author,
+          publisher: 'arXiv',
+          publish_date: publish_date,
+          doi: '',
+          url: url,
+          pdf_url: pdf_url,
+          pdf_name: title.replace(/\s/g, '_') + '.pdf',
+          citations: '0',
+          tags: '',
+          note: note
+        });
+      });
+    } catch (error) {
+      console.error('Error fetching papers:', error);
+    }
+  }
+
+  function addPaper(paper) {
+    const url = '{% url 'paper_add' %}';
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify(paper)
+    })
+      .catch(error => console.error('Error adding paper:', error));
+  }
+
+  async function getArxivList(keywords, max_results) {
+    const researchTopic = encodeURIComponent(keywords);
+    const url = `https://export.arxiv.org/api/query?search_query=all:${researchTopic}&start=0&max_results=${max_results}&sortBy=relevance&sortOrder=descending`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.text();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(data, "text/xml");
+      return xmlDoc.getElementsByTagName('entry');
+    } catch (error) {
+      console.error('Error fetching arXiv data:', error);
+      return [];
+    }
   }
 </script>
 {% endblock %}
