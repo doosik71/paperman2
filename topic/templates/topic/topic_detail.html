@@ -32,9 +32,44 @@
       </div>
     </form>
     <div class="container-xxl my-3 mx-auto text-center">
-      <button type="button" class="btn btn-success mx-2" onclick="searchPaper()">Search</button>
-      <button type="button" class="btn btn-info mx-2" onclick="add()">Add</button>
+      <button type="button" class="btn btn-success mx-2" onclick="onCollectArxiv()">Collect Arxiv</button>
+      <!-- <button type="button" class="btn btn-success mx-2" onclick="onCollectScholar()">Collect Google Scholar</button> -->
+      <!-- <button type="button" class="btn btn-info mx-2" onclick="add()">Add</button> -->
     </div>
+
+    <div class="px-3 mx-auto">
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th class="text-center">Tags</th>
+            <th class="text-center" width="20%">Author</th>
+            <th class="text-center" width="50%">Title</th>
+            <th class="text-center" width="10%">Publisher</th>
+            <th class="text-center">Date</th>
+            <th class="text-center">Citations</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for paper in papers %}
+          <tr>
+            <td>
+              <div class="smaller text-center" id="tag-{{ paper.id }}"></div>
+              <script>
+                renderTags({{ paper.id }}, '{{ paper.tags|escapejs  }}')
+              </script>
+            </td>
+            <td>{{ paper.author }}</td>
+            <td>{{ paper.title }}</td>
+            <td class="text-center">{{ paper.publisher }}</td>
+            <td class="text-center">{{ paper.publish_date|date:"Y.m.d"|default:"N/A" }}</td>
+            <td class="text-end">{{ paper.citations }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <ol>
+    </ol>
   </div>
 </div>
 <script>
@@ -52,76 +87,32 @@
     form.submit();
   }
 
-  async function searchPaper() {
-    var keywords = document.getElementById('keywords').value;
+  function onCollectArxiv() {
+    const topic_id = "{{ topic.id }}";
+    const keywords = document.getElementById('keywords').value;
+    const post_url = "{% url 'paper_add' %}";
+    const csrf_token = "{{ csrf_token }}";
 
-    if (keywords.trim() === "") {
-      alert("Keywords are required!");
-      return;
-    }
-
-    try {
-      const papers = await getArxivList(keywords, 100);
-
-      Array.from(papers).forEach(paper => {
-        const title = paper.getElementsByTagName('title')[0].textContent;
-        const authorNodeList = paper.getElementsByTagName('author');
-        const author = Array.from(authorNodeList).map(a => a.getElementsByTagName('name')[0].textContent).join(', ');
-        const publish_date = paper.getElementsByTagName('published')[0].textContent.split('T')[0];
-        const url = paper.getElementsByTagName('id')[0].textContent;
-        const note = paper.getElementsByTagName('summary')[0].textContent;
-        const pdf_url = url.replace('/abs/', '/pdf/');
-
-        addPaper({
-          title: title,
-          author: author,
-          publisher: 'arXiv',
-          publish_date: publish_date,
-          doi: '',
-          url: url,
-          pdf_url: pdf_url,
-          pdf_name: title.replace(/\s/g, '_') + '.pdf',
-          citations: '0',
-          tags: '',
-          note: note
-        });
-      });
-    } catch (error) {
-      console.error('Error fetching papers:', error);
-    }
+    collectArxiv(topic_id, keywords, 30, post_url, csrf_token);
   }
 
-  function addPaper(paper) {
-    const url = '{% url 'paper_add' %}';
+  function onCollectScholar() {
+    const topic_id = "{{ topic.id }}";
+    const keywords = document.getElementById('keywords').value;
+    const post_url = "{% url 'paper_add' %}";
+    const csrf_token = "{{ csrf_token }}";
 
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': '{{ csrf_token }}'
-      },
-      body: JSON.stringify(paper)
-    })
-      .catch(error => console.error('Error adding paper:', error));
+    collectArxiv(topic_id, keywords, 30, post_url, csrf_token)
   }
 
-  async function getArxivList(keywords, max_results) {
-    const researchTopic = encodeURIComponent(keywords);
-    const url = `https://export.arxiv.org/api/query?search_query=all:${researchTopic}&start=0&max_results=${max_results}&sortBy=relevance&sortOrder=descending`;
+  function onToggleTag(paper_id, tag) {
+    console.log('here');
+    console.log(`{paper_id}, {tag}`);
 
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const data = await response.text();
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(data, "text/xml");
-      return xmlDoc.getElementsByTagName('entry');
-    } catch (error) {
-      console.error('Error fetching arXiv data:', error);
-      return [];
-    }
+    const post_url = "{% url 'paper_tag' %}";
+    const csrf_token = "{{ csrf_token }}";
+  
+    toggleTag(paper_id, tag, post_url, csrf_token);
   }
 </script>
 {% endblock %}
