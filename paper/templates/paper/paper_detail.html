@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="d-flex justify-content-center">
+  <div class="container-xxl my-2 col-12">
+    <form method="POST" action="{% url 'paper_update' paper.id %}">
+      {% csrf_token %}
+        <div class="row my-2">
+          <div class="col-2 mt-1">
+            <label for="title" class="form-label mt-1">Title</label>
+          </div>
+          <div class="col-10 my-1">
+            <input type="text" class="form-control" id="title" name="title" placeholder="Title" required value="{{ paper.title }}">
+          </div>
+          <div class="col-2 mt-1">
+            <label for="author" class="form-label mt-1 text-right">Author</label>
+          </div>
+          <div class="col-10 my-1">
+            <input type="text" class="form-control" id="author" name="author" placeholder="Author" required value="{{ paper.author }}">
+          </div>
+          <div class="col-2 mt-1">
+            <label for="author" class="form-label mt-1 text-right">Publisher</label>
+          </div>
+          <div class="col-10 my-1">
+            <input type="text" class="form-control" id="publisher" name="publisher" placeholder="Publisher" value="{{ paper.publisher }}">
+          </div>
+          <div class="col-2 mt-1">
+            <label for="publish_date" class="form-label mt-1 text-right">Publish Date</label>
+          </div>
+          <div class="col-10 my-1">
+            <input type="date" class="form-control" id="publish_date" name="publish_date" placeholder="Publish Date" value="{{ paper.publish_date|date:'Y-m-d'}}">
+          </div>
+          <div class="col-2 mt-1">
+            <label for="author" class="form-label mt-1 text-right">DOI</label>
+          </div>
+          <div class="col-10 my-1">
+            <input type="text" class="form-control" id="doi" name="doi" placeholder="DOI" value="{{ paper.doi }}">
+          </div>
+          <div class="col-2 mt-1">
+            <label for="author" class="form-label mt-1 text-right">URL</label>
+          </div>
+          <div class="col-9">
+            <input type="text" class="form-control" id="url" name="url" placeholder="URL" required value="{{ paper.url }}">
+          </div>
+          <div class="col-1 text-end">
+            <a href="{{ paper.url }}">&#x1F517;</a>
+          </div>
+          <div class="col-2 mt-1">
+            <label for="author" class="form-label mt-1 text-right">PDF URL</label>
+          </div>
+          <div class="col-9">
+            <input type="text" class="form-control" id="pdf_url" name="pdf_url" placeholder="PDF URL" required value="{{ paper.pdf_url }}">
+          </div>
+          <div class="col-1 text-end px-3">
+            <a href="{{ paper.pdf_url }}"><img src="{% static 'images/pdf.png' %}" class="icon" alt="{{ paper.pdf_url }}"></a>
+          </div>
+          <div class="col-2 mt-1">
+            <label for="author" class="form-label mt-1 text-right">PDF Name</label>
+          </div>
+          <div class="col-10">
+            <input type="text" class="form-control" id="pdf_name" name="pdf_name" placeholder="PDF Name" value="{{ paper.pdf_name }}">
+          </div>
+          <div class="col-2 mt-1">
+            <label for="author" class="form-label mt-1 text-right">Citations</label>
+          </div>
+          <div class="col-10">
+            <input type="text" class="form-control" id="citations" name="citations" placeholder="Citations" value="{{ paper.citations }}" default="0">
+          </div>
+          <div class="col-2 mt-1">
+            <label for="author" class="form-label mt-1 text-right">Tags</label>
+          </div>
+          <div class="col-10">
+            <input type="text" class="form-control" id="tags" name="tags" placeholder="Tags" value="{{ paper.tags }}" disabled>
+          </div>
+          <div class="col-2 mt-1">
+            <label for="author" class="form-label mt-1 text-right">Note</label>
+          </div>
+          <div class="col-10">
+            <textarea type="text" class="form-control note" id="note" name="note" placeholder="Note">{{ paper.note }}</textarea>
+          </div>
+          <div class="col-12 mt-3 text-center">
+            <button type="submit" class="btn btn-primary mx-2">Submit</button>  
+          </div>
+        </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

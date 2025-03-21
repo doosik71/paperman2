@@ -2,8 +2,10 @@
 async function collectArxiv(topic_id, keywords, max_results, post_url, csrf_token) {
   if (keywords.trim() === "") {
     alert("Keywords are required!");
-    return;
+    return 0;
   }
+
+  var count = 0;
 
   try {
     const papers = await getArxivList(keywords, max_results);
@@ -16,6 +18,8 @@ async function collectArxiv(topic_id, keywords, max_results, post_url, csrf_toke
       const url = paper.getElementsByTagName('id')[0].textContent;
       const note = paper.getElementsByTagName('summary')[0].textContent;
       const pdf_url = url.replace('/abs/', '/pdf/');
+
+      count += 1;
 
       addPaper({
         title: title,
@@ -37,6 +41,8 @@ async function collectArxiv(topic_id, keywords, max_results, post_url, csrf_toke
   }
 
   window.location.reload();
+
+  return count;
 }
 
 function addPaper(paper, url, csrf_token) {
@@ -71,19 +77,18 @@ async function getArxivList(keywords, max_results) {
 }
 
 function renderTags(paper_id, tags, csrf_token) {
-  const full_tags = ["📌", "🔎", "📖", "👍", "⭐", "💡", "✅"];
+  const full_tags = ["📌", "🔎", "📖", "👍", "⭐", "✅"];
   const tooltip = {
     "📌": "Bookmark",
     "🔎": "Reading",
     "📖": "Read",
     "👍": "Like",
     "⭐": "Favorite",
-    "💡": "Idea",
     "✅": "Done",
   }
   const html = full_tags.map(tag => {
     if (tags.includes(tag)) {
-      return `<button class="transparent" onclick="onToggleTag(${paper_id}, '${tag}')" title="${tooltip[tag]}">${tag}</button>`;
+      return `<button class="transparent active" onclick="onToggleTag(${paper_id}, '${tag}')" title="${tooltip[tag]}">${tag}</button>`;
     } else {
       return `<button class="transparent inactive" onclick="onToggleTag(${paper_id}, '${tag}')" title="${tooltip[tag]}">${tag}</button>`;
     }
@@ -93,8 +98,6 @@ function renderTags(paper_id, tags, csrf_token) {
 }
 
 function toggleTag(paper_id, tag, post_url, csrf_token) {
-  console.log(`{paper_id}, {tag}`);
-
   fetch(post_url, {
     method: 'POST',
     headers: {
@@ -105,10 +108,43 @@ function toggleTag(paper_id, tag, post_url, csrf_token) {
       paper_id: paper_id,
       tag: tag
     })
-  })
+  }).then(response => response.json())
+    .then(data => {
+      renderTags(paper_id, data.tags, csrf_token);
+    })
     .catch(error => {
       console.error('Error:', error);
     });
+}
 
-  window.location.reload();
+function onTagFilter(table_id, tag) {
+  console.log(table_id);
+  console.log(tag);
+
+  const table = document.getElementById(table_id);
+  const rows = table.getElementsByTagName('tr');
+
+  if (tag == '🗙') {
+    for (let i = 1; i < rows.length; i++) {
+      rows[i].style.display = '';
+    }
+    return;
+  }
+
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    const td = row.querySelector('td[name="tags"]');
+    const tags = td.querySelectorAll('button.active');
+    let concatenatedText = "";
+
+    tags.forEach(tag => {
+      concatenatedText += tag.innerText;
+    });
+
+    if (concatenatedText.includes(tag)) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  }
 }

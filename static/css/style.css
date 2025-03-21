@@ -57,6 +57,30 @@ button.transparent {
   cursor: pointer;
 }
 
+button.circle {
+  background-color: white;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 50%;
+  color: inherit;
+  cursor: pointer;
+  width: 1.5em;
+  height: 1.5em;
+  display: inline-flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
 button.inactive {
   opacity: 0.3;
+}
+
+img.icon {
+  width: 1em;
+  height: 1em;
+}
+
+textarea.note {
+  height: 200px;
 }

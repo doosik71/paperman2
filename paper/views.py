@@ -1,7 +1,7 @@
 import json
 import logging
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from .models import Paper
 from topic.models import Topic
@@ -9,6 +9,7 @@ from datetime import datetime
 
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def paper_list(request):
@@ -44,21 +45,65 @@ def paper_create(request):
         )
 
         Paper.objects.create(
-            title=title,
-            author=author,
-            publisher=publisher,
+            title=title.strip(),
+            author=author.strip(),
+            publisher=publisher.strip(),
             publish_date=publish_date,
-            doi=doi,
-            url=url,
-            pdf_url=pdf_url,
-            pdf_name=pdf_name,
+            doi=doi.strip(),
+            url=url.strip(),
+            pdf_url=pdf_url.strip(),
+            pdf_name=pdf_name.strip(),
             citations=citations,
-            tags=tags,
-            note=note,
+            tags=tags.strip(),
+            note=note.strip(),
         )
+
+        logger.info(f"Paper created: {title}")
 
         return redirect("paper_list")
     return render(request, "paper/paper_create.html")
+
+
+def paper_detail(request, id):
+    """
+    Show a paper
+    """
+
+    paper = get_object_or_404(Paper, id=id)
+
+    return render(request, "paper/paper_detail.html", {"paper": paper})
+
+
+def paper_update(request, id):
+    """
+    Update a paper
+    """
+
+    paper = get_object_or_404(Paper, id=id)
+
+    if request.method == "POST":
+        paper.title = request.POST["title"].strip()
+        paper.author = request.POST["author"].strip()
+        paper.publisher = request.POST["publisher"].strip()
+        publish_date = request.POST["publish_date"]
+        paper.doi = request.POST["doi"].strip()
+        paper.url = request.POST["url"].strip()
+        paper.pdf_url = request.POST["pdf_url"].strip()
+        paper.pdf_name = request.POST["pdf_name"].strip()
+        paper.citations = request.POST["citations"]
+        paper.tags = request.POST["tags"].strip()
+        paper.note = request.POST["note"].strip()
+
+        publish_date = datetime.strptime(publish_date, "%Y-%m-%d")
+        paper.publish_date = timezone.make_aware(
+            publish_date, timezone.get_current_timezone()
+        )
+
+        paper.save()
+
+        logger.info(f"Paper updated: {paper.title}")
+
+    return render(request, "paper/paper_detail.html", {"paper": paper})
 
 
 def paper_add(request):
@@ -111,17 +156,17 @@ def paper_add(request):
         else:
             try:
                 p = Paper.objects.create(
-                    title=title,
-                    author=author,
-                    publisher=publisher,
+                    title=title.strip(),
+                    author=author.strip(),
+                    publisher=publisher.strip(),
                     publish_date=publish_date,
-                    doi=doi,
-                    url=url,
-                    pdf_url=pdf_url,
-                    pdf_name=pdf_name,
+                    doi=doi.strip(),
+                    url=url.strip(),
+                    pdf_url=pdf_url.strip(),
+                    pdf_name=pdf_name.strip(),
                     citations=citations,
-                    tags=tags,
-                    note=note,
+                    tags=tags.strip(),
+                    note=note.strip(),
                 )
             except Exception as e:
                 logger.error("Error:", e)
@@ -134,6 +179,8 @@ def paper_add(request):
             topic = Topic.objects.get(id=topic_id)
             p.topics.add(topic)
             p.save()
+
+            logger.info(f"Paper added to topic: {p.title} -> {topic.title}")
         except:
             return JsonResponse({"error": f"Failed to add paper to topic"}, status=500)
 
@@ -168,12 +215,15 @@ def paper_tag(request):
             else:
                 p.tags += tag
 
+            p.tags = p.tags.strip()
             p.save()
 
             return JsonResponse({"message": "Tag toggled", "tags": p.tags}, status=200)
         except Paper.DoesNotExist:
             return JsonResponse({"error": "Paper not found"}, status=404)
         except Exception as e:
-            return JsonResponse({"error": f"Failed to toggle tag: {str(e)}"}, status=500)
+            return JsonResponse(
+                {"error": f"Failed to toggle tag: {str(e)}"}, status=500
+            )
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
