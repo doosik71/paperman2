@@ -74,6 +74,16 @@ def paper_detail(request, id):
     return render(request, "paper/paper_detail.html", {"paper": paper})
 
 
+def paper_pdf(request, id):
+    """
+    Show a paper PDF
+    """
+
+    paper = get_object_or_404(Paper, id=id)
+
+    return render(request, "paper/paper_pdf.html", {"paper": paper})
+
+
 def paper_update(request, id):
     """
     Update a paper

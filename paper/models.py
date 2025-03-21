@@ -15,6 +15,7 @@ class Paper(models.Model):
     tags = models.CharField(max_length=256, blank=True)
     update_date = models.DateTimeField(auto_now=True)
     note = models.TextField(blank=True)
+    annotation = models.TextField(blank=True)
     topics = models.ManyToManyField(Topic, related_name="papers")
 
     def __str__(self):

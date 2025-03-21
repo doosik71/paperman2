@@ -84,3 +84,9 @@ img.icon {
 textarea.note {
   height: 200px;
 }
+
+iframe#pdf {
+  width: 100%;
+  height: calc(100vh - 80px);
+  border: 1px solid lightgray;
+}

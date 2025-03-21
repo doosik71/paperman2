@@ -78,13 +78,15 @@
               </script>
             </td>
             <td id="author">{{ paper.author }}</td>
-            <td id="title"><a href="{% url 'paper_detail' paper.id %}"">{{ paper.title }}</a></td>
+            <td id="title"><a href="{% url 'paper_detail' paper.id %}">{{ paper.title }}</a></td>
             <td id="publisher" class=" text-center"><a href="{{ paper.url }}">{{ paper.publisher }}</a></td>
             <td id="publish_date" class="text-center">{{ paper.publish_date|date:"Y.m.d"|default:"N/A" }}</td>
             <td id="citations" class="text-end">{{ paper.citations }} <button class="circle"
                 onclick="onCitation(${paper_id})">&#8634;</button></td>
-            <td id="pdf_url" class="text-center"><a href="{{ paper.pdf_url }}" title="{{ paper.pdf_url }}">
-                <img src="{% static 'images/pdf.png' %}" class="icon" alt="{{ paper.pdf_url }}"></a></td>
+            <td id="pdf_url" class="text-center">
+              <a href="{% url 'paper_pdf' paper.id %}" title="{{ paper.pdf_url }}">
+                <img src="{% static 'images/pdf.png' %}" class="icon" alt="{{ paper.pdf_url }}"></a>
+              </td>
           </tr>
           {% endfor %}
         </tbody>

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="d-flex justify-content-center">
+  <div class="container-xxl my-2 col-12">
+    <iframe id="pdf" name="pdf" title="pdf"></iframe>
+  </div>
+  <div><button class="btn btn-primary" onclick="saveAnnotation()">Save Annotation</button></div>
+</div>
+
+<script>
+  window.onload = function () {
+    const frame = document.getElementById('pdf');
+    frame.src = "{{paper.pdf_url}}";
+
+    // frame.addEventListener('load', async function () {
+    //   console.log('PDF Loaded');
+    //   // await loadAnnotations();
+    // });
+
+    // frame.addEventListener('click', function (event) {
+    //   console.log('PDF clicked at:', event.clientX, event.clientY);
+    //   addAnnotation(event.clientX, event.clientY);
+    //   event.preventDefault();
+    // });
+  }
+
+  // function addAnnotation(x, y) {
+  //   if (!pdfDoc) return console.error('PDF not loaded yet.');
+
+  //   const page = pdfDoc.getPages()[0];
+  //   const { width, height } = page.getSize();
+  //   const textAnnotation = {
+  //     x,
+  //     y: height - y, // 좌표 변환
+  //     text: 'New Annotation'
+  //   };
+
+  //   annotations.push(textAnnotation);
+  //   console.log('Annotation added:', textAnnotation);
+  // }
+
+  // async function loadAnnotations() {
+  //   try {
+  //     const pdfBytes = await fetch("{{ paper.pdf_url }}").then(res => res.arrayBuffer());
+  //     pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+      
+  //     annotations = [];
+  //     pdfDoc.getPages().forEach((page, index) => {
+  //       const annots = page.node.Annots();
+  //       if (annots) {
+  //         annotations.push({ page: index, annots: annots });
+  //       }
+  //     });
+
+  //     console.log('Loaded annotations:', annotations);
+  //   } catch (error) {
+  //     console.error('Error loading annotations:', error);
+  //   }
+  // }
+
+  function saveAnnotation() {
+    // pdf iframe에서 annotation 정보를 가져와서 저장하는 코드
+
+    if (!pdfDoc) return console.error('PDF not loaded.');
+
+    const page = pdfDoc.getPages()[0];
+
+    annotations.forEach(({ x, y, text }) => {
+      page.drawText(text, {
+        x,
+        y,
+        size: 12,
+        color: PDFLib.rgb(1, 0, 0)
+      });
+    });
+
+    const modifiedPdfBytes = await pdfDoc.save();
+    downloadPdf(modifiedPdfBytes);
+
+
+    
+    // fetch('/save-annotation/', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({
+    //     paper_id: "{{ paper.id }}",
+    //     annotations: annotations
+    //   })
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //   if (data.success) {
+    //     alert('Annotations saved successfully!');
+    //   } else {
+    //     alert('Failed to save annotations.');
+    //   }
+    // })
+    // .catch(error => {
+    //   console.error('Error saving annotations:', error);
+    // });
+  }
+</script>
+
+{% endblock %}

@@ -16,6 +16,7 @@
       }
     ],
     "meta-charset-utf-8": "off",
-    "meta-viewport": "off"
+    "meta-viewport": "off",
+    "compat-api/css": "off"
   }
 }
