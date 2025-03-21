@@ -133,7 +133,7 @@ function onTagFilter(table_id, tag) {
 
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
-    const td = row.querySelector('td[name="tags"]');
+    const td = row.querySelector('td[id="tags"]');
     const tags = td.querySelectorAll('button.active');
     let concatenatedText = "";
 

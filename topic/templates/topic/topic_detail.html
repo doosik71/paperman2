@@ -71,19 +71,19 @@
         <tbody>
           {% for paper in papers %}
           <tr>
-            <td name="tags">
+            <td id="tags" width="50px">
               <div class="smaller text-center" id="tag-{{ paper.id }}"></div>
               <script>
                 renderTags({{ paper.id }}, '{{ paper.tags|escapejs  }}')
               </script>
             </td>
-            <td name="author">{{ paper.author }}</td>
-            <td name="title"><a href="{% url 'paper_detail' paper.id %}"">{{ paper.title }}</a></td>
-            <td name="publisher" class=" text-center"><a href="{{ paper.url }}">{{ paper.publisher }}</a></td>
-            <td name="publish_date" class="text-center">{{ paper.publish_date|date:"Y.m.d"|default:"N/A" }}</td>
-            <td name="citations" class="text-end">{{ paper.citations }} <button class="circle"
+            <td id="author">{{ paper.author }}</td>
+            <td id="title"><a href="{% url 'paper_detail' paper.id %}"">{{ paper.title }}</a></td>
+            <td id="publisher" class=" text-center"><a href="{{ paper.url }}">{{ paper.publisher }}</a></td>
+            <td id="publish_date" class="text-center">{{ paper.publish_date|date:"Y.m.d"|default:"N/A" }}</td>
+            <td id="citations" class="text-end">{{ paper.citations }} <button class="circle"
                 onclick="onCitation(${paper_id})">&#8634;</button></td>
-            <td name="pdf_url" class="text-center"><a href="{{ paper.pdf_url }}" title="{{ paper.pdf_url }}">
+            <td id="pdf_url" class="text-center"><a href="{{ paper.pdf_url }}" title="{{ paper.pdf_url }}">
                 <img src="{% static 'images/pdf.png' %}" class="icon" alt="{{ paper.pdf_url }}"></a></td>
           </tr>
           {% endfor %}
@@ -135,11 +135,6 @@
     const csrf_token = "{{ csrf_token }}";
 
     toggleTag(paper_id, tag, post_url, csrf_token);
-    
-    // if (success) {
-    //   tags = 
-    //   renderTags(paper_id, tag);
-    // }
   }
 
   $(document).ready(function () {
