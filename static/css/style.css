@@ -3,7 +3,8 @@ body {
     "Segoe UI", "Droid Sans", "Helvetica Neue",
     "Roboto", "Oxygen", "Ubuntu", "Cantarell",
     "Fira Sans", sans-serif;
-  ;
+
+  overflow-x: hidden;
 }
 
 h1 {
@@ -87,6 +88,31 @@ textarea.note {
 
 iframe#pdf {
   width: 100%;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 70px);
   border: 1px solid lightgray;
+}
+
+table#papers th, table#papers td {
+  padding: 0.2em !important;
+  vertical-align: middle;
+}
+
+.toolbar-border {
+  border: 1px solid lightgray;
+  border-radius: 0.5em;
+}
+
+textarea.full-note {
+  width: 100%;
+  height: calc(100vh - 160px);
+  border: 1px solid lightgray;
+}
+
+div.markdown h1 {
+  font-size: 2em;
+  font-weight: 700;
+}
+
+div.markdown h2 {
+  font-weight: 700;
 }

@@ -5,42 +5,49 @@ async function collectArxiv(topic_id, keywords, max_results, post_url, csrf_toke
     return 0;
   }
 
+  const keywordArray = keywords.split(",").map(keyword => keyword.trim());
   var count = 0;
 
-  try {
-    const papers = await getArxivList(keywords, max_results);
+  for (let i = 0; i < keywordArray.length; i++) {
+    try {
+      const papers = await getArxivList(keywordArray[i], max_results);
 
-    Array.from(papers).forEach(paper => {
-      const title = paper.getElementsByTagName('title')[0].textContent;
-      const authorNodeList = paper.getElementsByTagName('author');
-      const author = Array.from(authorNodeList).map(a => a.getElementsByTagName('name')[0].textContent).join(', ');
-      const publish_date = paper.getElementsByTagName('published')[0].textContent.split('T')[0];
-      const url = paper.getElementsByTagName('id')[0].textContent;
-      const note = paper.getElementsByTagName('summary')[0].textContent;
-      const pdf_url = url.replace('/abs/', '/pdf/');
+      Array.from(papers).forEach(paper => {
+        try {
 
-      count += 1;
+          const title = paper.getElementsByTagName('title')[0].textContent;
+          const authorNodeList = paper.getElementsByTagName('author');
+          const author = Array.from(authorNodeList).map(a => a.getElementsByTagName('name')[0].textContent).join(', ');
+          const publish_date = paper.getElementsByTagName('published')[0].textContent.split('T')[0];
+          const url = paper.getElementsByTagName('id')[0].textContent;
+          const abstract = paper.getElementsByTagName('summary')[0].textContent;
+          const pdf_url = url.replace('/abs/', '/pdf/');
 
-      addPaper({
-        title: title,
-        author: author,
-        publisher: 'arXiv',
-        publish_date: publish_date,
-        doi: '',
-        url: url,
-        pdf_url: pdf_url,
-        pdf_name: title.replace(/\s/g, '_') + '.pdf',
-        citations: '0',
-        tags: '',
-        note: note,
-        topic_id: topic_id
-      }, post_url, csrf_token);
-    });
-  } catch (error) {
-    console.error('Error fetching papers:', error);
+          addPaper({
+            title: title,
+            author: author,
+            publisher: 'arXiv',
+            publish_date: publish_date,
+            doi: '',
+            url: url,
+            pdf_url: pdf_url,
+            pdf_name: title.replace(/\s/g, '_') + '.pdf',
+            citations: '0',
+            tags: '',
+            abstract: abstract,
+            note: '',
+            topic_id: topic_id
+          }, post_url, csrf_token);
+
+          count += 1;
+        } catch (error) {
+          console.error('Error processing paper:', error);
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching papers:', error);
+    }
   }
-
-  window.location.reload();
 
   return count;
 }
@@ -76,7 +83,7 @@ async function getArxivList(keywords, max_results) {
   }
 }
 
-function renderTags(paper_id, tags, csrf_token) {
+function renderTags(paper_id, tags) {
   const full_tags = ["📌", "🔎", "📖", "👍", "⭐", "✅"];
   const tooltip = {
     "📌": "Bookmark",
@@ -94,7 +101,7 @@ function renderTags(paper_id, tags, csrf_token) {
     }
   }).join('');
 
-  document.getElementById(`tag-${paper_id}`).innerHTML = html;
+  document.getElementById(`tags-${paper_id}`).innerHTML = html;
 }
 
 function toggleTag(paper_id, tag, post_url, csrf_token) {
@@ -110,7 +117,7 @@ function toggleTag(paper_id, tag, post_url, csrf_token) {
     })
   }).then(response => response.json())
     .then(data => {
-      renderTags(paper_id, data.tags, csrf_token);
+      renderTags(paper_id, data.tags);
     })
     .catch(error => {
       console.error('Error:', error);
@@ -146,5 +153,75 @@ function onTagFilter(table_id, tag) {
     } else {
       row.style.display = 'none';
     }
+  }
+}
+
+async function renderPDF(frame, pdfUrl, scale) {
+  const pdfBytes = await fetch(pdfUrl).then(res => res.arrayBuffer());
+  const pdfjsDoc = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
+  const numPages = pdfjsDoc.numPages;
+  const iframeDocument = frame.contentDocument || frame.contentWindow.document;
+
+  iframeDocument.body.style.textAlign = 'center';
+  iframeDocument.body.style.margin = '0';
+  iframeDocument.body.style.position = 'relative';
+
+  for (let i = 0; i < numPages; i++) {
+    const pdfjsPage = await pdfjsDoc.getPage(i + 1);
+    const viewport = pdfjsPage.getViewport({ scale: scale });
+    const pageWrapper = document.createElement('div');
+    pageWrapper.style.position = 'relative';
+    pageWrapper.style.width = `${viewport.width}px`;
+    pageWrapper.style.height = `${viewport.height}px`;
+    pageWrapper.style.margin = '0 auto';
+
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+    canvas.style.display = 'block';
+    canvas.style.border = '1px solid lightgray';
+    canvas.style.pointerEvents = 'none';
+
+    await pdfjsPage.render({
+      canvasContext: context,
+      viewport: viewport
+    }).promise;
+
+    const textLayer = document.createElement('div');
+    textLayer.style.position = 'absolute';
+    textLayer.style.top = '0';
+    textLayer.style.left = '0';
+    textLayer.style.width = `${viewport.width}px`;
+    textLayer.style.height = `${viewport.height}px`;
+    textLayer.style.pointerEvents = 'auto';
+    textLayer.style.userSelect = 'text';
+    textLayer.style.zIndex = '10';
+
+    const textContent = await pdfjsPage.getTextContent();
+    textContent.items.forEach(item => {
+      const textDiv = document.createElement('span');
+      textDiv.textContent = item.str;
+      textDiv.style.position = 'absolute';
+      const [fontSize, , , , x, y] = item.transform;
+      const invertedY = viewport.height / scale - y - fontSize;
+      textDiv.style.left = `${x * scale}px`;
+      textDiv.style.top = `${invertedY * scale}px`;
+      textDiv.style.fontSize = `${fontSize * scale}px`;
+      textDiv.style.backgroundColor = 'white';
+      textDiv.style.color = 'black';
+      textDiv.style.padding = '1px';
+      textDiv.style.display = 'inline-block';
+
+      if (item.fontName) {
+        textDiv.style.fontFamily = item.fontName;
+      }
+
+      textLayer.appendChild(textDiv);
+    });
+
+    pageWrapper.appendChild(canvas);
+    pageWrapper.appendChild(textLayer);
+    iframeDocument.body.appendChild(pageWrapper);
   }
 }

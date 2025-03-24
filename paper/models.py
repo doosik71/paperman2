@@ -14,6 +14,7 @@ class Paper(models.Model):
     citations = models.IntegerField(default=0)
     tags = models.CharField(max_length=256, blank=True)
     update_date = models.DateTimeField(auto_now=True)
+    abstract = models.CharField(max_length=1024, blank=True)
     note = models.TextField(blank=True)
     annotation = models.TextField(blank=True)
     topics = models.ManyToManyField(Topic, related_name="papers")

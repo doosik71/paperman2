@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load humanize %}
 {% block content %}
 <div class="d-flex justify-content-center">
   <div class="col-12">
@@ -7,52 +8,53 @@
       {% csrf_token %}
       <div class="container-xxl my-2">
         <div class="row my-2">
-          <div class="col-1">
-            <label for="title" class="form-label mt-1">Title</label>
+          <div class="col-1 text-right">
+            <label for="title" class="form-label fw-bold mt-1">Title</label>
           </div>
           <div class="col-4">
             <input type="text" class="form-control" id="title" name="title" placeholder="Title" required
               value="{{ topic.title }}">
           </div>
-          <div class="col-1">
-            <label for="keywords" class="form-label mt-1 text-right">Keywords</label>
+          <div class="col-1 text-right">
+            <label for="keywords" class="form-label fw-bold mt-1">Keywords</label>
           </div>
           <div class="col-4">
             <input type="text" class="form-control" id="keywords" name="keywords" placeholder="Keywords"
               value="{{ topic.keywords }}" required>
           </div>
-          <div class="col-1">
+          <div class="col-2">
             <button type="button" class="btn btn-primary mx-2"
               onclick="setFormAction('{% url 'topic_update' topic.id %}')">Update</button>
-          </div>
-          <div class="col-1">
-            <button type="button" class="btn btn-danger mx-2"
-              onclick="setFormAction('{% url 'topic_delete' topic.id %}')">Delete</button>
           </div>
         </div>
       </div>
     </form>
-    <div class="container-xxl my-3 mx-auto text-center">
-      <label for="max_results" class="form-label mt-1"># of Results:</label>
-      <select id="max_results" name="max_results">
-        <option value="100">100</option>
-        <option value="200">200</option>
-        <option value="300">300</option>
-        <option value="500">500</option>
-        <option value="1000">1,000</option>
-        <option value="2000">2,000</option>
-        <option value="3000">3,000</option>
-        <option value="5000">5,000</option>
-      </select>
-      <button type="button" class="btn btn-success mx-2" onclick="onCollectArxiv()">Collect Arxiv</button>
-      <label for="max_results" class="form-label mt-1">Tag filter:</label>
-      <button type="button" class="transparent" onclick="onTagFilter('papers', '🗙')">🗙</button>
-      <button type="button" class="transparent" onclick="onTagFilter('papers', '📌')">📌</button>
-      <button type="button" class="transparent" onclick="onTagFilter('papers', '🔎')">🔎</button>
-      <button type="button" class="transparent" onclick="onTagFilter('papers', '📖')">📖</button>
-      <button type="button" class="transparent" onclick="onTagFilter('papers', '👍')">👍</button>
-      <button type="button" class="transparent" onclick="onTagFilter('papers', '⭐')">⭐</button>
-      <button type="button" class="transparent" onclick="onTagFilter('papers', '✅')">✅</button>
+
+    <div class="container">
+      <div
+        class="d-flex w-auto mx-auto mb-3 toolbar-border p-2 shadow-sm bg-light">
+        <div class="d-flex">
+          <label for="max_results" class="form-label mt-1 px-2"># of Results:</label>
+          <select id="max_results" name="max_results">
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="300">300</option>
+            <option value="500">500</option>
+            <option value="1000">1,000</option>
+            <option value="2000">2,000</option>
+          </select>
+          <button type="button" class="btn btn-success mx-2" onclick="onCollectArxiv()">Collect Arxiv</button>
+          <div class="vr mx-3"></div>
+          <label for="max_results" class="form-label mt-1 mx-1">Tag filter:</label>
+          <button type="button" class="transparent" onclick="onTagFilter('papers', '🗙')">🗙</button>
+          <button type="button" class="transparent" onclick="onTagFilter('papers', '📌')">📌</button>
+          <button type="button" class="transparent" onclick="onTagFilter('papers', '🔎')">🔎</button>
+          <button type="button" class="transparent" onclick="onTagFilter('papers', '📖')">📖</button>
+          <button type="button" class="transparent" onclick="onTagFilter('papers', '👍')">👍</button>
+          <button type="button" class="transparent" onclick="onTagFilter('papers', '⭐')">⭐</button>
+          <button type="button" class="transparent" onclick="onTagFilter('papers', '✅')">✅</button>
+        </div>
+      </div>
     </div>
 
     <div class="px-3 mx-auto">
@@ -65,28 +67,40 @@
             <th class="text-center" width="10%">Publisher</th>
             <th class="text-center">Date</th>
             <th class="text-center">Citations</th>
-            <th class="text-center">PDF</th>
+            <th class="text-center">Links</th>
           </tr>
         </thead>
         <tbody>
           {% for paper in papers %}
-          <tr>
-            <td id="tags" width="50px">
-              <div class="smaller text-center" id="tag-{{ paper.id }}"></div>
+          <tr data-paper-id="{{ paper.id }}">
+            <td id="tags" width="50px" class="text-center">
+              <span class="smaller text-center" id="tags-{{ paper.id }}"></span>
               <script>
-                renderTags({{ paper.id }}, '{{ paper.tags|escapejs  }}')
+                renderTags({{ paper.id }}, '{{ paper.tags|escapejs }}')
               </script>
             </td>
             <td id="author">{{ paper.author }}</td>
             <td id="title"><a href="{% url 'paper_detail' paper.id %}">{{ paper.title }}</a></td>
             <td id="publisher" class=" text-center"><a href="{{ paper.url }}">{{ paper.publisher }}</a></td>
             <td id="publish_date" class="text-center">{{ paper.publish_date|date:"Y.m.d"|default:"N/A" }}</td>
-            <td id="citations" class="text-end">{{ paper.citations }} <button class="circle"
-                onclick="onCitation(${paper_id})">&#8634;</button></td>
-            <td id="pdf_url" class="text-center">
-              <a href="{% url 'paper_pdf' paper.id %}" title="{{ paper.pdf_url }}">
-                <img src="{% static 'images/pdf.png' %}" class="icon" alt="{{ paper.pdf_url }}"></a>
-              </td>
+            <td id="citations" class="text-end">
+              <span id="citations-{{ paper.id }}" class="px-2">{{ paper.citations|intcomma }}</span>
+              <button class="mx-2 circle" onclick='onCitation({{paper.id}}, "{{paper.title|escapejs}}")'>&#8634;</button>
+            </td>
+            <td id="links" class="text-center">
+              <a href="{% url 'paper_pdf' paper.id %}" title="Show PDF">
+                <img src="{% static 'images/pdf.png' %}" class="icon" alt="PDF"></a>
+              <a href="{% url 'paper_note' paper.id %}" title="Show Note">
+                <img src="{% static 'images/note.png' %}" class="icon" alt="Note"></a>
+              <a href="https://scholar.google.com/scholar?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
+                target="_blank" rel="noopener">
+                <img src="{% static 'images/google_scholar.png' %}" alt="Google Scholar" class="icon">
+              </a>
+              <a href="https://www.semanticscholar.org/search?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
+                target="_blank" rel="noopener">
+                <img src="{% static 'images/semantic_scholar.png' %}" alt="Semantic Scholar" class="icon">
+              </a>
+            </td>
           </tr>
           {% endfor %}
         </tbody>
@@ -118,9 +132,13 @@
     const csrf_token = "{{ csrf_token }}";
     const max_results = document.getElementById('max_results').value;
 
+    alert("Starting background job!");
+
     const count = await collectArxiv(topic_id, keywords, max_results, post_url, csrf_token);
 
     alert(`Collected ${new Intl.NumberFormat().format(count)} papers`);
+    
+    window.location.reload();
   }
 
   function onCollectScholar() {
@@ -136,12 +154,33 @@
     const post_url = "{% url 'paper_tag' %}";
     const csrf_token = "{{ csrf_token }}";
 
+
     toggleTag(paper_id, tag, post_url, csrf_token);
+  }
+
+  async function onCitation(paper_id, paper_title) {
+    const url = "{% url 'paper_citations' %}".replace('paper_id', paper_id);
+    const csrf_token = "{{ csrf_token }}";
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrf_token
+      },
+      body: JSON.stringify({
+        paper_id: paper_id
+      })
+    }).then(response => response.json())
+      .then(data => {
+        document.getElementById(`citations-${paper_id}`).innerHTML = data.citations;
+      })
+      .catch(error => console.error('Error:', error));
   }
 
   $(document).ready(function () {
     $('#papers').DataTable({
-      "pageLength": 100
+      "pageLength": 25
     });
   });
 </script>

@@ -1,8 +1,6 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,9 +15,10 @@
   <script type="text/javascript" charset="utf8" src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
   <script type="text/javascript" charset="utf8" src="{% static 'js/dataTables-2.2.2.min.js' %}"></script>
   <script type="text/javascript" charset="utf8" src="{% static 'js/pdf-lib.min.js' %}"></script>
+  <script type="text/javascript" charset="utf8" src="{% static 'js/marked-3.0.7.min.js' %}"></script>
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
   <title>Paper Manager</title>
 </head>
-
 <body>
   <header>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -31,25 +30,18 @@
               <a class="nav-link" href="/">Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/paper">Paper</a>
+              <a class="nav-link" href="/paper/list">Paper</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/topic">Topic</a>
+              <a class="nav-link" href="/topic/list">Topic</a>
             </li>
           </ul>
         </div>
       </div>
     </nav>
   </header>
-
   <main>
     {% block content %}{% endblock %}
   </main>
-
-  <footer>
-    <hr />
-    <div class="text-center">©2025 Paper Manager</div>
-  </footer>
 </body>
-
 </html>

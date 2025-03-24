@@ -1,11 +1,7 @@
-import logging
+import logger
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Topic
 from paper.models import Paper
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 def topic_list(request):

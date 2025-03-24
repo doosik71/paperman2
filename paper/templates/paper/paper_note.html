@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="d-flex justify-content-center">
+  <div class="m-2 col-12">
+    <div class="d-flex">
+      <div class="flex-fill col-6 m-2">
+        <form method="POST" action="{% url 'paper_update_note' paper.id %}">
+          {% csrf_token %}
+          <div class="row my-2">
+            <div class="col-12">
+              <textarea type="text" class="form-control full-note" id="note" name="note"
+                placeholder="Note">{{ paper.note|safe }}</textarea>
+            </div>
+            <div class="col-12 mt-3 text-center">
+              <button type="submit" class="btn btn-primary mx-2">Save</button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="flex-fill col-6 m-2 my-3 border rounded">
+        <div id="output" class="markdown m-2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const markdownInput = document.getElementById('note');
+  const htmlOutput = document.getElementById('output');
+
+  markdownInput.addEventListener('input', () => {
+    updateMarkdown();
+  });
+
+  function updateMarkdown() {
+    const markdownText = markdownInput.value;
+    htmlOutput.innerHTML = marked(markdownText);
+
+  }
+  $(document).ready(function () {
+    updateMarkdown();
+  });
+</script>
+{% endblock %}

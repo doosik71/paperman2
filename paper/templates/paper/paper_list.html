@@ -1,13 +1,60 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block content %}
+<div class="container-fluid my-2">
+  <div class="row">
+    <div class="col-12 d-flex justify-content-center">
+      <a href="{% url 'paper_create' %}" class="btn btn-primary mx-2">Add</a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="px-3 mx-auto">
+        <table id="papers" class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th class="text-center">Tags</th>
+              <th class="text-center" width="20%">Author</th>
+              <th class="text-center" width="50%">Title</th>
+              <th class="text-center" width="10%">Publisher</th>
+              <th class="text-center">Date</th>
+              <th class="text-center">Citations</th>
+              <th class="text-center">PDF</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for paper in papers %}
+            <tr>
+              <td id="tags" width="50px">
+                <span class="smaller text-center" id="tags-{{ paper.id }}"></span>
+                <script>
+                  renderTags({{ paper.id }}, '{{ paper.tags|escapejs  }}')
+                </script>
+              </td>
+              <td id="author">{{ paper.author }}</td>
+              <td id="title"><a href="{% url 'paper_detail' paper.id %}">{{ paper.title }}</a></td>
+              <td id="publisher" class=" text-center"><a href="{{ paper.url }}">{{ paper.publisher }}</a></td>
+              <td id="publish_date" class="text-center">{{ paper.publish_date|date:"Y.m.d"|default:"N/A" }}</td>
+              <td id="citations" class="text-end">{{ paper.citations }} <button class="circle"
+                  onclick=`onCitation(${paper_id})>&#8634;</button></td>
+              <td id="pdf_url" class="text-center">
+                <a href="{% url 'paper_pdf' paper.id %}" title="{{ paper.pdf_url }}">
+                  <img src="{% static 'images/pdf.png' %}" class="icon" alt="{{ paper.pdf_url }}"></a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
-<h1>게시글 목록</h1>
-<a href="{% url 'paper_create' %}">새 글 작성</a>
-<ul>
-  {% for paper in papers %}
-  <li><strong>{{ paper.title }}</strong> - {{ paper.author }}</li>
-  {% endfor %}
-</ul>
-
+<script>
+  $(document).ready(function () {
+    $('#papers').DataTable({
+      "pageLength": 25
+    });
+  });
+</script>
 {% endblock %}

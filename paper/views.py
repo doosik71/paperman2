@@ -1,15 +1,17 @@
 import json
-import logging
+import logger
+import requests
+import re
+import time
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from .models import Paper
 from topic.models import Topic
 from datetime import datetime
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+from django.db.models import Count
+from urllib.parse import urlencode
+from bs4 import BeautifulSoup
 
 
 def paper_list(request):
@@ -17,8 +19,12 @@ def paper_list(request):
     List all papers
     """
 
-    papers = Paper.objects.all().order_by("-publish_date")
-    return render(request, "paper/paper_list.html", {"papers": papers})
+    # papers = Paper.objects.all().order_by("-publish_date")
+    papers_without_topics = Paper.objects.annotate(num_topics=Count("topics")).filter(
+        num_topics=0
+    )
+
+    return render(request, "paper/paper_list.html", {"papers": papers_without_topics})
 
 
 def paper_create(request):
@@ -37,6 +43,7 @@ def paper_create(request):
         pdf_name = request.POST["pdf_name"]
         citations = request.POST["citations"]
         tags = request.POST["tags"]
+        abstract = request.POST["abstract"]
         note = request.POST["note"]
 
         publish_date = datetime.strptime(publish_date, "%Y-%m-%d")
@@ -55,12 +62,14 @@ def paper_create(request):
             pdf_name=pdf_name.strip(),
             citations=citations,
             tags=tags.strip(),
+            abstract=abstract.strip(),
             note=note.strip(),
         )
 
         logger.info(f"Paper created: {title}")
 
         return redirect("paper_list")
+
     return render(request, "paper/paper_create.html")
 
 
@@ -84,6 +93,16 @@ def paper_pdf(request, id):
     return render(request, "paper/paper_pdf.html", {"paper": paper})
 
 
+def paper_note(request, id):
+    """
+    Show a paper note
+    """
+
+    paper = get_object_or_404(Paper, id=id)
+
+    return render(request, "paper/paper_note.html", {"paper": paper})
+
+
 def paper_update(request, id):
     """
     Update a paper
@@ -102,6 +121,7 @@ def paper_update(request, id):
         paper.pdf_name = request.POST["pdf_name"].strip()
         paper.citations = request.POST["citations"]
         paper.tags = request.POST["tags"].strip()
+        paper.abstract = request.POST["abstract"].strip()
         paper.note = request.POST["note"].strip()
 
         publish_date = datetime.strptime(publish_date, "%Y-%m-%d")
@@ -116,87 +136,106 @@ def paper_update(request, id):
     return render(request, "paper/paper_detail.html", {"paper": paper})
 
 
+def paper_update_note(request, id):
+    """
+    Update a paper note
+    """
+
+    paper = get_object_or_404(Paper, id=id)
+
+    if request.method == "POST":
+        paper.note = request.POST["note"].strip()
+
+        paper.save()
+
+        logger.info(f"Paper's note updated: {paper.title}")
+
+    return render(request, "paper/paper_note.html", {"paper": paper})
+
+
 def paper_add(request):
     """
     Add a paper to the database
     """
 
-    if request.method == "POST":
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        title = data.get("title")
+        author = data.get("author")
+        publisher = data.get("publisher")
+        publish_date = data.get("publish_date")
+        doi = data.get("doi")
+        url = data.get("url")
+        pdf_url = data.get("pdf_url")
+        pdf_name = data.get("pdf_name")
+        citations = data.get("citations")
+        tags = data.get("tags")
+        abstract = data.get("abstract")
+        note = data.get("note")
+        topic_id = data.get("topic_id")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    if not title:
+        return JsonResponse({"error": "Title is required"}, status=400)
+
+    if not author:
+        return JsonResponse({"error": "Author is required"}, status=400)
+
+    if not url:
+        return JsonResponse({"error": "Url is required"}, status=400)
+
+    if not pdf_url:
+        return JsonResponse({"error": "PDF url is required"}, status=400)
+
+    try:
+        publish_date = datetime.strptime(publish_date, "%Y-%m-%d")
+        publish_date = timezone.make_aware(
+            publish_date, timezone.get_current_timezone()
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"error": f"Invalid publish_date format: {str(e)}"}, status=400
+        )
+
+    if Paper.objects.filter(url=url).exists():
+        p = Paper.objects.get(url=url)
+    else:
         try:
-            data = json.loads(request.body)
-            title = data.get("title")
-            author = data.get("author")
-            publisher = data.get("publisher")
-            publish_date = data.get("publish_date")
-            doi = data.get("doi")
-            url = data.get("url")
-            pdf_url = data.get("pdf_url")
-            pdf_name = data.get("pdf_name")
-            citations = data.get("citations")
-            tags = data.get("tags")
-            note = data.get("note")
-            topic_id = data.get("topic_id")
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON"}, status=400)
-
-        if not title:
-            return JsonResponse({"error": "Title is required"}, status=400)
-
-        if not author:
-            return JsonResponse({"error": "Author is required"}, status=400)
-
-        if not url:
-            return JsonResponse({"error": "Url is required"}, status=400)
-
-        if not pdf_url:
-            return JsonResponse({"error": "PDF url is required"}, status=400)
-
-        try:
-            publish_date = datetime.strptime(publish_date, "%Y-%m-%d")
-            publish_date = timezone.make_aware(
-                publish_date, timezone.get_current_timezone()
+            p = Paper.objects.create(
+                title=title.strip(),
+                author=author.strip(),
+                publisher=publisher.strip(),
+                publish_date=publish_date,
+                doi=doi.strip(),
+                url=url.strip(),
+                pdf_url=pdf_url.strip(),
+                pdf_name=pdf_name.strip(),
+                citations=citations,
+                tags=tags.strip(),
+                abstract=abstract.strip(),
+                note=note.strip(),
             )
         except Exception as e:
+            logger.error("Error:", e)
+
             return JsonResponse(
-                {"error": f"Invalid publish_date format: {str(e)}"}, status=400
+                {"error": f"Failed to create paper: {str(e)}"}, status=500
             )
 
-        if Paper.objects.filter(url=url).exists():
-            p = Paper.objects.get(url=url)
-        else:
-            try:
-                p = Paper.objects.create(
-                    title=title.strip(),
-                    author=author.strip(),
-                    publisher=publisher.strip(),
-                    publish_date=publish_date,
-                    doi=doi.strip(),
-                    url=url.strip(),
-                    pdf_url=pdf_url.strip(),
-                    pdf_name=pdf_name.strip(),
-                    citations=citations,
-                    tags=tags.strip(),
-                    note=note.strip(),
-                )
-            except Exception as e:
-                logger.error("Error:", e)
+    try:
+        topic = Topic.objects.get(id=topic_id)
+        p.topics.add(topic)
+        p.save()
 
-                return JsonResponse(
-                    {"error": f"Failed to create paper: {str(e)}"}, status=500
-                )
+        logger.info(f"Paper added to topic: {p.title} -> {topic.title}")
+    except:
+        return JsonResponse({"error": f"Failed to add paper to topic"}, status=500)
 
-        try:
-            topic = Topic.objects.get(id=topic_id)
-            p.topics.add(topic)
-            p.save()
-
-            logger.info(f"Paper added to topic: {p.title} -> {topic.title}")
-        except:
-            return JsonResponse({"error": f"Failed to add paper to topic"}, status=500)
-
-        return JsonResponse({"message": "Paper added successfully"}, status=201)
-
-    return JsonResponse({"error": "Invalid request method"}, status=405)
+    return JsonResponse({"message": "Paper added successfully"}, status=201)
 
 
 def paper_tag(request):
@@ -204,36 +243,136 @@ def paper_tag(request):
     Toggle a paper tag
     """
 
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            paper_id = data.get("paper_id")
-            tag = data.get("tag")
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON"}, status=400)
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
 
-        if not paper_id:
-            return JsonResponse({"error": "Paper ID is required"}, status=400)
+    try:
+        data = json.loads(request.body)
+        paper_id = data.get("paper_id")
+        tag = data.get("tag")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
 
-        if not tag:
-            return JsonResponse({"error": "Tag is required"}, status=400)
+    if not paper_id:
+        return JsonResponse({"error": "Paper ID is required"}, status=400)
 
-        try:
-            p = Paper.objects.get(id=paper_id)
-            if tag in p.tags:
-                p.tags = p.tags.replace(tag, "")
-            else:
-                p.tags += tag
+    if not tag:
+        return JsonResponse({"error": "Tag is required"}, status=400)
 
-            p.tags = p.tags.strip()
-            p.save()
+    try:
+        p = Paper.objects.get(id=paper_id)
+        if tag in p.tags:
+            p.tags = p.tags.replace(tag, "")
+        else:
+            p.tags += tag
 
-            return JsonResponse({"message": "Tag toggled", "tags": p.tags}, status=200)
-        except Paper.DoesNotExist:
-            return JsonResponse({"error": "Paper not found"}, status=404)
-        except Exception as e:
-            return JsonResponse(
-                {"error": f"Failed to toggle tag: {str(e)}"}, status=500
-            )
+        p.tags = p.tags.strip()
+        p.save()
 
-    return JsonResponse({"error": "Invalid request method"}, status=405)
+        return JsonResponse({"message": "Tag toggled", "tags": p.tags}, status=200)
+    except Paper.DoesNotExist:
+        return JsonResponse({"error": "Paper not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": f"Failed to toggle tag: {str(e)}"}, status=500)
+
+
+def paper_citations(request):
+    """
+    Update paper's citations by using semantic scholar.
+    """
+
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        paper_id = data.get("paper_id")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    paper = get_object_or_404(Paper, id=paper_id)
+    params = urlencode(
+        {"query": paper.author + ", " + paper.title, "fields": "title,citationCount"}
+    )
+
+    base_url = "https://api.semanticscholar.org/graph/v1/paper/search"
+
+    for _ in range(10):
+        response = requests.get(f"{base_url}?{params}")
+        if response.status_code == 200:
+            break
+        else:
+            time.sleep(1)
+
+    if response.status_code == 200:
+        data = response.json()
+        if "data" in data and len(data["data"]) > 0:
+            paper.citations = data["data"][0].get("citationCount", 0)
+
+            try:
+                paper.save()
+            except Exception as e:
+                logger.error(e)
+
+            return JsonResponse({"citations": paper.citations}, status=200)
+
+    return JsonResponse({"citations": 0}, status=400)
+
+
+def paper_citations_google_scholar(request):
+    """
+    Update paper's citations by using google scholar. (INCOMPLETE)
+    """
+
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        paper_id = data.get("paper_id")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    paper = get_object_or_404(Paper, id=paper_id)
+    query = {
+        "hl": "en",
+        "as_sdt": "0,5",
+        "q": paper.author + ", " + paper.title,
+        "btnG": "",
+    }
+    query = urlencode(query).replace("%22", '"')
+    url = "https://scholar.google.com/scholar?" + query
+    logger.info(url)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        logger.info(response.text)
+        soup = BeautifulSoup(response.text, "html.parser")
+        gs_ri_divs = soup.find_all("div", class_="gs_ri")
+        logger.info(gs_ri_divs)
+
+        if gs_ri_divs:
+            gs_ri_html = [str(div) for div in gs_ri_divs]
+            logger.info("here 2")
+
+            if len(gs_ri_html) > 0:
+                match = re.search(r">Cited by (\d+)<", gs_ri_html[0])
+
+                logger.info("here 3")
+
+                if match:
+                    paper.citations = int(match.group(1))
+                    logger.info("here 4")
+
+                    try:
+                        logger.info("here 5")
+                        paper.save()
+                    except Exception as e:
+                        logger.error(e)
+
+                    return JsonResponse({"citations": paper.citations}, status=200)
+
+    return JsonResponse({"citations": 0}, status=400)
