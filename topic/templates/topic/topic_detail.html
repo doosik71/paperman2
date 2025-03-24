@@ -132,28 +132,25 @@
     const csrf_token = "{{ csrf_token }}";
     const max_results = document.getElementById('max_results').value;
 
-    alert("Starting background job!");
+    alert(`Starting background task!\nTrying to collect ${new Intl.NumberFormat().format(max_results)} papers.\nDo not change web page until task is completed!`);
 
     const count = await collectArxiv(topic_id, keywords, max_results, post_url, csrf_token);
 
-    alert(`Collected ${new Intl.NumberFormat().format(count)} papers`);
-    
-    window.location.reload();
+    alert(`${new Intl.NumberFormat().format(count)} papers are collected!\nPlease check your console before closing this message!`);
   }
 
-  function onCollectScholar() {
-    const topic_id = "{{ topic.id }}";
-    const keywords = document.getElementById('keywords').value;
-    const post_url = "{% url 'paper_add' %}";
-    const csrf_token = "{{ csrf_token }}";
+  // function onCollectScholar() {
+  //   const topic_id = "{{ topic.id }}";
+  //   const keywords = document.getElementById('keywords').value;
+  //   const post_url = "{% url 'paper_add' %}";
+  //   const csrf_token = "{{ csrf_token }}";
 
-    collectArxiv(topic_id, keywords, 30, post_url, csrf_token)
-  }
+  //   collectArxiv(topic_id, keywords, 30, post_url, csrf_token)
+  // }
 
   function onToggleTag(paper_id, tag) {
     const post_url = "{% url 'paper_tag' %}";
     const csrf_token = "{{ csrf_token }}";
-
 
     toggleTag(paper_id, tag, post_url, csrf_token);
   }
