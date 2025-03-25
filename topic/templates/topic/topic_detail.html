@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% load static %}
-{% load humanize %}
 {% block content %}
 <script>
   function setFormAction(actionUrl) {
@@ -30,7 +29,7 @@
     })
       .catch(error => alert('Error:', error));
 
-    alert("Starting server tasks! Check server console!");
+    alert("Starting server tasks!\nPlease check your console before closing this message!");
   }
 
 </script>
@@ -75,7 +74,7 @@
     </div>
     <div class="row">
       <div class="d-flex w-auto mx-auto mb-3 toolbar toolbar-border px-3 py-2 shadow-sm bg-light">
-        <label for="max_results" class="form-label mt-2 mx-2"># of Results:</label>
+        <label for="max_results" class="form-label mt-2 mx-2"># of papers:</label>
         <select id="max_results" name="max_results">
           <option value="100">100</option>
           <option value="200">200</option>
@@ -86,7 +85,7 @@
         </select>
         <button type="button" class="btn btn-success mx-3" onclick="onCollectArxiv()">Collect Arxiv</button>
         <div class="vr mx-3"></div>
-        <label for="max_results" class="form-label mt-2 mx-2">Tag filter:</label>
+        <label class="form-label mt-2 mx-2">Tags:</label>
         <button type="button" class="transparent" onclick="onTagFilter('papers', '🗙')">🗙</button>
         <button type="button" class="transparent" onclick="onTagFilter('papers', '📌')">📌</button>
         <button type="button" class="transparent" onclick="onTagFilter('papers', '🔎')">🔎</button>
@@ -95,6 +94,7 @@
         <button type="button" class="transparent" onclick="onTagFilter('papers', '⭐')">⭐</button>
         <button type="button" class="transparent" onclick="onTagFilter('papers', '✅')">✅</button>
         <div class="vr mx-3"></div>
+        <label class="form-label mt-2 mx-2">Citations:</label>
         <button class="m-2 balloon" onclick='onAllCitation({{ topic.id }})'>All &#8634;</button>
       </div>
     </div>
@@ -103,20 +103,20 @@
     <table id="papers" class="table table-bordered table-hover">
       <thead>
         <tr>
-          <th class="text-center">Tags</th>
-          <th class="text-center" width="20%">Author</th>
-          <th class="text-center" width="50%">Title</th>
+          <th class="text-center" width="11%">Tags</th>
+          <th class="text-center" width="18%">Author</th>
+          <th class="text-center" width="38%">Title</th>
           <th class="text-center" width="10%">Publisher</th>
-          <th class="text-center">Date</th>
-          <th class="text-center">Citations</th>
-          <th class="text-center">Links</th>
+          <th class="text-center" width="7%">Date</th>
+          <th class="text-center" width="7%">Citations</th>
+          <th class="text-center" width="9%">Links</th>
         </tr>
       </thead>
       <tbody>
         {% for paper in papers %}
         <tr data-paper-id="{{ paper.id }}">
           <td id="tags" width="50px" class="text-center">
-            <span class="smaller text-center" id="tags-{{ paper.id }}"></span>
+            <span class="text-center" id="tags-{{ paper.id }}"></span>
             <script>
               renderTags({{ paper.id }}, '{{ paper.tags|escapejs }}')
             </script>
@@ -126,20 +126,20 @@
           <td id="publisher" class=" text-center"><a href="{{ paper.url }}">{{ paper.publisher }}</a></td>
           <td id="publish_date" class="text-center">{{ paper.publish_date|date:"Y.m.d"|default:"-" }}</td>
           <td id="citations" class="text-end">
-            <span id="citations-{{ paper.id }}" class="px-2">{{ paper.citations|default_if_none:"-"|intcomma }}</span>
+            <span id="citations-{{ paper.id }}" class="px-2">{{ paper.citations|default_if_none:"-" }}</span>
             <button class="mx-2 circle" onclick='onCitation({{ paper.id }})'>&#8634;</button>
           </td>
           <td id="links" class="text-center">
-            <a href="{% url 'paper_pdf' paper.id %}" title="Show PDF">
+            <a href="{% url 'paper_pdf' paper.id %}" class="mx-1" title="Show PDF">
               <img src="{% static 'images/pdf.png' %}" class="icon" alt="PDF"></a>
-            <a href="{% url 'paper_note' paper.id %}" title="Show Note">
+            <a href="{% url 'paper_note' paper.id %}" class="mx-1" title="Show Note">
               <img src="{% static 'images/note.png' %}" class="icon" alt="Note"></a>
             <a href="https://scholar.google.com/scholar?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
-              target="_blank" rel="noopener">
+              class="mx-1" target="_blank" rel="noopener">
               <img src="{% static 'images/google_scholar.png' %}" alt="Google Scholar" class="icon">
             </a>
             <a href="https://www.semanticscholar.org/search?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
-              target="_blank" rel="noopener">
+              class="mx-1" target="_blank" rel="noopener">
               <img src="{% static 'images/semantic_scholar.png' %}" alt="Semantic Scholar" class="icon">
             </a>
           </td>

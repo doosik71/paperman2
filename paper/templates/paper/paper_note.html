@@ -14,7 +14,7 @@
     </div>
     {% endif %}
   </div>
-  <div class="d-flex">
+  <div class="d-flex container-1800px">
     <div class="flex-fill col-6 m-2">
       <form method="POST" action="{% url 'paper_update_note' paper.id %}">
         {% csrf_token %}
@@ -24,6 +24,10 @@
               placeholder="Note">{{ paper.note|safe }}</textarea>
           </div>
           <div class="col-12 mt-3 text-center">
+            <button type="button" class="btn btn-warning mx-2" onclick='importPDF("{{ paper.pdf_url }}")'>Import
+              PDF</button>
+            <button type="button" class="btn btn-success mx-2" onclick='summarizeBOT()'>Summarize</button>
+            <button type="button" class="btn btn-secondary mx-2" onclick='translateBOT()'>Translate</button>
             <button type="submit" class="btn btn-primary mx-2">Save</button>
           </div>
         </div>
@@ -37,16 +41,85 @@
 <script>
   const markdownInput = document.getElementById('note');
   const htmlOutput = document.getElementById('output');
+  const model = "deepseek-r1:32b";
+  const llmUrl = "http://10.254.233.67:11434/api/generate";
 
   markdownInput.addEventListener('input', () => {
     updateMarkdown();
   });
 
   function updateMarkdown() {
-    const markdownText = markdownInput.value;
-    htmlOutput.innerHTML = marked(markdownText);
-
+    htmlOutput.innerHTML = marked(markdownInput.value);
   }
+
+  async function importPDF(pdfUrl) {
+    if (markdownInput.value.trim() != "") {
+      alert("Note is not empty!");
+      return;
+    }
+
+    const pdfBytes = await fetch(pdfUrl).then(res => res.arrayBuffer());
+    const pdfjsDoc = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
+    let fullText = '';
+
+    for (let pageNum = 1; pageNum <= pdfjsDoc.numPages; pageNum++) {
+      const page = await pdfjsDoc.getPage(pageNum);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map(item => item.str).join(' ');
+      fullText += pageText + '\n';
+    }
+
+    markdownInput.value = fullText;
+  }
+
+  async function requestBOT(question) {
+    try {
+      const response = await fetch(llmUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: model,
+          prompt: question,
+          stream: false
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      if (!data.response) {
+        throw new Error("Error: No response received from API.");
+      }
+
+      markdownInput.value = data.response.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+      updateMarkdown();
+    } catch (e) {
+      alert("Error: " + e.message);
+      console.error(e);
+    }
+  }
+
+  async function summarizeBOT() {
+    const prompt = "Write a detailed analysis report on the following paper in Markdown format using bullet points."
+    const question = prompt + "\n---\nPAPER: " + markdownInput.value.trim();
+
+    alert("Sending request!\nIt may take quite some time to receive a response.");
+    requestBOT(question);
+  }
+
+  async function translateBOT() {
+    const prompt = "Please translate the following text into Korean.";
+    const question = prompt + "\n---\nTEXT: " + markdownInput.value.trim();
+
+    alert("Sending request!\nIt may take quite some time to receive a response.");
+    requestBOT(question);
+  }
+
   $(document).ready(function () {
     updateMarkdown();
   });

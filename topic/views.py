@@ -1,9 +1,11 @@
 import logger
+import time
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Topic
 from paper.models import Paper
+from paper.views import update_paper_citations
 
 
 def topic_list(request):
@@ -93,10 +95,18 @@ def topic_citations(request, id):
 
     if request.method == "POST":
         papers = Paper.objects.filter(topics=topic)
-        
-        
+        count = len(papers)
 
-        message = f'Processing citations for all papers in topic: "{topic.title}"'
+        logger.info(f'Updating citations on the topic: "{topic.title}"')
+
+        for index, paper in enumerate(papers):
+            if paper.citations is None:
+                logger.info(f'Processing {index + 1:,} of {count:,}')
+                update_paper_citations(paper)
+                time.sleep(1)
+
+        logger.info(f'Complete citations on the topic: "{topic.title}"')
+
         return JsonResponse({"message": "ok"}, status=200)
 
     return JsonResponse({"error": "Invalid request"}, status=400)

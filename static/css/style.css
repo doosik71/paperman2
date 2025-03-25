@@ -31,6 +31,11 @@ h6 {
   font-size: 1rem;
 }
 
+p {
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
 a {
   color: dodgerblue;
   text-decoration: none;
@@ -152,4 +157,32 @@ button.message {
   border: none;
   font-size: 1em;
   cursor: pointer;
+}
+
+.container-1600px {
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.container-1800px {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+w-100px {
+  width: 100px;
+}
+
+w-120px {
+  width: 120px;
+}
+
+w-140px {
+  width: 140px;
+}
+
+w-160px {
+  width: 160px;
 }

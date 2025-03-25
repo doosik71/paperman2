@@ -113,6 +113,12 @@
             <textarea type="abstract" class="form-control note" id="abstract" name="abstract"
               placeholder="Abstract">{{ paper.abstract|safe }}</textarea>
           </div>
+          <div class="col-1 pt-2">
+            <a href="https://www.bing.com/translator?from=en&to=ko&text={{paper.abstract|escapejs}}"
+              target="_blank" rel="noopener">
+              <img src="{% static 'images/korean.png' %}" alt="Translate to Korean" class="icon">
+            </a>
+          </div>
           <div class="col-2 text-right mt-1">
             <label for="author" class="form-label">Note</label>
           </div>
