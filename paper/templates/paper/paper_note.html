@@ -16,7 +16,7 @@
   </div>
   <div class="d-flex container-1800px">
     <div class="flex-fill col-6 m-2" id="left-panel">
-      <form method="POST" action="{% url 'paper_update_note' paper.id %}">
+      <form id="note-form" method="POST">
         {% csrf_token %}
         <div class="row my-2">
           <div class="col-auto mx-0">
@@ -31,7 +31,7 @@
               PDF</button>
             <button type="button" class="btn btn-success mx-2" onclick='summarizeBOT()'>Summarize</button>
             <button type="button" class="btn btn-warning mx-2" onclick='translateBOT()'>Translate</button>
-            <button type="submit" class="btn btn-primary mx-2">Save</button>
+            <button type="button" class="btn btn-primary mx-2" onclick='onSave()'>Save</button>
           </div>
         </div>
       </form>
@@ -155,6 +155,24 @@
 
     alert("Sending request!\nIt may take quite some time to receive a response.");
     requestBOT(question);
+  }
+
+  async function onSave() {
+    $.ajax({
+      url: "{% url 'paper_update_note' paper.id %}",
+      type: "POST",
+      data: {
+        note: markdownInput.value,
+        csrfmiddlewaretoken: "{{ csrf_token }}"
+      },
+      success: function(response) {
+        alert("Note saved successfully!");
+      },
+      error: function(xhr, msg, err) {
+        alert("Error: " + msg);
+        console.error(err);
+      }
+    });
   }
 
   $(document).ready(function () {

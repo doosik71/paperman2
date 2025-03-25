@@ -133,11 +133,40 @@ textarea.full-note, div.markdown {
 
 div.markdown h1 {
   font-size: 2em;
-  font-weight: 700;
 }
 
 div.markdown h2 {
+  font-size: 1.6em;
+}
+
+div.markdown h3 {
+  font-size: 1.4em;
+}
+
+div.markdown h4 {
+  font-size: 1.2em;
+}
+
+div.markdown h5 {
+  font-size: 1.1em;
+}
+
+div.markdown h1,
+div.markdown h2,
+div.markdown h3,
+div.markdown h4,
+div.markdown h5 {
   font-weight: 700;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+div.markdown ol, div.markdown ul {
+  padding-left: 1.5em;
+}
+
+div.markdown i, div.markdown em {
+  color: orangered;
 }
 
 div.message {
