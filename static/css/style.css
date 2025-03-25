@@ -129,6 +129,11 @@ textarea.full-note, div.markdown {
   overflow: scroll;
 }
 
+div.CodeMirror {
+  height: calc(100vh - 180px);
+
+}
+
 iframe#pdf.full-note {
   height: calc(100vh - 130px);
 }

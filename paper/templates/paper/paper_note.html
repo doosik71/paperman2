@@ -23,10 +23,10 @@
         placeholder="Note">{{ paper.note|safe }}</textarea>
     </div>
     <div class="flex-fill col-6 m-2" id="markdown-panel">
-      <div id="markdown" class="border rounded markdown"></div>
+      <div id="markdown" class="border rounded markdown p-2"></div>
     </div>
   </div>
-  <div class="col-12 mt-2 text-center">
+  <div class="col-12 text-center">
     <select id="view-mode" title="View Mode" class="form-control inline" onchange="onViewMode()">
       <option>PDF</option>
       <option>Note</option>
@@ -50,10 +50,19 @@
   const markdownPanel = $("#markdown-panel");
   const model = "deepseek-r1:32b";
   const llmUrl = "http://10.254.233.67:11434/api/generate";
+  var simplemde = new SimpleMDE({
+    element: noteControl,
+    status: false,
+    spellChecker: false,
+  });
 
-  noteControl.addEventListener('input', () => {
+  simplemde.codemirror.on("change", () => {
     updateMarkdown();
   });
+
+  // noteControl.addEventListener('input', () => {
+  //   updateMarkdown();
+  // });
 
   function onLeftButton() {
     if (!markdownPanel.is(":visible")) {
@@ -96,17 +105,20 @@
   }
 
   function updateMarkdown() {
-    markdownControl.innerHTML = marked(noteControl.value);
+    // let markdown = noteControl.value;
+    let markdown = simplemde.value();
+    markdown = marked(markdown);
+
+    const regex = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Cyrillic}\p{Script=Devanagari}]/gu;
+    markdown = markdown.replace(regex, match => `<span style="color: red;">${match}</span>`);
+    markdownControl.innerHTML = markdown;
   }
 
   async function onImportPDF(pdfUrl) {
-    if (noteControl.value.trim() != "") {
-      alert("Note is not empty!");
-      return;
-    }
-
     try {
-      noteControl.value = await extractPDF(pdfUrl);
+      // noteControl.value = await extractPDF(pdfUrl) + '\n\n---\n\n' + noteControl.value;
+      simplemde.value(await extractPDF(pdfUrl) + '\n\n---\n\n' + simplemde.value());
+      updateMarkdown();
     } catch (e) {
       alert("Error: " + e.message);
     }
@@ -136,7 +148,8 @@
         throw new Error("Error: No response received from API.");
       }
 
-      noteControl.value = data.response.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+      // noteControl.value = data.response.replace(/<think>[\s\S]*?<\/think>/g, '').trim() + '\n\n---\n\n' + noteControl.value;
+      simplemde.value(data.response.replace(/<think>[\s\S]*?<\/think>/g, '').trim() + '\n\n---\n\n' + simplemde.value());
       updateMarkdown();
     } catch (e) {
       alert("Error: " + e.message);
@@ -146,17 +159,19 @@
 
   async function summarizeBOT() {
     const prompt = "Write a very detailed analysis report for the following paper in Markdown format using bullet points."
-    const question = prompt + "\n---\nPAPER: " + noteControl.value.trim();
+    // const question = prompt + "\n\n---\n\nPAPER: " + noteControl.value.trim();
+    const question = prompt + "\n\n---\n\nPAPER: " + simplemde.value().trim();
 
-    alert("Sending request!\nIt may take quite some time to receive a response.");
+    alert("Sending request!\nIt may take a while to receive a response.");
     requestBOT(question);
   }
 
   async function translateBOT() {
     const prompt = "Translate the following text into Korean. Do not use Chinese nor Japanese.";
-    const question = prompt + "\n---\nTEXT: " + noteControl.value.trim();
+    // const question = prompt + "\n\n---\n\nTEXT: " + noteControl.value.trim();
+    const question = prompt + "\n\n---\n\nTEXT: " + simplemde.value().trim();
 
-    alert("Sending request!\nIt may take quite some time to receive a response.");
+    alert("Sending request!\nIt may take a while to receive a response.");
     requestBOT(question);
   }
 
@@ -165,7 +180,8 @@
       url: "{% url 'paper_update_note' paper.id %}",
       type: "POST",
       data: {
-        note: noteControl.value,
+        // note: noteControl.value,
+        note: simplemde.value(),
         csrfmiddlewaretoken: "{{ csrf_token }}"
       },
       success: function (response) {
