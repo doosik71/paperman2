@@ -124,10 +124,11 @@ div.toolbar {
   border-radius: 0.5em;
 }
 
-textarea.full-note {
-  width: 100%;
+textarea.full-note, div.markdown {
+  max-width: 1200px;
   height: calc(100vh - 160px);
   border: 1px solid lightgray;
+  overflow: scroll;
 }
 
 div.markdown h1 {

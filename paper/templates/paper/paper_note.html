@@ -15,26 +15,37 @@
     {% endif %}
   </div>
   <div class="d-flex container-1800px">
-    <div class="flex-fill col-6 m-2">
+    <div class="flex-fill col-6 m-2" id="left-panel">
       <form method="POST" action="{% url 'paper_update_note' paper.id %}">
         {% csrf_token %}
         <div class="row my-2">
-          <div class="col-12">
+          <div class="col-auto mx-0">
+            <button type="button" class="circle" onclick="onLeftButton()">&#x27E8;</button>
+          </div>
+          <div class="col-11 px-0">
             <textarea type="text" class="form-control full-note" id="note" name="note"
               placeholder="Note">{{ paper.note|safe }}</textarea>
           </div>
           <div class="col-12 mt-3 text-center">
-            <button type="button" class="btn btn-warning mx-2" onclick='importPDF("{{ paper.pdf_url }}")'>Import
+            <button type="button" class="btn btn-secondary mx-2" onclick='importPDF("{{ paper.pdf_url }}")'>Import
               PDF</button>
             <button type="button" class="btn btn-success mx-2" onclick='summarizeBOT()'>Summarize</button>
-            <button type="button" class="btn btn-secondary mx-2" onclick='translateBOT()'>Translate</button>
+            <button type="button" class="btn btn-warning mx-2" onclick='translateBOT()'>Translate</button>
             <button type="submit" class="btn btn-primary mx-2">Save</button>
           </div>
         </div>
       </form>
     </div>
-    <div class="flex-fill col-6 m-2 my-3 border rounded">
-      <div id="output" class="markdown m-2"></div>
+    <div class="col-auto mx-2"></div>
+    <div class="flex-fill col-6 m-2" id="right-panel">
+      <div class="row my-2">
+        <div class="col-11 border rounded markdown">
+          <div id="output" class="m-2"></div>
+        </div>
+        <div class="col-auto mx-0">
+          <button type="button" class="circle" onclick="onRightButton()">&#x27E9;</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -47,6 +58,32 @@
   markdownInput.addEventListener('input', () => {
     updateMarkdown();
   });
+
+  function onLeftButton() {
+    const leftPanel = $("#left-panel");
+    const rightPanel = $("#right-panel");
+
+    if (!rightPanel.is(":visible")) {
+      rightPanel.show();
+      return;
+    }
+
+    if (leftPanel.is(":visible"))
+      leftPanel.hide();
+  }
+
+  function onRightButton() {
+    const leftPanel = $("#left-panel");
+    const rightPanel = $("#right-panel");
+
+    if (!leftPanel.is(":visible")) {
+      leftPanel.show();
+      return;
+    }
+
+    if (rightPanel.is(":visible"))
+      rightPanel.hide();
+  }
 
   function updateMarkdown() {
     htmlOutput.innerHTML = marked(markdownInput.value);
@@ -105,7 +142,7 @@
   }
 
   async function summarizeBOT() {
-    const prompt = "Write a detailed analysis report on the following paper in Markdown format using bullet points."
+    const prompt = "Write a detailed analysis report for the following paper in Markdown format using bullet points."
     const question = prompt + "\n---\nPAPER: " + markdownInput.value.trim();
 
     alert("Sending request!\nIt may take quite some time to receive a response.");
