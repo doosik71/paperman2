@@ -2,114 +2,6 @@
 {% load static %}
 {% load humanize %}
 {% block content %}
-<div class="d-flex justify-content-center">
-  <div class="col-12">
-    <form id="topic-form" method="POST">
-      {% csrf_token %}
-      <div class="container-xxl my-2">
-        <div class="row my-2">
-          <div class="col-1 text-right">
-            <label for="title" class="form-label fw-bold mt-1">Title</label>
-          </div>
-          <div class="col-4">
-            <input type="text" class="form-control" id="title" name="title" placeholder="Title" required
-              value="{{ topic.title }}">
-          </div>
-          <div class="col-1 text-right">
-            <label for="keywords" class="form-label fw-bold mt-1">Keywords</label>
-          </div>
-          <div class="col-4">
-            <input type="text" class="form-control" id="keywords" name="keywords" placeholder="Keywords"
-              value="{{ topic.keywords }}" required>
-          </div>
-          <div class="col-2">
-            <button type="button" class="btn btn-primary mx-2"
-              onclick="setFormAction('{% url 'topic_update' topic.id %}')">Update</button>
-          </div>
-        </div>
-      </div>
-    </form>
-
-    <div class="container">
-      <div
-        class="d-flex w-auto mx-auto mb-3 toolbar-border p-2 shadow-sm bg-light">
-        <div class="d-flex">
-          <label for="max_results" class="form-label mt-1 px-2"># of Results:</label>
-          <select id="max_results" name="max_results">
-            <option value="100">100</option>
-            <option value="200">200</option>
-            <option value="300">300</option>
-            <option value="500">500</option>
-            <option value="1000">1,000</option>
-            <option value="2000">2,000</option>
-          </select>
-          <button type="button" class="btn btn-success mx-2" onclick="onCollectArxiv()">Collect Arxiv</button>
-          <div class="vr mx-3"></div>
-          <label for="max_results" class="form-label mt-1 mx-1">Tag filter:</label>
-          <button type="button" class="transparent" onclick="onTagFilter('papers', '🗙')">🗙</button>
-          <button type="button" class="transparent" onclick="onTagFilter('papers', '📌')">📌</button>
-          <button type="button" class="transparent" onclick="onTagFilter('papers', '🔎')">🔎</button>
-          <button type="button" class="transparent" onclick="onTagFilter('papers', '📖')">📖</button>
-          <button type="button" class="transparent" onclick="onTagFilter('papers', '👍')">👍</button>
-          <button type="button" class="transparent" onclick="onTagFilter('papers', '⭐')">⭐</button>
-          <button type="button" class="transparent" onclick="onTagFilter('papers', '✅')">✅</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="px-3 mx-auto">
-      <table id="papers" class="table table-bordered table-hover">
-        <thead>
-          <tr>
-            <th class="text-center">Tags</th>
-            <th class="text-center" width="20%">Author</th>
-            <th class="text-center" width="50%">Title</th>
-            <th class="text-center" width="10%">Publisher</th>
-            <th class="text-center">Date</th>
-            <th class="text-center">Citations</th>
-            <th class="text-center">Links</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for paper in papers %}
-          <tr data-paper-id="{{ paper.id }}">
-            <td id="tags" width="50px" class="text-center">
-              <span class="smaller text-center" id="tags-{{ paper.id }}"></span>
-              <script>
-                renderTags({{ paper.id }}, '{{ paper.tags|escapejs }}')
-              </script>
-            </td>
-            <td id="author">{{ paper.author }}</td>
-            <td id="title"><a href="{% url 'paper_detail' paper.id %}">{{ paper.title }}</a></td>
-            <td id="publisher" class=" text-center"><a href="{{ paper.url }}">{{ paper.publisher }}</a></td>
-            <td id="publish_date" class="text-center">{{ paper.publish_date|date:"Y.m.d"|default:"N/A" }}</td>
-            <td id="citations" class="text-end">
-              <span id="citations-{{ paper.id }}" class="px-2">{{ paper.citations|intcomma }}</span>
-              <button class="mx-2 circle" onclick='onCitation({{paper.id}}, "{{paper.title|escapejs}}")'>&#8634;</button>
-            </td>
-            <td id="links" class="text-center">
-              <a href="{% url 'paper_pdf' paper.id %}" title="Show PDF">
-                <img src="{% static 'images/pdf.png' %}" class="icon" alt="PDF"></a>
-              <a href="{% url 'paper_note' paper.id %}" title="Show Note">
-                <img src="{% static 'images/note.png' %}" class="icon" alt="Note"></a>
-              <a href="https://scholar.google.com/scholar?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
-                target="_blank" rel="noopener">
-                <img src="{% static 'images/google_scholar.png' %}" alt="Google Scholar" class="icon">
-              </a>
-              <a href="https://www.semanticscholar.org/search?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
-                target="_blank" rel="noopener">
-                <img src="{% static 'images/semantic_scholar.png' %}" alt="Semantic Scholar" class="icon">
-              </a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    <ol>
-    </ol>
-  </div>
-</div>
 <script>
   function setFormAction(actionUrl) {
     var form = document.getElementById('topic-form');
@@ -125,6 +17,141 @@
     form.submit();
   }
 
+  async function onAllCitation(topic_id) {
+    const url = "{% url 'topic_citations' 9999 %}".replace('9999', String(topic_id));
+    const csrf_token = "{{ csrf_token }}";
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrf_token
+      }
+    })
+      .catch(error => alert('Error:', error));
+
+    alert("Starting server tasks! Check server console!");
+  }
+
+</script>
+<div class="justify-content-center">
+  <div class="container">
+    {% if messages %}
+    <div class="row">
+      {% for message in messages %}
+      <div class="message">
+        {{ message }}
+        <button type="button" onclick="this.parentElement.style.display='none'" class="message">✖</button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div class="row">
+      <form id="topic-form" method="POST">
+        {% csrf_token %}
+        <div class="container my-2">
+          <div class="row my-2">
+            <div class="col-1 text-right">
+              <label for="title" class="form-label fw-bold mt-1">Title</label>
+            </div>
+            <div class="col-4">
+              <input type="text" class="form-control" id="title" name="title" placeholder="Title" required
+                value="{{ topic.title }}">
+            </div>
+            <div class="col-1 text-right">
+              <label for="keywords" class="form-label fw-bold mt-1">Keywords</label>
+            </div>
+            <div class="col-4">
+              <input type="text" class="form-control" id="keywords" name="keywords" placeholder="Keywords"
+                value="{{ topic.keywords }}" required>
+            </div>
+            <div class="col-2">
+              <button type="button" class="btn btn-primary mx-2"
+                onclick="setFormAction('{% url 'topic_update' topic.id %}')">Update</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="row">
+      <div class="d-flex w-auto mx-auto mb-3 toolbar toolbar-border px-3 py-2 shadow-sm bg-light">
+        <label for="max_results" class="form-label mt-2 mx-2"># of Results:</label>
+        <select id="max_results" name="max_results">
+          <option value="100">100</option>
+          <option value="200">200</option>
+          <option value="300">300</option>
+          <option value="500">500</option>
+          <option value="1000">1,000</option>
+          <option value="2000">2,000</option>
+        </select>
+        <button type="button" class="btn btn-success mx-3" onclick="onCollectArxiv()">Collect Arxiv</button>
+        <div class="vr mx-3"></div>
+        <label for="max_results" class="form-label mt-2 mx-2">Tag filter:</label>
+        <button type="button" class="transparent" onclick="onTagFilter('papers', '🗙')">🗙</button>
+        <button type="button" class="transparent" onclick="onTagFilter('papers', '📌')">📌</button>
+        <button type="button" class="transparent" onclick="onTagFilter('papers', '🔎')">🔎</button>
+        <button type="button" class="transparent" onclick="onTagFilter('papers', '📖')">📖</button>
+        <button type="button" class="transparent" onclick="onTagFilter('papers', '👍')">👍</button>
+        <button type="button" class="transparent" onclick="onTagFilter('papers', '⭐')">⭐</button>
+        <button type="button" class="transparent" onclick="onTagFilter('papers', '✅')">✅</button>
+        <div class="vr mx-3"></div>
+        <button class="m-2 balloon" onclick='onAllCitation({{ topic.id }})'>All &#8634;</button>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid px-3 mx-auto">
+    <table id="papers" class="table table-bordered table-hover">
+      <thead>
+        <tr>
+          <th class="text-center">Tags</th>
+          <th class="text-center" width="20%">Author</th>
+          <th class="text-center" width="50%">Title</th>
+          <th class="text-center" width="10%">Publisher</th>
+          <th class="text-center">Date</th>
+          <th class="text-center">Citations</th>
+          <th class="text-center">Links</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for paper in papers %}
+        <tr data-paper-id="{{ paper.id }}">
+          <td id="tags" width="50px" class="text-center">
+            <span class="smaller text-center" id="tags-{{ paper.id }}"></span>
+            <script>
+              renderTags({{ paper.id }}, '{{ paper.tags|escapejs }}')
+            </script>
+          </td>
+          <td id="author">{{ paper.author }}</td>
+          <td id="title"><a href="{% url 'paper_detail' paper.id %}">{{ paper.title }}</a></td>
+          <td id="publisher" class=" text-center"><a href="{{ paper.url }}">{{ paper.publisher }}</a></td>
+          <td id="publish_date" class="text-center">{{ paper.publish_date|date:"Y.m.d"|default:"-" }}</td>
+          <td id="citations" class="text-end">
+            <span id="citations-{{ paper.id }}" class="px-2">{{ paper.citations|default_if_none:"-"|intcomma }}</span>
+            <button class="mx-2 circle" onclick='onCitation({{ paper.id }})'>&#8634;</button>
+          </td>
+          <td id="links" class="text-center">
+            <a href="{% url 'paper_pdf' paper.id %}" title="Show PDF">
+              <img src="{% static 'images/pdf.png' %}" class="icon" alt="PDF"></a>
+            <a href="{% url 'paper_note' paper.id %}" title="Show Note">
+              <img src="{% static 'images/note.png' %}" class="icon" alt="Note"></a>
+            <a href="https://scholar.google.com/scholar?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
+              target="_blank" rel="noopener">
+              <img src="{% static 'images/google_scholar.png' %}" alt="Google Scholar" class="icon">
+            </a>
+            <a href="https://www.semanticscholar.org/search?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
+              target="_blank" rel="noopener">
+              <img src="{% static 'images/semantic_scholar.png' %}" alt="Semantic Scholar" class="icon">
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <ol>
+  </ol>
+</div>
+<script>
   async function onCollectArxiv() {
     const topic_id = "{{ topic.id }}";
     const keywords = document.getElementById('keywords').value;
@@ -139,15 +166,6 @@
     alert(`${new Intl.NumberFormat().format(count)} papers are collected!\nPlease check your console before closing this message!`);
   }
 
-  // function onCollectScholar() {
-  //   const topic_id = "{{ topic.id }}";
-  //   const keywords = document.getElementById('keywords').value;
-  //   const post_url = "{% url 'paper_add' %}";
-  //   const csrf_token = "{{ csrf_token }}";
-
-  //   collectArxiv(topic_id, keywords, 30, post_url, csrf_token)
-  // }
-
   function onToggleTag(paper_id, tag) {
     const post_url = "{% url 'paper_tag' %}";
     const csrf_token = "{{ csrf_token }}";
@@ -155,8 +173,8 @@
     toggleTag(paper_id, tag, post_url, csrf_token);
   }
 
-  async function onCitation(paper_id, paper_title) {
-    const url = "{% url 'paper_citations' %}".replace('paper_id', paper_id);
+  async function onCitation(paper_id) {
+    const url = "{% url 'paper_citations' 9999 %}".replace('9999', String(paper_id));
     const csrf_token = "{{ csrf_token }}";
 
     fetch(url, {
@@ -164,10 +182,7 @@
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrf_token
-      },
-      body: JSON.stringify({
-        paper_id: paper_id
-      })
+      }
     }).then(response => response.json())
       .then(data => {
         document.getElementById(`citations-${paper_id}`).innerHTML = data.citations;

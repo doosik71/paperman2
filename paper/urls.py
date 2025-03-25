@@ -11,5 +11,5 @@ urlpatterns = [
     path('note/<int:id>', paper_note, name='paper_note'),
     path("add/", paper_add, name="paper_add"),
     path("tag/", paper_tag, name="paper_tag"),
-    path("citations/", paper_citations, name="paper_citations"),
+    path("citations/<int:id>", paper_citations, name="paper_citations"),
 ]

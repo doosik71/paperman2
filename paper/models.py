@@ -11,7 +11,7 @@ class Paper(models.Model):
     url = models.URLField(max_length=1024)
     pdf_url = models.URLField(max_length=1024)
     pdf_name = models.CharField(max_length=255, blank=True)
-    citations = models.IntegerField(default=0)
+    citations = models.IntegerField(null=True, blank=True)
     tags = models.CharField(max_length=256, blank=True)
     update_date = models.DateTimeField(auto_now=True)
     abstract = models.CharField(max_length=1024, blank=True)

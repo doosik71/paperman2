@@ -3,6 +3,7 @@ import logger
 import requests
 import re
 import time
+from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -109,29 +110,40 @@ def paper_update(request, id):
     """
 
     paper = get_object_or_404(Paper, id=id)
+    message = None
 
     if request.method == "POST":
-        paper.title = request.POST["title"].strip()
-        paper.author = request.POST["author"].strip()
-        paper.publisher = request.POST["publisher"].strip()
-        publish_date = request.POST["publish_date"]
-        paper.doi = request.POST["doi"].strip()
-        paper.url = request.POST["url"].strip()
-        paper.pdf_url = request.POST["pdf_url"].strip()
-        paper.pdf_name = request.POST["pdf_name"].strip()
-        paper.citations = request.POST["citations"]
-        paper.tags = request.POST["tags"].strip()
-        paper.abstract = request.POST["abstract"].strip()
-        paper.note = request.POST["note"].strip()
+        try:
+            paper.title = request.POST["title"].strip()
+            paper.author = request.POST["author"].strip()
+            paper.publisher = request.POST["publisher"].strip()
+            publish_date = request.POST["publish_date"]
+            paper.doi = request.POST["doi"].strip()
+            paper.url = request.POST["url"].strip()
+            paper.pdf_url = request.POST["pdf_url"].strip()
+            paper.pdf_name = request.POST["pdf_name"].strip()
+            paper.citations = request.POST["citations"].strip()
+            paper.tags = request.POST["tags"].strip()
+            paper.abstract = request.POST["abstract"].strip()
+            paper.note = request.POST["note"].strip()
 
-        publish_date = datetime.strptime(publish_date, "%Y-%m-%d")
-        paper.publish_date = timezone.make_aware(
-            publish_date, timezone.get_current_timezone()
-        )
+            publish_date = datetime.strptime(publish_date, "%Y-%m-%d")
+            paper.publish_date = timezone.make_aware(
+                publish_date, timezone.get_current_timezone()
+            )
 
-        paper.save()
+            if paper.citations == "":
+                paper.citations = None
 
-        logger.info(f"Paper updated: {paper.title}")
+            paper.save()
+
+            message = f'Paper updated: "{paper.title}"'
+            messages.success(request, message)
+            logger.info(message)
+        except Exception as e:
+            message = f"Error: {e}"
+            messages.error(request, message)
+            logger.error(message)
 
     return render(request, "paper/paper_detail.html", {"paper": paper})
 
@@ -148,7 +160,9 @@ def paper_update_note(request, id):
 
         paper.save()
 
-        logger.info(f"Paper's note updated: {paper.title}")
+        message = f'Paper\'s note updated: "{paper.title}"'
+        messages.success(request, message)
+        logger.info(message)
 
     return render(request, "paper/paper_note.html", {"paper": paper})
 
@@ -276,7 +290,7 @@ def paper_tag(request):
         return JsonResponse({"error": f"Failed to toggle tag: {str(e)}"}, status=500)
 
 
-def paper_citations(request):
+def paper_citations(request, id):
     """
     Update paper's citations by using semantic scholar.
     """
@@ -284,18 +298,24 @@ def paper_citations(request):
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request method"}, status=405)
 
-    try:
-        data = json.loads(request.body)
-        paper_id = data.get("paper_id")
-    except json.JSONDecodeError:
-        return JsonResponse({"error": "Invalid JSON"}, status=400)
+    paper = get_object_or_404(Paper, id=id)
+    response, paper = update_paper_citations(paper)
 
-    paper = get_object_or_404(Paper, id=paper_id)
+    if response.status_code == 200:
+        return JsonResponse({"citations": paper.citations}, status=200)
+    else:
+        return JsonResponse({"citations": 0}, status=400)
+
+
+def update_paper_citations(paper):
+    """
+    Update paper citations
+    """
+
+    base_url = "https://api.semanticscholar.org/graph/v1/paper/search"
     params = urlencode(
         {"query": paper.author + ", " + paper.title, "fields": "title,citationCount"}
     )
-
-    base_url = "https://api.semanticscholar.org/graph/v1/paper/search"
 
     for _ in range(10):
         response = requests.get(f"{base_url}?{params}")
@@ -311,12 +331,16 @@ def paper_citations(request):
 
             try:
                 paper.save()
+                logger.info(f'{paper.citations} citation(s) for "{paper.title}"')
+                return response, paper
             except Exception as e:
                 logger.error(e)
 
-            return JsonResponse({"citations": paper.citations}, status=200)
-
-    return JsonResponse({"citations": 0}, status=400)
+    paper.citations = 0
+    paper.save()
+    logger.info(f'No citation for "{paper.title}"')
+    
+    return response, paper
 
 
 def paper_citations_google_scholar(request):

@@ -73,6 +73,19 @@ button.circle {
   align-items: flex-start;
 }
 
+button.balloon {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  margin: 0;
+  border: 1px solid lightgray;
+  border-radius: 0.5em;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
 button.inactive {
   opacity: 0.3;
 }
@@ -97,6 +110,10 @@ table#papers th, table#papers td {
   vertical-align: middle;
 }
 
+div.toolbar {
+  vertical-align: middle;
+}
+
 .toolbar-border {
   border: 1px solid lightgray;
   border-radius: 0.5em;
@@ -115,4 +132,24 @@ div.markdown h1 {
 
 div.markdown h2 {
   font-weight: 700;
+}
+
+div.message {
+  position: relative;
+  background-color: cornsilk;
+  margin: 1em;
+  padding: 0.5em;
+  border: 1px solid gold;
+  border-radius: 5px;
+}
+
+button.message {
+  color: crimson;
+  position: absolute;
+  top: 0.4em;
+  right: 1em;
+  background: none;
+  border: none;
+  font-size: 1em;
+  cursor: pointer;
 }

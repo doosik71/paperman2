@@ -1,4 +1,6 @@
 import logger
+from django.contrib import messages
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Topic
 from paper.models import Paper
@@ -24,7 +26,9 @@ def topic_create(request):
         keywords = request.POST["keywords"]
         Topic.objects.create(title=title, keywords=keywords)
 
-        logger.info(f"Topic created: {title}")
+        message = f'Topic created: "{title}"'
+        messages.success(request, message)
+        logger.info(messages)
 
         return redirect("topic_list")
 
@@ -60,9 +64,11 @@ def topic_update(request, id):
         topic.keywords = keywords
         topic.save()
 
-        logger.info(f"Topic updated: {title}")
+        message = f'Topic updated: "{title}"'
+        messages.success(request, message)
+        logger.info(message)
 
-    return redirect("topic_list")
+    return redirect("topic_detail", id)
 
 
 def topic_delete(request, id):
@@ -71,6 +77,26 @@ def topic_delete(request, id):
     if request.method == "POST":
         topic.delete()
 
-        logger.info(f"Topic deleted: {topic.title}")
+        message = f'Topic deleted: "{topic.title}"'
+        messages.success(request, message)
+        logger.info(message)
 
     return redirect("topic_list")
+
+
+def topic_citations(request, id):
+    """
+    Update citations for all papers in topic
+    """
+
+    topic = get_object_or_404(Topic, id=id)
+
+    if request.method == "POST":
+        papers = Paper.objects.filter(topics=topic)
+        
+        
+
+        message = f'Processing citations for all papers in topic: "{topic.title}"'
+        return JsonResponse({"message": "ok"}, status=200)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)

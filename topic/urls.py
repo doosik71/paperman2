@@ -7,4 +7,5 @@ urlpatterns = [
     path('detail/<int:id>', topic_detail, name='topic_detail'),
     path('update/<int:id>', topic_update, name='topic_update'),
     path('delete/<int:id>', topic_delete, name='topic_delete'),
+    path('citations/<int:id>', topic_citations, name='topic_citations'),
 ]
