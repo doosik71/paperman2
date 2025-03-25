@@ -225,3 +225,18 @@ async function renderPDF(frame, pdfUrl, scale) {
     iframeDocument.body.appendChild(pageWrapper);
   }
 }
+
+async function extractPDF(pdfUrl) {
+  const pdfBytes = await fetch(pdfUrl).then(res => res.arrayBuffer());
+  const pdfjsDoc = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
+  let fullText = '';
+
+  for (let pageNum = 1; pageNum <= pdfjsDoc.numPages; pageNum++) {
+    const page = await pdfjsDoc.getPage(pageNum);
+    const textContent = await page.getTextContent();
+    const pageText = textContent.items.map(item => item.str).join(' ');
+    fullText += pageText + '\n';
+  }
+
+  return fullText;
+}

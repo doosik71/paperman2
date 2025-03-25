@@ -14,99 +14,102 @@
     </div>
     {% endif %}
   </div>
-  <div class="d-flex container-1800px">
-    <div class="flex-fill col-6 m-2" id="left-panel">
-      <form id="note-form" method="POST">
-        {% csrf_token %}
-        <div class="row my-2">
-          <div class="col-auto mx-0">
-            <button type="button" class="circle" onclick="onLeftButton()">&#x27E8;</button>
-          </div>
-          <div class="col-11 px-0">
-            <textarea type="text" class="form-control full-note" id="note" name="note"
-              placeholder="Note">{{ paper.note|safe }}</textarea>
-          </div>
-          <div class="col-12 mt-3 text-center">
-            <button type="button" class="btn btn-secondary mx-2" onclick='importPDF("{{ paper.pdf_url }}")'>Import
-              PDF</button>
-            <button type="button" class="btn btn-success mx-2" onclick='summarizeBOT()'>Summarize</button>
-            <button type="button" class="btn btn-warning mx-2" onclick='translateBOT()'>Translate</button>
-            <button type="button" class="btn btn-primary mx-2" onclick='onSave()'>Save</button>
-          </div>
-        </div>
-      </form>
+  <div class="d-flex justify-content-center">
+    <div class="flex-fill col-10 m-2 full-note" id="pdf-panel">
+      <iframe id="pdf" name="pdf" title="pdf" class="full-note border rounded"></iframe>
     </div>
-    <div class="col-auto mx-2"></div>
-    <div class="flex-fill col-6 m-2" id="right-panel">
-      <div class="row my-2">
-        <div class="col-11 border rounded markdown">
-          <div id="output" class="m-2"></div>
-        </div>
-        <div class="col-auto mx-0">
-          <button type="button" class="circle" onclick="onRightButton()">&#x27E9;</button>
-        </div>
-      </div>
+    <div class="flex-fill col-6 m-2" id="note-panel">
+      <textarea type="text" class="full-note container-fluid border rounded" id="note" name="note"
+        placeholder="Note">{{ paper.note|safe }}</textarea>
     </div>
+    <div class="flex-fill col-6 m-2" id="markdown-panel">
+      <div id="markdown" class="border rounded markdown"></div>
+    </div>
+  </div>
+  <div class="col-12 mt-2 text-center">
+    <select id="view-mode" title="View Mode" class="form-control inline" onchange="onViewMode()">
+      <option>PDF</option>
+      <option>Note</option>
+      <option>Markdown</option>
+      <option>PDF + Note</option>
+      <option>PDF + Markdown</option>
+      <option selected>Note + Markdown</option>
+    </select>
+    <button type="button" class="btn btn-secondary mx-2" onclick='onImportPDF("{{ paper.pdf_url }}")'>Import
+      PDF</button>
+    <button type="button" class="btn btn-success mx-2" onclick='summarizeBOT()'>Summarize</button>
+    <button type="button" class="btn btn-warning mx-2" onclick='translateBOT()'>Translate</button>
+    <button type="button" class="btn btn-primary mx-2" onclick='onSave()'>Save</button>
   </div>
 </div>
 <script>
-  const markdownInput = document.getElementById('note');
-  const htmlOutput = document.getElementById('output');
+  const noteControl = document.getElementById('note');
+  const markdownControl = document.getElementById('markdown');
+  const pdfPanel = $("#pdf-panel");
+  const notePanel = $("#note-panel");
+  const markdownPanel = $("#markdown-panel");
   const model = "deepseek-r1:32b";
   const llmUrl = "http://10.254.233.67:11434/api/generate";
 
-  markdownInput.addEventListener('input', () => {
+  noteControl.addEventListener('input', () => {
     updateMarkdown();
   });
 
   function onLeftButton() {
-    const leftPanel = $("#left-panel");
-    const rightPanel = $("#right-panel");
-
-    if (!rightPanel.is(":visible")) {
-      rightPanel.show();
+    if (!markdownPanel.is(":visible")) {
+      markdownPanel.show();
       return;
     }
 
-    if (leftPanel.is(":visible"))
-      leftPanel.hide();
+    if (notePanel.is(":visible"))
+      notePanel.hide();
   }
 
-  function onRightButton() {
-    const leftPanel = $("#left-panel");
-    const rightPanel = $("#right-panel");
+  function onViewMode() {
+    const selection = document.getElementById("view-mode").value;
 
-    if (!leftPanel.is(":visible")) {
-      leftPanel.show();
-      return;
+    if (selection == 'PDF') {
+      pdfPanel.show();
+      notePanel.hide();
+      markdownPanel.hide();
+    } else if (selection == 'Note') {
+      pdfPanel.hide();
+      notePanel.show();
+      markdownPanel.hide();
+    } else if (selection == 'Markdown') {
+      pdfPanel.hide();
+      notePanel.hide();
+      markdownPanel.show();
+    } else if (selection == 'PDF + Note') {
+      pdfPanel.show();
+      notePanel.show();
+      markdownPanel.hide();
+    } else if (selection == 'PDF + Markdown') {
+      pdfPanel.show();
+      notePanel.hide();
+      markdownPanel.show();
+    } else if (selection == 'Note + Markdown') {
+      pdfPanel.hide();
+      notePanel.show();
+      markdownPanel.show();
     }
-
-    if (rightPanel.is(":visible"))
-      rightPanel.hide();
   }
 
   function updateMarkdown() {
-    htmlOutput.innerHTML = marked(markdownInput.value);
+    markdownControl.innerHTML = marked(noteControl.value);
   }
 
-  async function importPDF(pdfUrl) {
-    if (markdownInput.value.trim() != "") {
+  async function onImportPDF(pdfUrl) {
+    if (noteControl.value.trim() != "") {
       alert("Note is not empty!");
       return;
     }
 
-    const pdfBytes = await fetch(pdfUrl).then(res => res.arrayBuffer());
-    const pdfjsDoc = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
-    let fullText = '';
-
-    for (let pageNum = 1; pageNum <= pdfjsDoc.numPages; pageNum++) {
-      const page = await pdfjsDoc.getPage(pageNum);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items.map(item => item.str).join(' ');
-      fullText += pageText + '\n';
+    try {
+      noteControl.value = await extractPDF(pdfUrl);
+    } catch (e) {
+      alert("Error: " + e.message);
     }
-
-    markdownInput.value = fullText;
   }
 
   async function requestBOT(question) {
@@ -133,7 +136,7 @@
         throw new Error("Error: No response received from API.");
       }
 
-      markdownInput.value = data.response.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+      noteControl.value = data.response.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
       updateMarkdown();
     } catch (e) {
       alert("Error: " + e.message);
@@ -142,16 +145,16 @@
   }
 
   async function summarizeBOT() {
-    const prompt = "Write a detailed analysis report for the following paper in Markdown format using bullet points."
-    const question = prompt + "\n---\nPAPER: " + markdownInput.value.trim();
+    const prompt = "Write a very detailed analysis report for the following paper in Markdown format using bullet points."
+    const question = prompt + "\n---\nPAPER: " + noteControl.value.trim();
 
     alert("Sending request!\nIt may take quite some time to receive a response.");
     requestBOT(question);
   }
 
   async function translateBOT() {
-    const prompt = "Please translate the following text into Korean.";
-    const question = prompt + "\n---\nTEXT: " + markdownInput.value.trim();
+    const prompt = "Translate the following text into Korean. Do not use Chinese nor Japanese.";
+    const question = prompt + "\n---\nTEXT: " + noteControl.value.trim();
 
     alert("Sending request!\nIt may take quite some time to receive a response.");
     requestBOT(question);
@@ -162,21 +165,26 @@
       url: "{% url 'paper_update_note' paper.id %}",
       type: "POST",
       data: {
-        note: markdownInput.value,
+        note: noteControl.value,
         csrfmiddlewaretoken: "{{ csrf_token }}"
       },
-      success: function(response) {
+      success: function (response) {
         alert("Note saved successfully!");
       },
-      error: function(xhr, msg, err) {
+      error: function (xhr, msg, err) {
         alert("Error: " + msg);
         console.error(err);
       }
     });
   }
 
-  $(document).ready(function () {
+  window.onload = function () {
+    pdfPanel.hide();
     updateMarkdown();
-  });
+
+    const pdfUrl = "{{ paper.pdf_url }}";
+    const frame = document.getElementById('pdf');
+    frame.src = pdfUrl;
+  }
 </script>
 {% endblock %}

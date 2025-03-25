@@ -125,10 +125,17 @@ div.toolbar {
 }
 
 textarea.full-note, div.markdown {
-  max-width: 1200px;
-  height: calc(100vh - 160px);
-  border: 1px solid lightgray;
+  height: calc(100vh - 130px);
   overflow: scroll;
+}
+
+iframe#pdf.full-note {
+  height: calc(100vh - 130px);
+}
+
+select.inline {
+  display: inline-block;
+  width: auto;
 }
 
 div.markdown h1 {
@@ -163,6 +170,10 @@ div.markdown h5 {
 
 div.markdown ol, div.markdown ul {
   padding-left: 1.5em;
+}
+
+div.markdown a {
+  color: dodgerblue;
 }
 
 div.markdown i, div.markdown em {
