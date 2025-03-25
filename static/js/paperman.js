@@ -32,7 +32,7 @@ async function collectArxiv(topic_id, keywords, max_results, post_url, csrf_toke
             url: url,
             pdf_url: pdf_url,
             pdf_name: title.replace(/\s/g, '_') + '.pdf',
-            citations: '0',
+            citations: null,
             tags: '',
             abstract: abstract,
             note: '',

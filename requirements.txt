@@ -1,2 +1,2 @@
 django
-scholarly
+python-dotenv

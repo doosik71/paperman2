@@ -13,6 +13,7 @@ from datetime import datetime
 from django.db.models import Count
 from urllib.parse import urlencode
 from bs4 import BeautifulSoup
+from paperman import settings
 
 
 def paper_list(request):
@@ -101,7 +102,13 @@ def paper_note(request, id):
 
     paper = get_object_or_404(Paper, id=id)
 
-    return render(request, "paper/paper_note.html", {"paper": paper})
+    return render(request,
+                  "paper/paper_note.html",
+                  {
+                      "paper": paper,
+                      "LLM_REQUEST_URL": settings.LLM_REQUEST_URL,
+                      "LLM_MODEL": settings.LLM_MODEL
+                  })
 
 
 def paper_update(request, id):
@@ -331,7 +338,8 @@ def update_paper_citations(paper):
 
             try:
                 paper.save()
-                logger.info(f'{paper.citations} citation(s) for "{paper.title}"')
+                logger.info(
+                    f'{paper.citations} citation(s) for "{paper.title}"')
                 return response, paper
             except Exception as e:
                 logger.error(e)
@@ -339,7 +347,7 @@ def update_paper_citations(paper):
     paper.citations = 0
     paper.save()
     logger.info(f'No citation for "{paper.title}"')
-    
+
     return response, paper
 
 
