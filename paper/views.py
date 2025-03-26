@@ -33,6 +33,8 @@ def paper_list(request):
                     | Q(title__icontains=term)
                     | Q(abstract__icontains=term)
                 )
+                
+        papers = papers.order_by("-citations")
     else:
         papers = []
         search = ""

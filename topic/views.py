@@ -43,7 +43,7 @@ def topic_detail(request, id):
     """
 
     topic = get_object_or_404(Topic, id=id)
-    papers = Paper.objects.filter(topics=topic).order_by("-publish_date")
+    papers = Paper.objects.filter(topics=topic).order_by("-citations")
 
     return render(
         request, "topic/topic_detail.html", {"topic": topic, "papers": papers}
