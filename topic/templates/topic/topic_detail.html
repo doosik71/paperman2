@@ -29,7 +29,7 @@
     })
       .catch(error => alert('Error:', error));
 
-    alert("Starting server tasks!\nPlease check your console before closing this message!");
+    alert("Starting server tasks!\n\nPlease check your console before closing this message!");
   }
 
 </script>
@@ -130,16 +130,16 @@
             <button class="mx-2 circle" onclick='onCitation({{ paper.id }})'>&#8634;</button>
           </td>
           <td id="links" class="text-center">
-            <a href="{% url 'paper_pdf' paper.id %}" class="mx-1" title="Show PDF">
+            <a href="{% url 'paper_pdf' paper.id %}" class="mx-1" title="PDF" target="_blank">
               <img src="{% static 'images/pdf.png' %}" class="icon" alt="PDF"></a>
-            <a href="{% url 'paper_note' paper.id %}" class="mx-1" title="Show Note">
+            <a href="{% url 'paper_note' paper.id %}" class="mx-1" title="Note" target="_blank">
               <img src="{% static 'images/note.png' %}" class="icon" alt="Note"></a>
             <a href="https://scholar.google.com/scholar?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
-              class="mx-1" target="_blank" rel="noopener">
+              class="mx-1" title="Google scholar" target="_blank" rel="noopener">
               <img src="{% static 'images/google_scholar.png' %}" alt="Google Scholar" class="icon">
             </a>
             <a href="https://www.semanticscholar.org/search?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
-              class="mx-1" target="_blank" rel="noopener">
+              class="mx-1" title="Semantic Scholar" target="_blank" rel="noopener">
               <img src="{% static 'images/semantic_scholar.png' %}" alt="Semantic Scholar" class="icon">
             </a>
           </td>
@@ -159,11 +159,15 @@
     const csrf_token = "{{ csrf_token }}";
     const max_results = document.getElementById('max_results').value;
 
-    alert(`Starting background task!\nTrying to collect ${new Intl.NumberFormat().format(max_results)} papers.\nDo not change web page until task is completed!`);
-
-    const count = await collectArxiv(topic_id, keywords, max_results, post_url, csrf_token);
-
-    alert(`${new Intl.NumberFormat().format(count)} papers are collected!\nPlease check your console before closing this message!`);
+    try {
+      alert(`Starting background task!\nTrying to collect ${new Intl.NumberFormat().format(max_results)} papers.\nDo not change web page until task is completed!`);
+      const count = await collectArxiv(topic_id, keywords, max_results, post_url, csrf_token);
+      alert(`${new Intl.NumberFormat().format(count)} papers are collected!\n\nPlease check your console before closing this message!`);
+    } catch (e) {
+      const msg = "Error: " + (e.message || e.toString());
+      console.log(msg);
+      alert(msg);
+    }
   }
 
   function onToggleTag(paper_id, tag) {

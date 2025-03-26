@@ -54,6 +54,18 @@ main table thead tr th {
   padding-top: 0.4em;
 }
 
+header nav span#status {
+  color: darkgray;
+  display: inline-block;
+  font-size: 0.8em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 20em;
+  height: 1.5em;
+  padding: 0;
+}
+
 button.transparent {
   background-color: transparent;
   padding: 0;
@@ -203,6 +215,32 @@ div.markdown i, div.markdown em {
 div.markdown hr {
   border-color: navy;
   border-width: 2px;
+}
+
+div.markdown table {
+  border-bottom: 2px solid gray;
+  margin: 1em auto 1em auto;
+}
+
+div.markdown table th {
+  border-top: 2px solid gray;
+  border-bottom: 2px solid gray;
+}
+
+div.markdown table td {
+  border-bottom: 1px solid gray;
+}
+
+div.markdown table th,
+div.markdown table td {
+  padding: 0.3em;
+}
+
+div.markdown figcaption {
+  text-align: center;
+  font-weight: bold;
+  margin-top: 1em;
+  margin-bottom: 1em;
 }
 
 div.message {

@@ -15,10 +15,10 @@
     {% endif %}
   </div>
   <div class="d-flex justify-content-center">
-    <div class="flex-fill col-10 m-2 full-note" id="pdf-panel" aria-hidden="true" data-immersive-reader-ignore="true">
+    <div class="flex-fill col-10 m-2 full-note" id="pdf-panel">
       <iframe id="pdf" name="pdf" title="pdf" class="full-note border rounded"></iframe>
     </div>
-    <div class="flex-fill col-6 m-2" id="note-panel" aria-hidden="true" data-immersive-reader-ignore="true">
+    <div class="flex-fill col-6 m-2" id="note-panel">
       <textarea type="text" class="full-note container-fluid border rounded" id="note" name="note"
         placeholder="Note">{{ paper.note|safe }}</textarea>
     </div>
@@ -34,11 +34,12 @@
       <option value="PDF + Note">[P N &middot;] PDF + Note</option>
       <option value="PDF + Markdown">[P &middot; M] PDF + Markdown</option>
       <option value="Note + Markdown" selected>[&middot; N M] Note + Markdown</option>
+      <option value="PDF + Note + Markdown">[P N M] PDF + Note + Markdown</option>
     </select>
     <button type="button" class="btn btn-secondary mx-2" onclick='onImportPDF("{{ paper.pdf_url }}")'>Import
       PDF</button>
-    <button type="button" class="btn btn-success mx-2" onclick='summarizeBOT()'>Summarize</button>
-    <button type="button" class="btn btn-warning mx-2" onclick='translateBOT()'>Translate</button>
+    <button type="button" class="btn btn-success mx-2" onclick='onSummarizeBOT()'>Summarize</button>
+    <button type="button" class="btn btn-warning mx-2" onclick='onTranslateBOT()'>Translate</button>
     <button type="button" class="btn btn-primary mx-2" onclick='onSave()'>Save</button>
   </div>
 </div>
@@ -58,6 +59,7 @@
 
   simplemde.codemirror.on("change", () => {
     updateMarkdown();
+    document.querySelector('div.CodeMirror').style.border = '2px solid orangered';
   });
 
   function onLeftButton() {
@@ -97,6 +99,10 @@
       pdfPanel.hide();
       notePanel.show();
       markdownPanel.show();
+    } else if (selection == 'PDF + Note + Markdown') {
+      pdfPanel.show();
+      notePanel.show();
+      markdownPanel.show();
     }
   }
 
@@ -117,7 +123,7 @@
       simplemde.value(await extractPDF(pdfUrl) + '\n\n---\n\n' + simplemde.value());
       updateMarkdown();
     } catch (e) {
-      alert("Error: " + e.message);
+      reportError(e);
     }
   }
 
@@ -150,26 +156,32 @@
       simplemde.value(data.response.replace(/<think>[\s\S]*?<\/think>/g, '').trim() + '\n\n---\n\n' + simplemde.value());
       updateMarkdown();
     } catch (e) {
-      alert("Error: " + e.message);
-      console.error(e);
+      reportError(e);
     }
   }
 
-  async function summarizeBOT() {
+  async function onSummarizeBOT() {
     const prompt = "Write a very detailed analysis report for the following paper in Markdown format.\n\n---\n\nPAPER: "
     const question = prompt + simplemde.value().trim();
 
-    alert("Sending request!\nIt may take a while to receive a response.");
-
-    requestBOT(question);
+    try {
+      requestBOT(question);
+      alert("Sending request!\nIt may take a while to receive a response.");
+    } catch (e) {
+      reportError(e);
+    }
   }
 
-  async function translateBOT() {
+  async function onTranslateBOT() {
     const prompt = "Translate the following text into Korean. Do not use Chinese nor Japanese.\n\n---\n\nTEXT: ";
     const question = prompt + simplemde.value().trim();
-
-    alert("Sending request!\nIt may take a while to receive a response.");
-    requestBOT(question);
+    
+    try {
+      requestBOT(question);
+      alert("Sending request!\nIt may take a while to receive a response.");
+    } catch (e) {
+      reportError(e);
+    }
   }
 
   async function onSave() {
@@ -181,6 +193,7 @@
         csrfmiddlewaretoken: "{{ csrf_token }}"
       },
       success: function (response) {
+        document.querySelector('div.CodeMirror').style.border = '1px solid lightgray';
         alert("Note saved successfully!");
       },
       error: function (xhr, msg, err) {

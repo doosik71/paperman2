@@ -1,52 +1,46 @@
 
 async function collectArxiv(topic_id, keywords, max_results, post_url, csrf_token) {
   if (keywords.trim() === "") {
-    alert("Keywords are required!");
-    return 0;
+    throw new Error("Keywords are required!");
   }
 
   const keywordArray = keywords.split(",").map(keyword => keyword.trim());
   var count = 0;
 
   for (let i = 0; i < keywordArray.length; i++) {
-    try {
-      const papers = await getArxivList(keywordArray[i], max_results);
+    const papers = await getArxivList(keywordArray[i], max_results);
 
-      Array.from(papers).forEach(paper => {
-        try {
+    Array.from(papers).forEach(paper => {
+      try {
+        const title = paper.getElementsByTagName('title')[0].textContent;
+        const authorNodeList = paper.getElementsByTagName('author');
+        const author = Array.from(authorNodeList).map(a => a.getElementsByTagName('name')[0].textContent).join(', ');
+        const publish_date = paper.getElementsByTagName('published')[0].textContent.split('T')[0];
+        const url = paper.getElementsByTagName('id')[0].textContent;
+        const abstract = paper.getElementsByTagName('summary')[0].textContent;
+        const pdf_url = url.replace('/abs/', '/pdf/');
 
-          const title = paper.getElementsByTagName('title')[0].textContent;
-          const authorNodeList = paper.getElementsByTagName('author');
-          const author = Array.from(authorNodeList).map(a => a.getElementsByTagName('name')[0].textContent).join(', ');
-          const publish_date = paper.getElementsByTagName('published')[0].textContent.split('T')[0];
-          const url = paper.getElementsByTagName('id')[0].textContent;
-          const abstract = paper.getElementsByTagName('summary')[0].textContent;
-          const pdf_url = url.replace('/abs/', '/pdf/');
+        addPaper({
+          title: title,
+          author: author,
+          publisher: 'arXiv',
+          publish_date: publish_date,
+          doi: '',
+          url: url,
+          pdf_url: pdf_url,
+          pdf_name: title.replace(/\s/g, '_') + '.pdf',
+          citations: null,
+          tags: '',
+          abstract: abstract,
+          note: '',
+          topic_id: topic_id
+        }, post_url, csrf_token);
 
-          addPaper({
-            title: title,
-            author: author,
-            publisher: 'arXiv',
-            publish_date: publish_date,
-            doi: '',
-            url: url,
-            pdf_url: pdf_url,
-            pdf_name: title.replace(/\s/g, '_') + '.pdf',
-            citations: null,
-            tags: '',
-            abstract: abstract,
-            note: '',
-            topic_id: topic_id
-          }, post_url, csrf_token);
-
-          count += 1;
-        } catch (error) {
-          console.error('Error processing paper:', error);
-        }
-      });
-    } catch (error) {
-      console.error('Error fetching papers:', error);
-    }
+        count += 1;
+      } catch (error) {
+        console.error(`Error while processing paper "${title}: ${error}`);
+      }
+    });
   }
 
   return count;
@@ -69,10 +63,13 @@ async function getArxivList(keywords, max_results) {
   const url = `https://export.arxiv.org/api/query?search_query=all:${researchTopic}&start=0&max_results=${max_results}&sortBy=relevance&sortOrder=descending`;
 
   try {
+    console.log('Requesting to ' + url);
     const response = await fetch(url);
+
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
+
     const data = await response.text();
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(data, "text/xml");
@@ -239,4 +236,28 @@ async function extractPDF(pdfUrl) {
   }
 
   return fullText;
+}
+
+function reportError(e) {
+  const msg = "Error: " + (e.message || e.toString());
+  alert(msg);
+  console.error(msg);
+}
+
+function updateStatus() {
+  const status = document.getElementById("status")
+
+  fetch("/home/status/")
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP Error(${response.status})`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      status.innerText = data.status;
+    })
+    .catch(error => {
+      status.innerText = error;
+    });
 }

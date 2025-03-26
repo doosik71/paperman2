@@ -388,19 +388,14 @@ def paper_citations_google_scholar(request):
 
         if gs_ri_divs:
             gs_ri_html = [str(div) for div in gs_ri_divs]
-            logger.info("here 2")
 
             if len(gs_ri_html) > 0:
                 match = re.search(r">Cited by (\d+)<", gs_ri_html[0])
 
-                logger.info("here 3")
-
                 if match:
                     paper.citations = int(match.group(1))
-                    logger.info("here 4")
 
                     try:
-                        logger.info("here 5")
                         paper.save()
                     except Exception as e:
                         logger.error(e)

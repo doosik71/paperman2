@@ -21,7 +21,8 @@
   <script type="text/javascript" charset="utf8" src="{% static 'js/pdf.worker-3.11.174.min.js' %}"></script>
   <script type="text/javascript" charset="utf8" src="{% static 'js/marked-3.0.7.min.js' %}"></script>
   <script type="text/javascript" charset="utf8" src="{% static 'js/simplemde.min.js' %}"></script>
-  <script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <script type="text/javascript" charset="utf8"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
   <script type="text/x-mathjax-config">
         MathJax.Hub.Config({
           tex2jax: {
@@ -41,7 +42,7 @@
 
 <body>
   <header>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary py-0" aria-hidden="true" data-immersive-reader-ignore="true">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary py-0">
       <div class="container-fluid">
         <div class="navbar-brand">Paper Manager</div>
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -56,6 +57,7 @@
               <a class="nav-link" href="/topic/list">Topic</a>
             </li>
           </ul>
+          <span class="navbar-text ms-auto" id="status"></span>
         </div>
       </div>
     </nav>
@@ -66,3 +68,12 @@
 </body>
 
 </html>
+<script>
+  async function refreshStatus() {
+    setInterval(() => {
+      updateStatus();
+    }, 1000);
+  }
+
+  refreshStatus();
+</script>

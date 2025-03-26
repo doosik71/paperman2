@@ -1,25 +1,43 @@
 from datetime import datetime
 
 
+status_message = ""
+
+
 def __now():
     return datetime.now().strftime("[%d/%b/%Y %H:%M:%S]")
 
 
 def debug(message):
-    print(__now(), "[DEBUG]", message)
+    global status_message
+    status_message = "🛠️ " + message
+    
+    print(__now(), status_message)
 
 
 def info(message):
-    print(__now(), "[INFO]", message)
+    global status_message
+    status_message = "💡 " + message
+
+    print(__now(), status_message)
 
 
 def warning(message):
-    print(__now(), "[WARNING]", message)
+    global status_message
+    status_message = "⚠️ " + message
+
+    print(__now(), status_message)
 
 
 def error(message):
-    print(__now(), "[ERROR]", message)
+    global status_message
+    status_message = "🚫 " + message
+
+    print(__now(), status_message)
 
 
 def critical(message):
-    print(__now(), "[CRITICAL]", message)
+    global status_message
+    status_message = "🛑 " + message
+
+    print(__now(), status_message)
