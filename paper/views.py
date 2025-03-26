@@ -1,19 +1,19 @@
 import json
 import logger
-import requests
 import re
+import requests
 import time
+from .models import Paper
+from bs4 import BeautifulSoup
+from datetime import datetime
 from django.contrib import messages
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from .models import Paper
-from topic.models import Topic
-from datetime import datetime
-from django.db.models import Count
-from urllib.parse import urlencode
-from bs4 import BeautifulSoup
 from paperman import settings
+from topic.models import Topic
+from urllib.parse import urlencode
 
 
 def paper_list(request):
@@ -21,12 +21,23 @@ def paper_list(request):
     List all papers
     """
 
-    # papers = Paper.objects.all().order_by("-publish_date")
-    papers_without_topics = Paper.objects.annotate(num_topics=Count("topics")).filter(
-        num_topics=0
-    )
+    if request.method == "POST":
+        papers = Paper.objects.all()
+        search = request.POST["search"]
+        search_terms = [s.strip() for s in search.split() if s.strip()]
 
-    return render(request, "paper/paper_list.html", {"papers": papers_without_topics})
+        for term in search_terms:
+            if term != "":
+                papers = papers.filter(
+                    Q(author__icontains=term)
+                    | Q(title__icontains=term)
+                    | Q(abstract__icontains=term)
+                )
+    else:
+        papers = []
+        search = ""
+
+    return render(request, "paper/paper_list.html", {"papers": papers, "search": search})
 
 
 def paper_create(request):
@@ -102,13 +113,15 @@ def paper_note(request, id):
 
     paper = get_object_or_404(Paper, id=id)
 
-    return render(request,
-                  "paper/paper_note.html",
-                  {
-                      "paper": paper,
-                      "LLM_REQUEST_URL": settings.LLM_REQUEST_URL,
-                      "LLM_MODEL": settings.LLM_MODEL
-                  })
+    return render(
+        request,
+        "paper/paper_note.html",
+        {
+            "paper": paper,
+            "LLM_REQUEST_URL": settings.LLM_REQUEST_URL,
+            "LLM_MODEL": settings.LLM_MODEL,
+        },
+    )
 
 
 def paper_update(request, id):
@@ -338,8 +351,7 @@ def update_paper_citations(paper):
 
             try:
                 paper.save()
-                logger.info(
-                    f'{paper.citations} citation(s) for "{paper.title}"')
+                logger.info(f'{paper.citations} citation(s) for "{paper.title}"')
                 return response, paper
             except Exception as e:
                 logger.error(e)

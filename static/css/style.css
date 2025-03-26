@@ -159,16 +159,19 @@ select.inline {
   width: auto;
 }
 
+/**************
+Markdown
+**************/
+
 div.markdown {
   background-color: #fafafa;
 }
 
 div.markdown h1 {
   font-size: 2em;
-  padding-top: 0.3em;
-  padding-bottom: 0.3em;
-  border-top: 2px solid Navy;
-  border-bottom: 2px solid Navy;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  border-bottom: 2px solid SteelBlue;
 }
 
 div.markdown h2 {
@@ -188,12 +191,17 @@ div.markdown h5 {
   font-size: 1.1em;
 }
 
+div.markdown h6 {
+  font-size: 1em;
+}
+
 div.markdown h1,
 div.markdown h2,
 div.markdown h3,
 div.markdown h4,
-div.markdown h5 {
-  color: MidnightBlue;
+div.markdown h5,
+div.markdown h6 {
+  color: SteelBlue;
   font-weight: 700;
   margin-top: 1em;
   margin-bottom: 1em;
@@ -289,4 +297,36 @@ w-140px {
 
 w-160px {
   width: 160px;
+}
+
+/**************
+Markdown Editor
+**************/
+
+span.cm-header.cm-header-1 {
+  line-height: 1.5em !important;
+  font-size: 2em;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  border-bottom: 2px solid SteelBlue;
+}
+
+span.cm-header.cm-header-1,
+span.cm-header.cm-header-2,
+span.cm-header.cm-header-3,
+span.cm-header.cm-header-4,
+span.cm-header.cm-header-5,
+span.cm-header.cm-header-6 {
+  color: SteelBlue;
+  font-weight: 700;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+span.cm-header.cm-header-2 {
+  text-decoration: underline;
+}
+
+span.cm-em {
+  color: orangered;
 }

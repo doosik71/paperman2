@@ -2,9 +2,13 @@
 {% load static %}
 {% block content %}
 <div class="container-fluid my-2">
-  <div class="row">
-    <div class="col-12 d-flex justify-content-center">
-      <a href="{% url 'paper_create' %}" class="btn btn-primary mx-2">Add</a>
+  <div class="row justify-content-center">
+    <div class="col-4">
+      <form method="POST" class="d-flex" action="{% url 'paper_list' %}">
+        {% csrf_token %}
+        <input type="text" class="form-control me-2" id="search" name="search" placeholder="Search" required value="{{search}}">
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
     </div>
   </div>
   <div class="row">
@@ -13,20 +17,20 @@
         <table id="papers" class="table table-bordered table-hover">
           <thead>
             <tr>
-              <th class="text-center">Tags</th>
-              <th class="text-center" width="20%">Author</th>
-              <th class="text-center" width="50%">Title</th>
+              <th class="text-center" width="11%">Tags</th>
+              <th class="text-center" width="18%">Author</th>
+              <th class="text-center" width="38%">Title</th>
               <th class="text-center" width="10%">Publisher</th>
-              <th class="text-center">Date</th>
-              <th class="text-center">Citations</th>
-              <th class="text-center">PDF</th>
-            </tr>
+              <th class="text-center" width="7%">Date</th>
+              <th class="text-center" width="7%">Citations</th>
+              <th class="text-center" width="9%">Links</th>
+                </tr>
           </thead>
           <tbody>
             {% for paper in papers %}
-            <tr>
-              <td id="tags" width="50px">
-                <span class="smaller text-center" id="tags-{{ paper.id }}"></span>
+            <tr data-paper-id="{{ paper.id }}">
+              <td id="tags" width="50px" class="text-center">
+                <span id="tags-{{ paper.id }}"></span>
                 <script>
                   renderTags({{ paper.id }}, '{{ paper.tags|escapejs  }}')
                 </script>
@@ -35,11 +39,23 @@
               <td id="title"><a href="{% url 'paper_detail' paper.id %}">{{ paper.title }}</a></td>
               <td id="publisher" class=" text-center"><a href="{{ paper.url }}">{{ paper.publisher }}</a></td>
               <td id="publish_date" class="text-center">{{ paper.publish_date|date:"Y.m.d"|default_if_none:"-" }}</td>
-              <td id="citations" class="text-end">{{ paper.citations|default_if_none:"-" }} <button class="circle"
-                  onclick=`onCitation(${paper_id})>&#8634;</button></td>
-              <td id="pdf_url" class="text-center">
-                <a href="{% url 'paper_pdf' paper.id %}" title="{{ paper.pdf_url }}">
-                  <img src="{% static 'images/pdf.png' %}" class="icon" alt="{{ paper.pdf_url }}"></a>
+              <td id="citations" class="text-end">
+                <span id="citations-{{ paper.id }}" class="px-2">{{ paper.citations|default_if_none:"-" }}</span>
+                <button class="mx-2 circle" onclick='onCitation({{ paper.id }})'>&#8634;</button>
+              </td>
+              <td id="links" class="text-center">
+                <a href="{% url 'paper_pdf' paper.id %}" class="mx-1" title="PDF" target="_blank">
+                  <img src="{% static 'images/pdf.png' %}" class="icon" alt="PDF"></a>
+                <a href="{% url 'paper_note' paper.id %}" class="mx-1" title="Note" target="_blank">
+                  <img src="{% static 'images/note.png' %}" class="icon" alt="Note"></a>
+                <a href="https://scholar.google.com/scholar?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
+                  class="mx-1" title="Google scholar" target="_blank" rel="noopener">
+                  <img src="{% static 'images/google_scholar.png' %}" alt="Google Scholar" class="icon">
+                </a>
+                <a href="https://www.semanticscholar.org/search?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
+                  class="mx-1" title="Semantic Scholar" target="_blank" rel="noopener">
+                  <img src="{% static 'images/semantic_scholar.png' %}" alt="Semantic Scholar" class="icon">
+                </a>
               </td>
             </tr>
             {% endfor %}
@@ -48,12 +64,18 @@
       </div>
     </div>
   </div>
+  <div class="row">
+    <div class="col-12 d-flex justify-content-center">
+      <a href="{% url 'paper_create' %}" class="btn btn-primary mx-2">Add</a>
+    </div>
+  </div>
 </div>
 
 <script>
   $(document).ready(function () {
     $('#papers').DataTable({
-      "pageLength": 25
+      "paging": false,
+      "searching": false
     });
   });
 </script>

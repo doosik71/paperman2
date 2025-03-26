@@ -43,7 +43,17 @@
     <button type="button" class="btn btn-primary mx-2" onclick='onSave()'>Save</button>
   </div>
 </div>
-<script>
+<script type="text/javascript" charset="utf8"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    }
+  });
   const noteControl = document.getElementById('note');
   const markdownControl = document.getElementById('markdown');
   const pdfPanel = $("#pdf-panel");
@@ -175,7 +185,7 @@
   async function onTranslateBOT() {
     const prompt = "Translate the following text into Korean. Do not use Chinese nor Japanese.\n\n---\n\nTEXT: ";
     const question = prompt + simplemde.value().trim();
-    
+
     try {
       requestBOT(question);
       alert("Sending request!\nIt may take a while to receive a response.");
@@ -194,7 +204,6 @@
       },
       success: function (response) {
         document.querySelector('div.CodeMirror').style.border = '1px solid lightgray';
-        alert("Note saved successfully!");
       },
       error: function (xhr, msg, err) {
         alert("Error: " + msg);

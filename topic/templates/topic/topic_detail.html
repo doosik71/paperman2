@@ -116,7 +116,7 @@
         {% for paper in papers %}
         <tr data-paper-id="{{ paper.id }}">
           <td id="tags" width="50px" class="text-center">
-            <span class="text-center" id="tags-{{ paper.id }}"></span>
+            <span id="tags-{{ paper.id }}"></span>
             <script>
               renderTags({{ paper.id }}, '{{ paper.tags|escapejs }}')
             </script>
