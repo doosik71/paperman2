@@ -41,6 +41,10 @@ a {
   text-decoration: none;
 }
 
+input.disabled {
+  background-color: lightgray;
+}
+
 main table thead tr th {
   background-color: ghostwhite;
 }
@@ -52,6 +56,11 @@ main table thead tr th {
 .smaller {
   font-size: 0.6rem;
   padding-top: 0.4em;
+}
+
+div.topic-panel {
+  margin-left: 12px;
+  width: 73.2%;
 }
 
 header nav span#status {
@@ -171,12 +180,10 @@ div.markdown h1 {
   font-size: 2em;
   padding-top: 0.2em;
   padding-bottom: 0.2em;
-  border-bottom: 2px solid SteelBlue;
 }
 
 div.markdown h2 {
   font-size: 1.6em;
-  text-decoration: underline;
 }
 
 div.markdown h3 {
@@ -303,12 +310,11 @@ w-160px {
 Markdown Editor
 **************/
 
-span.cm-header.cm-header-1 {
-  line-height: 1.5em !important;
+main div#note-panel div.CodeMirror span.cm-header.cm-header-1 {
+  line-height: 1.3em;
   font-size: 2em;
   padding-top: 0.2em;
   padding-bottom: 0.2em;
-  border-bottom: 2px solid SteelBlue;
 }
 
 span.cm-header.cm-header-1,
@@ -323,10 +329,11 @@ span.cm-header.cm-header-6 {
   margin-bottom: 1em;
 }
 
-span.cm-header.cm-header-2 {
-  text-decoration: underline;
-}
-
 span.cm-em {
   color: orangered;
+}
+
+main div#note-panel div.CodeMirror span.cm-link {
+  color: dodgerblue;
+  text-decoration: none;
 }

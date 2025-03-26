@@ -37,7 +37,9 @@ def paper_list(request):
         papers = []
         search = ""
 
-    return render(request, "paper/paper_list.html", {"papers": papers, "search": search})
+    return render(
+        request, "paper/paper_list.html", {"papers": papers, "search": search}
+    )
 
 
 def paper_create(request):
@@ -45,45 +47,69 @@ def paper_create(request):
     Create a new paper
     """
 
+    topics = Topic.objects.all()
+    topics = sorted(topics, key=lambda t: t.title)
+
     if request.method == "POST":
-        title = request.POST["title"]
-        author = request.POST["author"]
-        publisher = request.POST["publisher"]
-        publish_date = request.POST["publish_date"]
-        doi = request.POST["doi"]
-        url = request.POST["url"]
-        pdf_url = request.POST["pdf_url"]
-        pdf_name = request.POST["pdf_name"]
-        citations = request.POST["citations"]
-        tags = request.POST["tags"]
-        abstract = request.POST["abstract"]
-        note = request.POST["note"]
+        try:
+            title = request.POST["title"]
+            author = request.POST["author"]
+            publisher = request.POST["publisher"]
+            publish_date = request.POST["publish_date"]
+            doi = request.POST["doi"]
+            url = request.POST["url"]
+            pdf_url = request.POST["pdf_url"]
+            pdf_name = request.POST["pdf_name"]
+            citations = request.POST["citations"]
+            tags = request.POST["tags"]
+            abstract = request.POST["abstract"]
+            note = request.POST["note"]
 
-        publish_date = datetime.strptime(publish_date, "%Y-%m-%d")
-        publish_date = timezone.make_aware(
-            publish_date, timezone.get_current_timezone()
-        )
+            if publish_date:
+                publish_date = datetime.strptime(publish_date, "%Y-%m-%d")
+                publish_date = timezone.make_aware(
+                    publish_date, timezone.get_current_timezone()
+                )
+            else:
+                publish_date = None
 
-        Paper.objects.create(
-            title=title.strip(),
-            author=author.strip(),
-            publisher=publisher.strip(),
-            publish_date=publish_date,
-            doi=doi.strip(),
-            url=url.strip(),
-            pdf_url=pdf_url.strip(),
-            pdf_name=pdf_name.strip(),
-            citations=citations,
-            tags=tags.strip(),
-            abstract=abstract.strip(),
-            note=note.strip(),
-        )
+            if citations == "":
+                citations = None
 
-        logger.info(f"Paper created: {title}")
+            paper = Paper.objects.create(
+                title=title.strip(),
+                author=author.strip(),
+                publisher=publisher.strip(),
+                publish_date=publish_date,
+                doi=doi.strip(),
+                url=url.strip(),
+                pdf_url=pdf_url.strip(),
+                pdf_name=pdf_name.strip(),
+                citations=citations,
+                tags=tags.strip(),
+                abstract=abstract.strip(),
+                note=note.strip(),
+            )
 
-        return redirect("paper_list")
+            selected_topics = request.POST.getlist("topics")
 
-    return render(request, "paper/paper_create.html")
+            for topic_id in selected_topics:
+                topic = Topic.objects.get(id=topic_id)
+                paper.topics.add(topic)
+
+            paper.save()
+
+            message = f'Paper created: "{title}"'
+            messages.success(request, message)
+            logger.info(message)
+            
+            return redirect("paper_detail", paper.id)
+        except Exception as e:
+            message = f"Error: {e}"
+            messages.error(request, message)
+            logger.error(message)
+
+    return render(request, "paper/paper_create.html", {"topics": topics})
 
 
 def paper_detail(request, id):
@@ -92,8 +118,15 @@ def paper_detail(request, id):
     """
 
     paper = get_object_or_404(Paper, id=id)
+    topics = Topic.objects.all()
+    topic_ids = list(paper.topics.values_list("id", flat=True))
+    topics = sorted(topics, key=lambda t: t.title)
 
-    return render(request, "paper/paper_detail.html", {"paper": paper})
+    return render(
+        request,
+        "paper/paper_detail.html",
+        {"paper": paper, "topics": topics, "topic_ids": topic_ids},
+    )
 
 
 def paper_pdf(request, id):
@@ -147,13 +180,23 @@ def paper_update(request, id):
             paper.abstract = request.POST["abstract"].strip()
             paper.note = request.POST["note"].strip()
 
-            publish_date = datetime.strptime(publish_date, "%Y-%m-%d")
-            paper.publish_date = timezone.make_aware(
-                publish_date, timezone.get_current_timezone()
-            )
+            if publish_date:
+                publish_date = datetime.strptime(publish_date, "%Y-%m-%d")
+                publish_date = timezone.make_aware(
+                    publish_date, timezone.get_current_timezone()
+                )
+            else:
+                publish_date = None
 
             if paper.citations == "":
                 paper.citations = None
+
+            selected_topics = request.POST.getlist("topics")
+            paper.topics.clear()
+
+            for topic_id in selected_topics:
+                topic = Topic.objects.get(id=topic_id)
+                paper.topics.add(topic)
 
             paper.save()
 
@@ -165,7 +208,7 @@ def paper_update(request, id):
             messages.error(request, message)
             logger.error(message)
 
-    return render(request, "paper/paper_detail.html", {"paper": paper})
+    return redirect("paper_detail", id)
 
 
 def paper_update_note(request, id):

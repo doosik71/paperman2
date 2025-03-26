@@ -27,15 +27,13 @@
     </div>
   </div>
   <div class="col-12 text-center">
-    <select id="view-mode" title="View Mode" class="form-control inline" onchange="onViewMode()">
-      <option value="PDF">[P &middot; &middot;] PDF</option>
-      <option value="Note">[&middot; N &middot;] Note</option>
-      <option value="Markdown">[&middot; &middot; M] Markdown</option>
-      <option value="PDF + Note">[P N &middot;] PDF + Note</option>
-      <option value="PDF + Markdown">[P &middot; M] PDF + Markdown</option>
-      <option value="Note + Markdown" selected>[&middot; N M] Note + Markdown</option>
-      <option value="PDF + Note + Markdown">[P N M] PDF + Note + Markdown</option>
-    </select>
+    <input type="checkbox" id="check-pdf" name="pdf" value="pdf" title="pdf" checked onchange="onViewMode()">
+    <label for="pdf" class="form-label">PDF</label>
+    <input type="checkbox" id="check-note" name="note" value="note" title="note" checked onchange="onViewMode()">
+    <label for="note" class="form-label">Note</label>
+    <input type="checkbox" id="check-markdown" name="markdown" value="markdown" title="markdown" checked
+      onchange="onViewMode()">
+    <label for="markdown" class="form-label">Markdown</label>
     <button type="button" class="btn btn-secondary mx-2" onclick='onImportPDF("{{ paper.pdf_url }}")'>Import
       PDF</button>
     <button type="button" class="btn btn-success mx-2" onclick='onSummarizeBOT()'>Summarize</button>
@@ -54,6 +52,8 @@
       processEnvironments: true
     }
   });
+</script>
+<script>
   const noteControl = document.getElementById('note');
   const markdownControl = document.getElementById('markdown');
   const pdfPanel = $("#pdf-panel");
@@ -69,7 +69,7 @@
 
   simplemde.codemirror.on("change", () => {
     updateMarkdown();
-    document.querySelector('div.CodeMirror').style.border = '2px solid orangered';
+    document.querySelector('div.CodeMirror').style.border = '1px solid orangered';
   });
 
   function onLeftButton() {
@@ -83,37 +83,24 @@
   }
 
   function onViewMode() {
-    const selection = document.getElementById("view-mode").value;
+    const checkPdf = document.getElementById("check-pdf").checked;
+    const checkNote = document.getElementById("check-note").checked;
+    const checkMarkdown = document.getElementById("check-markdown").checked;
 
-    if (selection == 'PDF') {
+    if (checkPdf)
       pdfPanel.show();
-      notePanel.hide();
-      markdownPanel.hide();
-    } else if (selection == 'Note') {
+    else
       pdfPanel.hide();
+
+    if (checkNote)
       notePanel.show();
-      markdownPanel.hide();
-    } else if (selection == 'Markdown') {
-      pdfPanel.hide();
+    else
       notePanel.hide();
+
+    if (checkMarkdown)
       markdownPanel.show();
-    } else if (selection == 'PDF + Note') {
-      pdfPanel.show();
-      notePanel.show();
+    else
       markdownPanel.hide();
-    } else if (selection == 'PDF + Markdown') {
-      pdfPanel.show();
-      notePanel.hide();
-      markdownPanel.show();
-    } else if (selection == 'Note + Markdown') {
-      pdfPanel.hide();
-      notePanel.show();
-      markdownPanel.show();
-    } else if (selection == 'PDF + Note + Markdown') {
-      pdfPanel.show();
-      notePanel.show();
-      markdownPanel.show();
-    }
   }
 
   function updateMarkdown() {
@@ -213,8 +200,6 @@
   }
 
   window.onload = function () {
-    pdfPanel.hide();
-
     const pdfUrl = "{{ paper.pdf_url }}";
     const frame = document.getElementById('pdf');
     frame.src = pdfUrl;

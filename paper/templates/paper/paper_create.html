@@ -1,88 +1,114 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="d-flex justify-content-center">
-  <div class="container-xxl my-2 col-12">
-    <form method="POST">
-      {% csrf_token %}
-      <div class="row my-2">
-        <div class="col-2 text-right mt-1">
-          <label for="title" class="form-label fw-bold mt-1">Title</label>
-        </div>
-        <div class="col-10">
-          <input type="text" class="form-control" id="title" name="title" placeholder="Title" required>
-        </div>
-        <div class="col-2 text-right mt-1">
-          <label for="author" class="form-label fw-bold mt-1">Author</label>
-        </div>
-        <div class="col-10">
-          <input type="text" class="form-control" id="author" name="author" placeholder="Author" required>
-        </div>
-        <div class="col-2 text-right mt-1">
-          <label for="publisher" class="form-label">Publisher</label>
-        </div>
-        <div class="col-10">
-          <input type="text" class="form-control" id="publisher" name="publisher" placeholder="Publisher">
-        </div>
-        <div class="col-2 text-right mt-1">
-          <label for="publish_date" class="form-label">Publish Date</label>
-        </div>
-        <div class="col-10">
-          <input type="date" class="form-control" id="publish_date" name="publish_date" placeholder="Publish Date">
-        </div>
-        <div class="col-2 text-right mt-1">
-          <label for="doi" class="form-label">DOI</label>
-        </div>
-        <div class="col-10">
-          <input type="text" class="form-control" id="doi" name="doi" placeholder="DOI">
-        </div>
-        <div class="col-2 text-right mt-1">
-          <label for="url" class="form-label fw-bold mt-1">URL</label>
-        </div>
-        <div class="col-10">
-          <input type="text" class="form-control" id="url" name="url" placeholder="URL" required>
-        </div>
-        <div class="col-2 text-right mt-1">
-          <label for="pdf_url" class="form-label fw-bold mt-1">PDF URL</label>
-        </div>
-        <div class="col-10">
-          <input type="text" class="form-control" id="pdf_url" name="pdf_url" placeholder="PDF URL" required>
-        </div>
-        <div class="col-2 text-right mt-1">
-          <label for="pdf_name" class="form-label">PDF Name</label>
-        </div>
-        <div class="col-10">
-          <input type="text" class="form-control" id="pdf_name" name="pdf_name" placeholder="PDF Name">
-        </div>
-        <div class="col-2 text-right mt-1">
-          <label for="citations" class="form-label">Citations</label>
-        </div>
-        <div class="col-10">
-          <input type="text" class="form-control" id="citations" name="citations" placeholder="Citations">
-        </div>
-        <div class="col-2 text-right mt-1">
-          <label for="tags" class="form-label">Tags</label>
-        </div>
-        <div class="col-10">
-          <input type="text" class="form-control" id="tags" name="tags" placeholder="Tags">
-        </div>
-        <div class="col-2 text-right mt-1">
-          <label for="abstract" class="form-label">Abstract</label>
-        </div>
-        <div class="col-10">
-          <textarea type="abstract" class="form-control note" id="abstract" name="abstract"
-            placeholder="Abstract"></textarea>
-        </div>
-        <div class="col-2 text-right mt-1">
-          <label for="note" class="form-label">Note</label>
-        </div>
-        <div class="col-10">
-          <textarea type="text" class="form-control note" id="note" name="note" placeholder="Note"></textarea>
-        </div>
-        <div class="col-12 mt-3 text-center">
-          <button type="submit" class="btn btn-primary mx-2">Create</button>
-        </div>
+<div class="justify-content-center">
+  <div class="container">
+    {% if messages %}
+    <div class="row">
+      {% for message in messages %}
+      <div class="message">
+        {{ message }}
+        <button type="button" onclick="this.parentElement.style.display='none'" class="message">✖</button>
       </div>
-    </form>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div class="row">
+      <form method="POST" action="{% url 'paper_create' %}">
+        {% csrf_token %}
+        <div class="row my-2">
+          <div class="col-2 text-right mt-2">
+            <label for="title" class="form-label fw-bold mt-1">Title</label>
+          </div>
+          <div class="col-9 mt-1">
+            <input type="text" class="form-control" id="title" name="title" placeholder="Title" required>
+          </div>
+          <div class="col-2 text-right mt-2">
+            <label for="author" class="form-label fw-bold mt-1">Author</label>
+          </div>
+          <div class="col-9 mt-1">
+            <input type="text" class="form-control" id="author" name="author" placeholder="Author" required>
+          </div>
+          <div class="col-2 text-right mt-2">
+            <label for="publisher" class="form-label">Publisher</label>
+          </div>
+          <div class="col-9 mt-1">
+            <input type="text" class="form-control" id="publisher" name="publisher" placeholder="Publisher">
+          </div>
+          <div class="col-2 text-right mt-2">
+            <label for="publish_date" class="form-label">Publish Date</label>
+          </div>
+          <div class="col-9 mt-1">
+            <input type="date" class="form-control" id="publish_date" name="publish_date" placeholder="Publish Date">
+          </div>
+          <div class="col-2 text-right mt-2">
+            <label for="doi" class="form-label">DOI</label>
+          </div>
+          <div class="col-9 mt-1">
+            <input type="text" class="form-control" id="doi" name="doi" placeholder="DOI">
+          </div>
+          <div class="col-2 text-right mt-2">
+            <label for="url" class="form-label fw-bold mt-1">URL</label>
+          </div>
+          <div class="col-9 mt-1">
+            <input type="text" class="form-control" id="url" name="url" placeholder="URL" required>
+          </div>
+          <div class="col-2 text-right mt-2">
+            <label for="pdf_url" class="form-label fw-bold mt-1">PDF URL</label>
+          </div>
+          <div class="col-9 mt-1">
+            <input type="text" class="form-control" id="pdf_url" name="pdf_url" placeholder="PDF URL" required>
+          </div>
+          <div class="col-2 text-right mt-2">
+            <label for="pdf_name" class="form-label">PDF Name</label>
+          </div>
+          <div class="col-9 mt-1">
+            <input type="text" class="form-control" id="pdf_name" name="pdf_name" placeholder="PDF Name">
+          </div>
+          <div class="col-2 text-right mt-2">
+            <label for="citations" class="form-label">Citations</label>
+          </div>
+          <div class="col-9 mt-1">
+            <input type="text" class="form-control" id="citations" name="citations" placeholder="Citations">
+          </div>
+          <div class="col-2 text-right mt-2">
+            <label for="tags" class="form-label">Tags</label>
+          </div>
+          <div class="col-9 mt-1">
+            <input type="text" class="form-control disabled" id="tags" name="tags" placeholder="Tags" readonly>
+          </div>
+          <div class="col-2 text-right mt-2">
+            <label for="abstract" class="form-label">Abstract</label>
+          </div>
+          <div class="col-9 mt-1">
+            <textarea type="abstract" class="form-control note" id="abstract" name="abstract"
+              placeholder="Abstract"></textarea>
+          </div>
+          <div class="col-2 text-right mt-2">
+            <label for="note" class="form-label">Note</label>
+          </div>
+          <div class="col-9 mt-1">
+            <textarea type="text" class="form-control note" id="note" name="note" placeholder="Note"></textarea>
+          </div>
+          <div class="col-2 text-right mt-2">
+            <label for="topic" class="form-label">Topic</label>
+          </div>
+          <div class="col-9 mt-1 py-1 border rounded topic-panel">
+            {% for topic in topics %}
+            <div>
+              <input class="form-check-input" type="checkbox" id="topic-{{ topic.id }}" name="topics" value="{{ topic.id }}"
+                title="{{ topic.title }}" {% if topic.id in topic_ids %} checked {% endif %}>
+              <label class="form-check-label" for="topic-{{ topic.id }}">
+                {{ topic.title }}
+              </label>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="col-12 mt-3 text-center">
+            <button type="submit" class="btn btn-primary mx-2">Create</button>
+          </div>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 {% endblock %}
