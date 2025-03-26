@@ -147,12 +147,21 @@ select.inline {
   width: auto;
 }
 
+div.markdown {
+  background-color: #fafafa;
+}
+
 div.markdown h1 {
   font-size: 2em;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+  border-top: 2px solid Navy;
+  border-bottom: 2px solid Navy;
 }
 
 div.markdown h2 {
   font-size: 1.6em;
+  text-decoration: underline;
 }
 
 div.markdown h3 {
@@ -172,6 +181,7 @@ div.markdown h2,
 div.markdown h3,
 div.markdown h4,
 div.markdown h5 {
+  color: MidnightBlue;
   font-weight: 700;
   margin-top: 1em;
   margin-bottom: 1em;
@@ -187,6 +197,12 @@ div.markdown a {
 
 div.markdown i, div.markdown em {
   color: orangered;
+  padding-right: 0.1em;
+}
+
+div.markdown hr {
+  border-color: navy;
+  border-width: 2px;
 }
 
 div.message {

@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,13 +17,28 @@
   <script type="text/javascript" charset="utf8" src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
   <script type="text/javascript" charset="utf8" src="{% static 'js/dataTables-2.2.2.min.js' %}"></script>
   <script type="text/javascript" charset="utf8" src="{% static 'js/pdf-lib.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/pdf-3.11.174.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/pdf.worker-3.11.174.min.js' %}"></script>
+  <script type="text/javascript" charset="utf8" src="{% static 'js/pdf-3.11.174.min.js' %}"></script>
+  <script type="text/javascript" charset="utf8" src="{% static 'js/pdf.worker-3.11.174.min.js' %}"></script>
   <script type="text/javascript" charset="utf8" src="{% static 'js/marked-3.0.7.min.js' %}"></script>
   <script type="text/javascript" charset="utf8" src="{% static 'js/simplemde.min.js' %}"></script>
+  <script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+          tex2jax: {
+          inlineMath: [['$','$'], ['\\(', '\\)']],
+        displayMath: [['$$','$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        processEnvironments: true
+      }
+    });
+    </script>
+  </script>
+  </script>
+  </script>
   <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
   <title>Paper Manager</title>
 </head>
+
 <body>
   <header>
     <nav class="navbar navbar-expand-lg bg-body-tertiary py-0" aria-hidden="true" data-immersive-reader-ignore="true">
@@ -48,4 +64,5 @@
     {% block content %}{% endblock %}
   </main>
 </body>
+
 </html>

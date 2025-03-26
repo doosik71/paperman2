@@ -20,7 +20,7 @@
     </div>
     <div class="flex-fill col-6 m-2" id="note-panel" aria-hidden="true" data-immersive-reader-ignore="true">
       <textarea type="text" class="full-note container-fluid border rounded" id="note" name="note"
-        placeholder="Note" aria-hidden="true" data-immersive-reader-ignore="true">{{ paper.note|safe }}</textarea>
+        placeholder="Note">{{ paper.note|safe }}</textarea>
     </div>
     <div class="flex-fill col-6 m-2" id="markdown-panel">
       <div id="markdown" class="border rounded markdown p-2"></div>
@@ -107,6 +107,9 @@
     const regex = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Cyrillic}\p{Script=Devanagari}]/gu;
     markdown = markdown.replace(regex, match => `<span style="color: red;">${match}</span>`);
     markdownControl.innerHTML = markdown;
+
+    // 마크다운이 변경될 때마다 수식을 다시 렌더링해야 한다.
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
   }
 
   async function onImportPDF(pdfUrl) {
@@ -189,11 +192,12 @@
 
   window.onload = function () {
     pdfPanel.hide();
-    updateMarkdown();
 
     const pdfUrl = "{{ paper.pdf_url }}";
     const frame = document.getElementById('pdf');
     frame.src = pdfUrl;
+
+    updateMarkdown();
   }
 </script>
 {% endblock %}
