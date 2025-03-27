@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-4">
+    <div class="card shadow p-4 mt-5">
+      <h3 class="text-center">Login</h3>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="id_username" class="form-label">ID</label>
+          <input type="text" name="username" id="id_username" autocomplete="username" class="form-control" autofocus maxlength="80" required>
+        </div>
+        <div class="mb-3">
+          <label for="id_password" class="form-label">Password</label>
+          <input type="password" name="password" id="id_password" class="form-control" autocomplete="current-password" maxlength="80" required>
+        </div>
+        {% if form.errors %}
+        <div class="alert alert-danger text-center">
+          Invalid ID or password!
+        </div>
+        {% endif %}
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

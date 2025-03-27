@@ -32,7 +32,7 @@
               <td id="tags" width="50px" class="text-center">
                 <span id="tags-{{ paper.id }}"></span>
                 <script>
-                  renderTags({{ paper.id }}, '{{ paper.tags|escapejs  }}')
+                  renderTags({{ paper.id }}, '{{ paper.tags|escapejs  }}', '{{ user.is_authenticated }}');
                 </script>
               </td>
               <td id="author">{{ paper.author }}</td>
@@ -64,11 +64,13 @@
       </div>
     </div>
   </div>
+  {% if user.is_authenticated %}
   <div class="row">
     <div class="col-12 d-flex justify-content-center">
       <a href="{% url 'paper_create' %}" class="btn btn-primary mx-2">Add</a>
     </div>
   </div>
+  {% endif %}
 </div>
 
 <script>

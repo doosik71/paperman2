@@ -21,10 +21,11 @@
         </div>
         <div class="col-10">
           <div class="form-text">Keywords are separated by commas.</div>
-        </div>        
-      <div class="col-12 mt-3 text-center">
-        <button type="submit" class="btn btn-primary">Create</button>
-      </div>
+        </div>
+        <div class="col-12 mt-3 text-center">
+          <button {% if not user.is_authenticated %}disabled{% endif %} type="submit"
+            class="btn btn-primary">Create</button>
+        </div>
     </form>
   </div>
 </div>

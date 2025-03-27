@@ -66,7 +66,8 @@
             </div>
             <div class="col-2">
               <button type="button" class="btn btn-primary mx-2"
-                onclick="setFormAction('{% url 'topic_update' topic.id %}')">Update</button>
+                onclick="setFormAction('{% url 'topic_update' topic.id %}')" {% if not user.is_authenticated %} disabled
+                {% endif %}>Update</button>
             </div>
           </div>
         </div>
@@ -83,7 +84,8 @@
           <option value="1000">1,000</option>
           <option value="2000">2,000</option>
         </select>
-        <button type="button" class="btn btn-success mx-3" onclick="onCollectArxiv()">Collect Arxiv</button>
+        <button type="button" class="btn btn-success mx-3" onclick="onCollectArxiv()" {% if not user.is_authenticated %}
+          disabled {% endif %}>Collect Arxiv</button>
         <div class="vr mx-3"></div>
         <label class="form-label mt-2 mx-2">Tags:</label>
         <button type="button" class="transparent" onclick="onTagFilter('papers', '🗙')">🗙</button>
@@ -95,7 +97,8 @@
         <button type="button" class="transparent" onclick="onTagFilter('papers', '✅')">✅</button>
         <div class="vr mx-3"></div>
         <label class="form-label mt-2 mx-2">Citations:</label>
-        <button class="m-2 balloon" onclick='onAllCitation({{ topic.id }})'>All &#8634;</button>
+        <button class="m-2 balloon" onclick='onAllCitation({{ topic.id }})' {% if not user.is_authenticated %} disabled
+          {% endif %}>All &#8634;</button>
       </div>
     </div>
   </div>
@@ -118,7 +121,7 @@
           <td id="tags" width="50px" class="text-center">
             <span id="tags-{{ paper.id }}"></span>
             <script>
-              renderTags({{ paper.id }}, '{{ paper.tags|escapejs }}')
+              renderTags({{ paper.id }}, '{{ paper.tags|escapejs }}', '{{ user.is_authenticated }}');
             </script>
           </td>
           <td id="author">{{ paper.author }}</td>
@@ -127,7 +130,9 @@
           <td id="publish_date" class="text-center">{{ paper.publish_date|date:"Y.m.d"|default:"-" }}</td>
           <td id="citations" class="text-end">
             <span id="citations-{{ paper.id }}" class="px-2">{{ paper.citations|default_if_none:"-" }}</span>
+            {% if user.is_authenticated %}
             <button class="mx-2 circle" onclick='onCitation({{ paper.id }})'>&#8634;</button>
+            {% endif %}
           </td>
           <td id="links" class="text-center">
             <a href="{% url 'paper_pdf' paper.id %}" class="mx-1" title="PDF" target="_blank">

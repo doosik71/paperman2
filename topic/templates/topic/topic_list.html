@@ -16,5 +16,10 @@
   </div>
   {% endfor %}
 </div>
-<div class="m-3 text-center"><a href="{% url 'topic_create' %}" class="btn btn-primary">Create new topic</a></div>
+<div class="m-3 text-center">
+  <form action="{% url 'topic_create' %}" method="get">
+    <button {% if not user.is_authenticated %}disabled{% endif %} type="submit" class="btn btn-primary">Create new
+      topic</button>
+  </form>
+</div>
 {% endblock %}

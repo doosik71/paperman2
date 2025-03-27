@@ -95,8 +95,8 @@
           <div class="col-9 mt-1 py-1 border rounded topic-panel">
             {% for topic in topics %}
             <div>
-              <input class="form-check-input" type="checkbox" id="topic-{{ topic.id }}" name="topics" value="{{ topic.id }}"
-                title="{{ topic.title }}" {% if topic.id in topic_ids %} checked {% endif %}>
+              <input class="form-check-input" type="checkbox" id="topic-{{ topic.id }}" name="topics"
+                value="{{ topic.id }}" title="{{ topic.title }}" {% if topic.id in topic_ids %} checked {% endif %}>
               <label class="form-check-label" for="topic-{{ topic.id }}">
                 {{ topic.title }}
               </label>
@@ -104,7 +104,8 @@
             {% endfor %}
           </div>
           <div class="col-12 mt-3 text-center">
-            <button type="submit" class="btn btn-primary mx-2">Create</button>
+            <button {% if not user.is_authenticated %}disabled{% endif %} type="submit"
+              class="btn btn-primary mx-2">Create</button>
           </div>
         </div>
       </form>
