@@ -41,6 +41,10 @@ a {
   text-decoration: none;
 }
 
+table a:visited {
+  color: orangered;
+}
+
 input.disabled {
   background-color: lightgray;
 }

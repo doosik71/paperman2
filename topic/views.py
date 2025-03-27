@@ -94,16 +94,15 @@ def topic_citations(request, id):
     topic = get_object_or_404(Topic, id=id)
 
     if request.method == "POST":
-        papers = Paper.objects.filter(topics=topic)
+        papers = Paper.objects.filter(topics=topic, citations__isnull=True)
         count = len(papers)
 
         logger.info(f'Updating citations on the topic: "{topic.title}"')
 
         for index, paper in enumerate(papers):
-            if paper.citations is None:
-                logger.info(f'Processing {index + 1:,} of {count:,}')
-                update_paper_citations(paper)
-                time.sleep(1)
+            logger.info(f'Processing {index + 1:,} of {count:,}')
+            update_paper_citations(paper)
+            time.sleep(1)
 
         logger.info(f'Complete citations on the topic: "{topic.title}"')
 
