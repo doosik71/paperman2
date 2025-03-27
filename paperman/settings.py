@@ -141,3 +141,4 @@ load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 LLM_REQUEST_URL = os.getenv("LLM_REQUEST_URL")
 LLM_MODEL = os.getenv("LLM_MODEL")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")

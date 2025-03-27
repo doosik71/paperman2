@@ -40,9 +40,11 @@
       onclick='onImportPDF("{{ paper.pdf_url }}")'>Import
       PDF</button>
     <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-success mx-2"
-      onclick='onSummarizeBOT()'>Summarize</button>
+      onclick='onSummarizeBOT()'>🤖 Summarize</button>
     <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-warning mx-2"
-      onclick='onTranslateBOT()'>Translate</button>
+      onclick='onTranslateBOT()'>🤖 Translate</button>
+    <!-- <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-warning mx-2"
+      onclick='onTranslateGoogle()'><img src="{% static 'images/google_translate.webp' %}" alt="Google Translate" width="20"> Translate</button> -->
     <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-primary mx-2"
       onclick='onSave()'>Save</button>
   </div>
@@ -164,12 +166,12 @@
       appendNote('\n\n---\n\n');
 
       if (!response.ok) {
-        appendNote(`HTTP Error: ${response.status} ${response.statusText}`);
+        reportError(`Error: ${await response.text()}`);
         return;
       }
 
       if (!response.body) {
-        appendNote(`Error: No response body received`);
+        reportError(`Error: No response body received`);
         return;
       }
 
@@ -271,10 +273,6 @@ The report must be at least 10 A4 pages long.
   }
 
   async function onTranslateBOT() {
-    onTranslateBOT_ollama();
-  }
-
-  async function onTranslateBOT_ollama() {
     const prompt = "Translate the following text into Korean. Use Korean and English only.\n\n---\n\nTEXT: ";
     const question = prompt + simplemde.value().trim();
 
@@ -286,31 +284,36 @@ The report must be at least 10 A4 pages long.
     }
   }
 
-  async function onTranslateBOT_libre() {
-    const response = await fetch("https://libretranslate.com/translate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        q: simplemde.value(),
-        source: "en",
-        target: "ko",
-        format: "text"
-      })
-    });
+  async function onTranslateGoogle() {
+    const url = 'https://translation.googleapis.com/language/translate/v2';
+    const apiKey = "{{ GOOGLE_API_KEY }}";
 
-    console.log(response.text());
+    try {
+      const response = await fetch(`${url}?key=${apiKey}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          q: simplemde.value().trim(),
+          format: 'text',
+          source: 'en',
+          target: 'ko'
+        })
+      });
 
-    if (!response.ok) {
-      reportError(`Invalid response ${response.text()}`);
-      return;
+      if (!response.ok) {
+        reportError(`Error: ${await response.text()}`);
+        return;
+      }
+
+      const result = await response.json();
+
+      appendNote('\n\n---\n\n');
+      appendNote(result.data.translations[0].translatedText);
+    } catch (e) {
+      reportError(e);
     }
-
-    const data = await response.json();
-
-    appendNote('\n\n---\n\n');
-    appendNote(data.translatedText);
   }
 
   async function onSave() {
