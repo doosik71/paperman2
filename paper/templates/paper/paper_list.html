@@ -73,7 +73,16 @@
   {% endif %}
 </div>
 
-<script>
+<script>  
+  function onToggleTag(paper_id, tag) {
+    {% if user.is_authenticated %}
+    const post_url = "{% url 'paper_tag' %}";
+    const csrf_token = "{{ csrf_token }}";
+
+    toggleTag(paper_id, tag, post_url, csrf_token);
+    {% endif %}
+  }
+
   $(document).ready(function () {
     $('#papers').DataTable({
       "paging": false,

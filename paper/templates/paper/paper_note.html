@@ -27,18 +27,24 @@
     </div>
   </div>
   <div class="col-12 text-center">
-    <input type="checkbox" id="check-pdf" name="view-mode" value="pdf" title="Toggle PDF" checked onchange="onViewMode()">
+    <input type="checkbox" id="check-pdf" name="view-mode" value="pdf" title="Toggle PDF" checked
+      onchange="onViewMode()">
     <label for="check-pdf" class="form-label">PDF</label>
-    <input type="checkbox" id="check-note" name="view-mode" value="note" title="Toggle Note" checked onchange="onViewMode()">
+    <input type="checkbox" id="check-note" name="view-mode" value="note" title="Toggle Note" checked
+      onchange="onViewMode()">
     <label for="check-note" class="form-label">Note</label>
     <input type="checkbox" id="check-markdown" name="view-mode" value="markdown" title="Toggle Markdown" checked
       onchange="onViewMode()">
     <label for="check-markdown" class="form-label">Markdown</label>
-    <button type="button" class="btn btn-secondary mx-2" onclick='onImportPDF("{{ paper.pdf_url }}")' {% if not user.is_authenticated %} disabled {% endif %}>Import
+    <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-secondary mx-2"
+      onclick='onImportPDF("{{ paper.pdf_url }}")'>Import
       PDF</button>
-    <button type="button" class="btn btn-success mx-2" onclick='onSummarizeBOT()' {% if not user.is_authenticated %} disabled {% endif %}>Summarize</button>
-    <button type="button" class="btn btn-warning mx-2" onclick='onTranslateBOT()' {% if not user.is_authenticated %} disabled {% endif %}>Translate</button>
-    <button type="button" class="btn btn-primary mx-2" onclick='onSave()' {% if not user.is_authenticated %} disabled {% endif %}>Save</button>
+    <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-success mx-2"
+      onclick='onSummarizeBOT()'>Summarize</button>
+    <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-warning mx-2"
+      onclick='onTranslateBOT()'>Translate</button>
+    <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-primary mx-2"
+      onclick='onSave()'>Save</button>
   </div>
 </div>
 <script type="text/javascript" charset="utf8"

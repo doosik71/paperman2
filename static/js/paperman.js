@@ -80,7 +80,7 @@ async function getArxivList(keywords, max_results) {
   }
 }
 
-function renderTags(paper_id, tags, user_is_authenticated) {
+function renderTags(paper_id, tags) {
   const full_tags = ["📌", "🔎", "📖", "👍", "⭐", "✅"];
   const tooltip = {
     "📌": "Bookmark",
@@ -91,27 +91,15 @@ function renderTags(paper_id, tags, user_is_authenticated) {
     "✅": "Done",
   }
 
-  if (user_is_authenticated == 'True') {
-    const html = full_tags.map(tag => {
-      if (tags.includes(tag)) {
-        return `<button class="transparent active" onclick="onToggleTag(${paper_id}, '${tag}')" title="${tooltip[tag]}">${tag}</button>`;
-      } else {
-        return `<button class="transparent inactive" onclick="onToggleTag(${paper_id}, '${tag}')" title="${tooltip[tag]}">${tag}</button>`;
-      }
-    }).join('');
+  const html = full_tags.map(tag => {
+    if (tags.includes(tag)) {
+      return `<button class="transparent active" onclick="onToggleTag(${paper_id}, '${tag}')" title="${tooltip[tag]}">${tag}</button>`;
+    } else {
+      return `<button class="transparent inactive" onclick="onToggleTag(${paper_id}, '${tag}')" title="${tooltip[tag]}">${tag}</button>`;
+    }
+  }).join('');
 
-    document.getElementById(`tags-${paper_id}`).innerHTML = html;
-  } else {
-    const html = full_tags.map(tag => {
-      if (tags.includes(tag)) {
-        return `<button class="transparent active" title="${tooltip[tag]}">${tag}</button>`;
-      } else {
-        return `<button class="transparent inactive" title="${tooltip[tag]}">${tag}</button>`;
-      }
-    }).join('');
-
-    document.getElementById(`tags-${paper_id}`).innerHTML = html;
-  }
+  document.getElementById(`tags-${paper_id}`).innerHTML = html;
 }
 
 function toggleTag(paper_id, tag, post_url, csrf_token) {
@@ -127,7 +115,7 @@ function toggleTag(paper_id, tag, post_url, csrf_token) {
     })
   }).then(response => response.json())
     .then(data => {
-      renderTags(paper_id, data.tags, '{{ user.is_authenticated }}');
+      renderTags(paper_id, data.tags);
     })
     .catch(error => {
       console.error('Error:', error);
