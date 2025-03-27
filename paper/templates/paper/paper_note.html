@@ -123,7 +123,6 @@
 
   async function onImportPDF(pdfUrl) {
     try {
-      appendNote('\n\n---\n\n');
       appendNote(await extractPDF(pdfUrl));
     } catch (e) {
       reportError(e);
@@ -146,6 +145,9 @@
   }
 
   async function requestBOT(question) {
+    console.log(`LLM URL: ${llmUrl}`);
+    console.log(`Model: ${llmModel}`);
+
     try {
       const response = await fetch(llmUrl, {
         method: "POST",
@@ -222,8 +224,43 @@
   }
 
   async function onSummarizeBOT() {
-    const prompt = "Write a very detailed analysis report for the following paper in Markdown format.\n\n---\n\nPAPER: "
+    const prompt_1 = `Write a very detailed analysis report for the following academic research paper in structured Markdown format.
+- The report should include 1. Abstract, 2. Introduction, 3. Related Works, 4. Methodology, 5. Experiments and Results, and 6. Conclusion.
+- Cover each section thoroughly and in detail.
+- Omit reference.
+- Omit appendix.
+---
+**PAPER**: `;
+    const prompt_2 = `The text below is an excerpt from a research paper.
+Write a detailed analysis report of the paper in Markdown format.
+The report must be at least 10 A4 pages long.
+---
+**PAPER**: `;
+    const prompt_3 = `Please re-format the entire text given below into hierarchical Markdown format.
+- The text below is an excerpt from a academic research paper.
+- The report should include 1. Abstract, 2. Introduction, 3. Related Works, 4. Proposed Methods, 5. Experiment Results, and 6. Conclusion.
+- Do not include reference nor appendix.
+---
+**TEXT**: `;
+    const prompt_4 = `Summarize the following paper in as much detail as possible.
+- The summary should be at least 5,000 words long and must include the key concepts, research methods, findings, and conclusions of the paper.
+- Avoid unnecessary interpretations or additional analysis.
+- just provide a faithful and comprehensive summary of the content.
+- Reports should be structured in Markdown format.
+---
+**TEXT**: `;
+    const prompt_5 = `Summarize the main points from the text bellow using markdown bullet points.
+- Maintain the numbering and titles of chapters, sections, and subsections as in the paper's table of contents.
+- Stick to the original content without making any arbitrary modifications.
+- Ensure the summary is detailed enough and easy to understand.
+- Apply heading level 1 ("#") for title captions, level 2 ("##") for chapter captions, level 3 ("###") for section captions.
+- Use $...$ for inline math and $$...$$ for block math.
+---
+**TEXT**: `;
+    const prompt = prompt_1;
     const question = prompt + simplemde.value().trim();
+
+    console.log(`**Prompt**: ${prompt}`);
 
     try {
       requestBOT(question);
@@ -234,7 +271,11 @@
   }
 
   async function onTranslateBOT() {
-    const prompt = "Translate the following text into Korean. Do not use Chinese nor Japanese.\n\n---\n\nTEXT: ";
+    onTranslateBOT_ollama();
+  }
+
+  async function onTranslateBOT_ollama() {
+    const prompt = "Translate the following text into Korean. Use Korean and English only.\n\n---\n\nTEXT: ";
     const question = prompt + simplemde.value().trim();
 
     try {
@@ -243,6 +284,33 @@
     } catch (e) {
       reportError(e);
     }
+  }
+
+  async function onTranslateBOT_libre() {
+    const response = await fetch("https://libretranslate.com/translate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        q: simplemde.value(),
+        source: "en",
+        target: "ko",
+        format: "text"
+      })
+    });
+
+    console.log(response.text());
+
+    if (!response.ok) {
+      reportError(`Invalid response ${response.text()}`);
+      return;
+    }
+
+    const data = await response.json();
+
+    appendNote('\n\n---\n\n');
+    appendNote(data.translatedText);
   }
 
   async function onSave() {
