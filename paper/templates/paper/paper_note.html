@@ -123,16 +123,29 @@
 
   async function onImportPDF(pdfUrl) {
     try {
-      simplemde.value(await extractPDF(pdfUrl) + '\n\n---\n\n' + simplemde.value());
-      updateMarkdown();
+      appendNote('\n\n---\n\n');
+      appendNote(await extractPDF(pdfUrl));
     } catch (e) {
       reportError(e);
     }
   }
 
-  async function requestBOT(question) {
-    console.log(llmUrl);
+  function appendNote(msg) {
+    const cm = simplemde.codemirror;
+    const doc = cm.getDoc();
+    const cursor = doc.getCursor();
+    const scrollTop = cm.getScrollInfo().top;
+    const lastLine = doc.lastLine();
+    const lastChar = doc.getLine(lastLine).length;
 
+    doc.setCursor(lastLine, lastChar);
+    doc.replaceSelection(msg);
+
+    doc.setCursor(cursor);
+    cm.scrollTo(0, scrollTop);
+  }
+
+  async function requestBOT(question) {
     try {
       const response = await fetch(llmUrl, {
         method: "POST",
@@ -142,22 +155,67 @@
         body: JSON.stringify({
           model: llmModel,
           prompt: question,
-          stream: false
+          stream: true
         })
       });
 
+      appendNote('\n\n---\n\n');
+
       if (!response.ok) {
-        throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+        appendNote(`HTTP Error: ${response.status} ${response.statusText}`);
+        return;
       }
 
-      const data = await response.json();
-
-      if (!data.response) {
-        throw new Error("Error: No response received from API.");
+      if (!response.body) {
+        appendNote(`Error: No response body received`);
+        return;
       }
 
-      simplemde.value(data.response.replace(/<think>[\s\S]*?<\/think>/g, '').trim() + '\n\n---\n\n' + simplemde.value());
-      updateMarkdown();
+      // Scroll down to the end of the document.
+      const doc = simplemde.codemirror.getDoc();
+      const lastLine = doc.lastLine();
+      const lastChar = doc.getLine(lastLine).length;
+
+      doc.setCursor(lastLine, lastChar);
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let partialData = "";
+
+      async function processStream() {
+        const { done, value } = await reader.read();
+        if (done) {
+          if (partialData.trim()) {
+            try {
+              const jsonData = JSON.parse(partialData);
+              appendNote(jsonData.response);
+            } catch (error) {
+              console.error("JSON Parsing Error:", error);
+            }
+          }
+
+          return;
+        }
+
+        partialData += decoder.decode(value, { stream: true });
+        const lines = partialData.split("\n");
+        partialData = lines.pop();
+
+        for (const line of lines) {
+          if (line.trim()) {
+            try {
+              const jsonData = JSON.parse(line);
+              appendNote(jsonData.response);
+            } catch (error) {
+              console.error("JSON Parsing Error:", error);
+            }
+          }
+        }
+
+        setTimeout(() => requestAnimationFrame(processStream), 100);
+      }
+
+      processStream();
     } catch (e) {
       reportError(e);
     }
@@ -213,4 +271,15 @@
     updateMarkdown();
   }
 </script>
+
+{% if user.is_authenticated %}
+<script>
+  document.addEventListener("keydown", function (event) {
+    if (event.ctrlKey && event.key === "s") {
+      event.preventDefault();
+      onSave();
+    }
+  });
+</script>
+{% endif %}
 {% endblock %}

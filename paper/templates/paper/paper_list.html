@@ -41,7 +41,9 @@
               <td id="publish_date" class="text-center">{{ paper.publish_date|date:"Y.m.d"|default_if_none:"-" }}</td>
               <td id="citations" class="text-end">
                 <span id="citations-{{ paper.id }}" class="px-2">{{ paper.citations|default_if_none:"-" }}</span>
+                {% if user.is_authenticated %}
                 <button class="mx-2 circle" onclick='onCitation({{ paper.id }})'>&#8634;</button>
+                {% endif %}
               </td>
               <td id="links" class="text-center">
                 <a href="{% url 'paper_pdf' paper.id %}" class="mx-1" title="PDF" target="_blank">

@@ -123,9 +123,6 @@ function toggleTag(paper_id, tag, post_url, csrf_token) {
 }
 
 function onTagFilter(table_id, tag) {
-  console.log(table_id);
-  console.log(tag);
-
   const table = document.getElementById(table_id);
   const rows = table.getElementsByTagName('tr');
 

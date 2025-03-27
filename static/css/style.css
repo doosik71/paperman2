@@ -223,7 +223,7 @@ div.markdown a {
 }
 
 div.markdown i, div.markdown em {
-  color: orangered;
+  color: teal;
   padding-right: 0.1em;
 }
 
@@ -304,6 +304,11 @@ w-140px {
 
 w-160px {
   width: 160px;
+}
+
+think {
+  color: teal;
+  font-style: italic;
 }
 
 /**************
