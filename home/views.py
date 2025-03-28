@@ -1,8 +1,9 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, StreamingHttpResponse
 import logger
 import json
 import requests
+from google import genai
 
 
 def home(request):
@@ -13,29 +14,27 @@ def get_status(_):
     return JsonResponse({"status": logger.status_message})
 
 
-def proxy(request):
+def gemini(request):
     if request.method == "POST":
         try:
             body = json.loads(request.body)
-            url = body.get("url")
-            headers = body.get("headers", {})
-            data = body.get("data", {})
+            key = body.get("key")
+            question = body.get("question")
 
-            if not url:
-                return JsonResponse({"error": "Missing url"}, status=400)
+            client = genai.Client(api_key=key)
+            chat = client.chats.create(model="gemini-2.0-flash")
+            response = chat.send_message_stream(question)
 
-            if headers:
-                headers = json.loads(headers) if isinstance(headers, str) else headers
+            def stream_response():
+                for chunk in response:
+                    if chunk:
+                        yield chunk.text
 
-            if data:
-                data = json.loads(data) if isinstance(data, str) else data
-
-            response = requests.post(url, headers=headers, json=data)
-
-            return JsonResponse(response.json(), status=response.status_code)
-
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid headers or data"}, status=400)
+            return StreamingHttpResponse(
+                stream_response(),
+                content_type="text/plain",
+                status=200,
+            )
         except Exception as e:
             return JsonResponse({"Error": str(e)}, status=500)
 
