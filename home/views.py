@@ -30,10 +30,6 @@ def proxy(request):
             if data:
                 data = json.loads(data) if isinstance(data, str) else data
 
-            logger.info(f"URL: {url}")
-            logger.info(f"Headers: {headers}")
-            logger.info(f"Data: {data}")
-
             response = requests.post(url, headers=headers, json=data)
 
             return JsonResponse(response.json(), status=response.status_code)

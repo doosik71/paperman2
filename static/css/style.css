@@ -172,6 +172,21 @@ select.inline {
   width: auto;
 }
 
+div#pdf-panel {
+  flex: 1 1 60%;
+  overflow-x: hidden;
+}
+
+div#note-panel {
+  flex: 1 1 40%;
+  overflow-x: hidden;
+}
+
+div#markdown-panel {
+  flex: 1 1 40%;
+  overflow-x: hidden;
+}
+
 /**************
 Markdown
 **************/

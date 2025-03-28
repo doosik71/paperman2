@@ -15,14 +15,15 @@
     {% endif %}
   </div>
   <div class="d-flex justify-content-center">
-    <div class="flex-fill col-10 m-2 full-note" id="pdf-panel">
+    <div class="m-2" id="pdf-panel">
+      <div></div>
       <iframe id="pdf" name="pdf" title="pdf" class="full-note border rounded"></iframe>
     </div>
-    <div class="flex-fill col-6 m-2" id="note-panel">
+    <div class="m-2" id="note-panel">
       <textarea type="text" class="full-note container-fluid border rounded" id="note" name="note"
         placeholder="Note">{{ paper.note|safe }}</textarea>
     </div>
-    <div class="flex-fill col-6 m-2" id="markdown-panel">
+    <div class="m-2" id="markdown-panel">
       <div id="markdown" class="border rounded markdown p-2"></div>
     </div>
   </div>
@@ -81,8 +82,8 @@
   });
 
   simplemde.codemirror.on("change", () => {
-    updateMarkdown();
     document.querySelector('div.CodeMirror').style.border = '1px solid orangered';
+    setTimeout(() => requestAnimationFrame(updateMarkdown), 100);
   });
 
   function onLeftButton() {
@@ -271,12 +272,17 @@
 
       const data = await response.json();
       const doc = simplemde.codemirror.getDoc();
-      const lastLine = doc.lastLine();
-      const lastChar = doc.getLine(lastLine).length;
+      let lastLine = doc.lastLine();
+      let lastChar = doc.getLine(lastLine).length;
 
       doc.setCursor(lastLine, lastChar);
 
       appendNote(data.candidates?.[0]?.content?.parts?.[0]?.text || "No response!");
+
+      lastLine = doc.lastLine();
+      lastChar = doc.getLine(lastLine).length;
+
+      doc.setCursor(lastLine, lastChar);
     } catch (e) {
       reportError(e);
     }
