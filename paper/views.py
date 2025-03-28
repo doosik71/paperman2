@@ -156,6 +156,7 @@ def paper_note(request, id):
             "LLM_REQUEST_URL": settings.LLM_REQUEST_URL,
             "LLM_MODEL": settings.LLM_MODEL,
             "GOOGLE_API_KEY": settings.GOOGLE_API_KEY,
+            "GEMINI_API_KEY": settings.GEMINI_API_KEY,
         },
     )
 

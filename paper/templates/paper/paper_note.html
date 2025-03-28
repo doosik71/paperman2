@@ -40,11 +40,16 @@
       onclick='onImportPDF("{{ paper.pdf_url }}")'>Import
       PDF</button>
     <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-success mx-2"
-      onclick='onSummarizeBOT()'>🤖 Summarize</button>
+      onclick='onSummarizeGemini()'><img src="{% static 'images/google_gemini.webp'%}" alt="Gemini" height="22"
+        class="mb-1" /> Summarize</button>
+    <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-success mx-2"
+      onclick='onSummarizeOllama()'><img src="{% static 'images/ollama.png'%}" alt="Ollama" height="20" class="mb-1" />
+      Summarize</button>
     <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-warning mx-2"
-      onclick='onTranslateBOT()'>🤖 Translate</button>
+      onclick='onTranslateOllama()'><img src="{% static 'images/ollama.png'%}" alt="Ollama" height="20" class="mb-1" />
+      Translate</button>
     <!-- <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-warning mx-2"
-      onclick='onTranslateGoogle()'><img src="{% static 'images/google_translate.webp' %}" alt="Google Translate" width="20"> Translate</button> -->
+      onclick='onTranslateGoogle()'><img src="{% static 'images/google_translate.webp' %}" alt="Google Translate" width="20" /> Translate</button> -->
     <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-primary mx-2"
       onclick='onSave()'>Save</button>
   </div>
@@ -146,7 +151,7 @@
     cm.scrollTo(0, scrollTop);
   }
 
-  async function requestBOT(question) {
+  async function requestOllama(question) {
     console.log(`LLM URL: ${llmUrl}`);
     console.log(`Model: ${llmModel}`);
 
@@ -163,8 +168,6 @@
         })
       });
 
-      appendNote('\n\n---\n\n');
-
       if (!response.ok) {
         reportError(`Error: ${await response.text()}`);
         return;
@@ -174,6 +177,8 @@
         reportError(`Error: No response body received`);
         return;
       }
+
+      appendNote('\n\n---\n\n');
 
       // Scroll down to the end of the document.
       const doc = simplemde.codemirror.getDoc();
@@ -225,7 +230,59 @@
     }
   }
 
-  async function onSummarizeBOT() {
+  async function requestGemini(question) {
+    const GEMINI_API_KEY = "{{GEMINI_API_KEY}}";
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const csrf_token = "{{ csrf_token }}";
+
+    try {
+      const response = await fetch("/home/proxy/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrf_token
+        },
+        body: JSON.stringify({
+          url: API_URL,
+          headers: JSON.stringify({
+              "Content-Type": "application/json"
+          }),
+          data: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: question
+              }]
+            }]
+          })
+        })
+      });
+
+      if (!response.ok) {
+        reportError(`Error: ${await response.text()}`);
+        return;
+      }
+
+      if (!response.body) {
+        reportError(`Error: No response body received`);
+        return;
+      }
+
+      appendNote('\n\n---\n\n');
+
+      const data = await response.json();
+      const doc = simplemde.codemirror.getDoc();
+      const lastLine = doc.lastLine();
+      const lastChar = doc.getLine(lastLine).length;
+
+      doc.setCursor(lastLine, lastChar);
+
+      appendNote(data.candidates?.[0]?.content?.parts?.[0]?.text || "No response!");
+    } catch (e) {
+      reportError(e);
+    }
+  }
+
+  async function onSummarizeOllama() {
     const prompt_1 = `Write a very detailed analysis report for the following academic research paper in structured Markdown format.
 - The report should include 1. Abstract, 2. Introduction, 3. Related Works, 4. Methodology, 5. Experiments and Results, and 6. Conclusion.
 - Cover each section thoroughly and in detail.
@@ -265,19 +322,40 @@ The report must be at least 10 A4 pages long.
     console.log(`**Prompt**: ${prompt}`);
 
     try {
-      requestBOT(question);
+      requestOllama(question);
       alert("Sending request!\nIt may take a while to receive a response.");
     } catch (e) {
       reportError(e);
     }
   }
 
-  async function onTranslateBOT() {
+  async function onSummarizeGemini() {
+    const prompt = `Summarize the main points from the following TEXT using markdown bullet points.
+Maintain the numbering and titles of chapters, sections, and subsections as in the paper’s table of contents.
+Stay faithful to the original content without making arbitrary modifications.
+Ensure the summary is sufficiently detailed and not too short.
+Use primarily Korean, with English for technical terms.
+Use the declarative form "이다" instead of the polite form "입니다."
+Apply heading level 1 (#) for title captions, level 2 (##) for chapter captions, level 3 (###) for section captions, and level 4 (####) for subsection captions.
+Use $...$ for inline math and $$...$$ for block math.
+---
+**TEXT**: `;
+    const question = prompt + simplemde.value().trim();
+
+    try {
+      requestGemini(question);
+      alert("Sending request!\nIt may take a while to receive a response.");
+    } catch (e) {
+      reportError(e);
+    }
+  }
+
+  async function onTranslateOllama() {
     const prompt = "Translate the following text into Korean. Use Korean and English only.\n\n---\n\nTEXT: ";
     const question = prompt + simplemde.value().trim();
 
     try {
-      requestBOT(question);
+      requestOllama(question);
       alert("Sending request!\nIt may take a while to receive a response.");
     } catch (e) {
       reportError(e);
