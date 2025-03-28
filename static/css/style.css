@@ -282,6 +282,7 @@ main div.markdown div.code {
   white-space: pre;
 }
 
+div#home-page figcaption,
 div.markdown figcaption {
   text-align: center;
   font-weight: bold;
