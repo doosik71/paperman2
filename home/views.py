@@ -18,8 +18,14 @@ def gemini(request):
     if request.method == "POST":
         try:
             body = json.loads(request.body)
-            key = body.get("key")
-            question = body.get("question")
+            key = body.get("key", "").strip()
+            question = body.get("question", "").strip()
+
+            if key == "":
+                raise Exception("Empty key")
+
+            if question == "":
+                raise Exception("Empty question")
 
             client = genai.Client(api_key=key)
             chat = client.chats.create(model="gemini-2.0-flash")
