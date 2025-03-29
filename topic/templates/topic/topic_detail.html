@@ -27,9 +27,9 @@
         'X-CSRFToken': csrf_token
       }
     })
-      .catch(error => reportError(`Error: ${error.message}`));
+      .catch(error => reportError(error));
 
-    alert("Starting server tasks!\n\nPlease check your console before closing this message!");
+    alert("Starting background tasks!");
   }
 
 </script>
@@ -159,19 +159,23 @@
   async function onCollectArxiv() {
     const topic_id = "{{ topic.id }}";
     const keywords = document.getElementById('keywords').value;
-    const post_url = "{% url 'paper_add' %}";
-    const csrf_token = "{{ csrf_token }}";
-    const max_results = document.getElementById('max_results').value;
+    const max_results = document.getElementById('max_results').value
 
-    try {
-      alert(`Starting background task!\nTrying to collect ${new Intl.NumberFormat().format(max_results)} papers.\nDo not change web page until task is completed!`);
-      const count = await collectArxiv(topic_id, keywords, max_results, post_url, csrf_token);
-      alert(`${new Intl.NumberFormat().format(count)} papers are collected!\n\nPlease check your console before closing this message!`);
-    } catch (e) {
-      const msg = "Error: " + (e.message || e.toString());
-      console.log(msg);
-      alert(msg);
-    }
+    fetch("{% url 'collect_arxiv' %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': "{{ csrf_token }}"
+      },
+      body: JSON.stringify({
+        topic_id: topic_id,
+        keywords: keywords,
+        max_results: max_results,
+      })
+
+    }).catch(error => reportError(error));
+
+    alert(`Starting background task!`);
   }
 
   function onToggleTag(paper_id, tag) {
@@ -197,7 +201,7 @@
       .then(data => {
         document.getElementById(`citations-${paper_id}`).innerHTML = data.citations;
       })
-      .catch(error => reportError(`Error: ${error.message}`));
+      .catch(error => reportError(error));
   }
 
   $(document).ready(function () {

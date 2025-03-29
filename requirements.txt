@@ -1,3 +1,3 @@
 django
 python-dotenv
-pip install google-genai
+google-genai

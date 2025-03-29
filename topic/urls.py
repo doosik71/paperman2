@@ -10,4 +10,5 @@ urlpatterns = [
     path('update/<int:id>', topic_update, name='topic_update'),
     path('delete/<int:id>', topic_delete, name='topic_delete'),
     path('citations/<int:id>', topic_citations, name='topic_citations'),
+    path('collect/', collect_arxiv, name='collect_arxiv'),
 ]

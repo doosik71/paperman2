@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from django.contrib import messages
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from paperman import settings
@@ -16,9 +16,9 @@ from topic.models import Topic
 from urllib.parse import urlencode
 
 
-def paper_list(request):
+def paper_list(request) -> HttpResponse:
     """
-    List all papers
+    List all papers.
     """
 
     if request.method == "POST":
@@ -33,7 +33,7 @@ def paper_list(request):
                     | Q(title__icontains=term)
                     | Q(abstract__icontains=term)
                 )
-                
+
         papers = papers.order_by("-citations")
     else:
         papers = []
@@ -44,9 +44,9 @@ def paper_list(request):
     )
 
 
-def paper_create(request):
+def paper_create(request) -> HttpResponse:
     """
-    Create a new paper
+    Create a new paper.
     """
 
     topics = Topic.objects.all()
@@ -104,7 +104,7 @@ def paper_create(request):
             message = f'Paper created: "{title}"'
             messages.success(request, message)
             logger.info(message)
-            
+
             return redirect("paper_detail", paper.id)
         except Exception as e:
             message = f"Error: {e}"
@@ -114,9 +114,9 @@ def paper_create(request):
     return render(request, "paper/paper_create.html", {"topics": topics})
 
 
-def paper_detail(request, id):
+def paper_detail(request, id) -> HttpResponse:
     """
-    Show a paper
+    Show a paper.
     """
 
     paper = get_object_or_404(Paper, id=id)
@@ -131,9 +131,9 @@ def paper_detail(request, id):
     )
 
 
-def paper_pdf(request, id):
+def paper_pdf(request, id) -> HttpResponse:
     """
-    Show a paper PDF
+    Show a paper PDF.
     """
 
     paper = get_object_or_404(Paper, id=id)
@@ -141,9 +141,9 @@ def paper_pdf(request, id):
     return render(request, "paper/paper_pdf.html", {"paper": paper})
 
 
-def paper_note(request, id):
+def paper_note(request, id) -> HttpResponse:
     """
-    Show a paper note
+    Show a paper note.
     """
 
     paper = get_object_or_404(Paper, id=id)
@@ -161,9 +161,9 @@ def paper_note(request, id):
     )
 
 
-def paper_update(request, id):
+def paper_update(request, id) -> HttpResponse:
     """
-    Update a paper
+    Update a paper.
     """
 
     paper = get_object_or_404(Paper, id=id)
@@ -215,9 +215,9 @@ def paper_update(request, id):
     return redirect("paper_detail", id)
 
 
-def paper_update_note(request, id):
+def paper_update_note(request, id) -> HttpResponse:
     """
-    Update a paper note
+    Update a paper note.
     """
 
     paper = get_object_or_404(Paper, id=id)
@@ -234,9 +234,9 @@ def paper_update_note(request, id):
     return render(request, "paper/paper_note.html", {"paper": paper})
 
 
-def paper_add(request):
+def paper_add(request) -> JsonResponse:
     """
-    Add a paper to the database
+    Add a paper to the database.
     """
 
     if request.method != "POST":
@@ -260,68 +260,105 @@ def paper_add(request):
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
 
-    if not title:
-        return JsonResponse({"error": "Title is required"}, status=400)
-
-    if not author:
-        return JsonResponse({"error": "Author is required"}, status=400)
-
-    if not url:
-        return JsonResponse({"error": "Url is required"}, status=400)
-
-    if not pdf_url:
-        return JsonResponse({"error": "PDF url is required"}, status=400)
-
     try:
-        publish_date = datetime.strptime(publish_date, "%Y-%m-%d")
-        publish_date = timezone.make_aware(
-            publish_date, timezone.get_current_timezone()
-        )
-    except Exception as e:
+        add_paper_to_topic(
+                title,
+                author,
+                publisher,
+                publish_date,
+                doi,
+                url,
+                pdf_url,
+                pdf_name,
+                citations,
+                tags,
+                abstract,
+                note,
+                topic_id)
+    except Exception as error:
+        logger.error("Error:", error)
+
         return JsonResponse(
-            {"error": f"Invalid publish_date format: {str(e)}"}, status=400
+            {"error": f"Failed to create paper: {str(error)}"}, status=500
         )
+
+    return JsonResponse({"message": "Paper added successfully"}, status=200)
+
+
+def add_paper_to_topic(
+        title,
+        author,
+        publisher,
+        publish_date,
+        doi,
+        url,
+        pdf_url,
+        pdf_name,
+        citations,
+        tags,
+        abstract,
+        note,
+        topic_id) -> None:
+    """
+    Add paper to topic.
+    """
+
+    title = title.strip()
+    author = author.strip()
+    publisher = publisher.strip()
+    doi = doi.strip()
+    url = url.strip()
+    pdf_url = pdf_url.strip()
+    pdf_name = pdf_name.strip()
+    tags = tags.strip()
+    abstract = abstract.strip()
+    note = note.strip()
+
+    if title is None or title == "":
+        raise Exception("Invalid title")
+    
+    if author is None or author == "":
+        raise Exception("Invalid author")
+    
+    if url is None or url == "":
+        raise Exception("Invalid url")
+    
+    if pdf_url is None or pdf_url == "":
+        raise Exception("Invalid pdf_url")
+
+    publish_date = datetime.strptime(publish_date, "%Y-%m-%d")
+    publish_date = timezone.make_aware(
+        publish_date, timezone.get_current_timezone()
+    )
 
     if Paper.objects.filter(url=url).exists():
         p = Paper.objects.get(url=url)
     else:
-        try:
-            p = Paper.objects.create(
-                title=title.strip(),
-                author=author.strip(),
-                publisher=publisher.strip(),
-                publish_date=publish_date,
-                doi=doi.strip(),
-                url=url.strip(),
-                pdf_url=pdf_url.strip(),
-                pdf_name=pdf_name.strip(),
-                citations=citations,
-                tags=tags.strip(),
-                abstract=abstract.strip(),
-                note=note.strip(),
-            )
-        except Exception as e:
-            logger.error("Error:", e)
+        p = Paper.objects.create(
+            title=title,
+            author=author,
+            publisher=publisher,
+            publish_date=publish_date,
+            doi=doi,
+            url=url,
+            pdf_url=pdf_url,
+            pdf_name=pdf_name,
+            citations=citations,
+            tags=tags,
+            abstract=abstract,
+            note=note,
+        )
 
-            return JsonResponse(
-                {"error": f"Failed to create paper: {str(e)}"}, status=500
-            )
-
-    try:
-        topic = Topic.objects.get(id=topic_id)
-        p.topics.add(topic)
-        p.save()
-
-        logger.info(f"Paper added to topic: {p.title} -> {topic.title}")
-    except:
-        return JsonResponse({"error": f"Failed to add paper to topic"}, status=500)
-
-    return JsonResponse({"message": "Paper added successfully"}, status=201)
+    topic = Topic.objects.get(id=topic_id)
+    p.topics.add(topic)
+    p.save()
+    
+    logger.info(f'Paper added: "{title}"')
 
 
-def paper_tag(request):
+def paper_tag(request) -> JsonResponse:
     """
-    Toggle a paper tag
+    Toggle a paper tag.
     """
 
     if request.method != "POST":
@@ -357,7 +394,7 @@ def paper_tag(request):
         return JsonResponse({"error": f"Failed to toggle tag: {str(e)}"}, status=500)
 
 
-def paper_citations(request, id):
+def paper_citations(request, id) -> JsonResponse:
     """
     Update paper's citations by using semantic scholar.
     """
@@ -374,9 +411,9 @@ def paper_citations(request, id):
         return JsonResponse({"citations": 0}, status=400)
 
 
-def update_paper_citations(paper):
+def update_paper_citations(paper) -> tuple:
     """
-    Update paper citations
+    Update paper citations.
     """
 
     base_url = "https://api.semanticscholar.org/graph/v1/paper/search"
@@ -398,7 +435,8 @@ def update_paper_citations(paper):
 
             try:
                 paper.save()
-                logger.info(f'{paper.citations} citation(s) for "{paper.title}"')
+                logger.info(
+                    f'{paper.citations} citation(s) for "{paper.title}"')
                 return response, paper
             except Exception as e:
                 logger.error(e)
@@ -410,7 +448,7 @@ def update_paper_citations(paper):
     return response, paper
 
 
-def paper_citations_google_scholar(request):
+def paper_citations_google_scholar(request) -> JsonResponse:
     """
     Update paper's citations by using google scholar. (INCOMPLETE)
     """
