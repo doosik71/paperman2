@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.http import JsonResponse, StreamingHttpResponse
 import logger
 import json
-import requests
 from google import genai
 from openai import OpenAI
 
@@ -15,14 +14,15 @@ def get_status(_):
     return JsonResponse({"status": logger.status_message})
 
 
-def gemini(request):
+def request_genai(request):
     if request.method == "POST":
         try:
-            logger.info("Asking Gemini")
-            
             body = json.loads(request.body)
+            model = body.get("model", "").strip()
             key = body.get("key", "").strip()
             question = body.get("question", "").strip()
+
+            logger.info("Asking genai with " + model)
 
             if key == "":
                 return JsonResponse({"error": "Empty key."}, status=400)
@@ -31,7 +31,7 @@ def gemini(request):
                 return JsonResponse({"error": "Empty question."}, status=400)
 
             client = genai.Client(api_key=key)
-            chat = client.chats.create(model="gemini-2.0-flash")
+            chat = client.chats.create(model=model)
             response = chat.send_message_stream(question)
 
             def stream_response():
@@ -50,15 +50,16 @@ def gemini(request):
     return JsonResponse({"error": "Invalid method"}, status=400)
 
 
-def deepseek(request):
+def request_openrouter(request):
     if request.method == "POST":
         try:
-            logger.info("Asking DeepSeek")
-
             body = json.loads(request.body)
+            model = body.get("model", "").strip()
             key = body.get("key", "").strip()
             question = body.get("question", "").strip()
-
+            
+            logger.info("Asking openrouter with " + model)
+            
             if key == "":
                 return JsonResponse({"error": "Empty key."}, status=400)
 
@@ -71,7 +72,7 @@ def deepseek(request):
             )
 
             response = client.chat.completions.create(
-                model="deepseek/deepseek-chat-v3-0324:free",
+                model=model,
                 messages=[
                     {
                         "role": "user",

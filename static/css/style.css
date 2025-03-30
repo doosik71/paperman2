@@ -133,12 +133,6 @@ textarea.note {
   height: 200px;
 }
 
-iframe#pdf {
-  width: 100%;
-  height: calc(100vh - 70px);
-  border: 1px solid lightgray;
-}
-
 table#papers th, table#papers td {
   padding: 0.2em !important;
   vertical-align: middle;
@@ -153,9 +147,10 @@ div.toolbar {
   border-radius: 0.5em;
 }
 
-textarea.full-note, div.markdown {
-  height: calc(100vh - 130px);
-  overflow: scroll;
+iframe#pdf.full-note {
+  width: 100%;
+  height: calc(100vh - 136.5px);
+  border: 1px solid lightgray;
 }
 
 div.CodeMirror {
@@ -163,8 +158,9 @@ div.CodeMirror {
 
 }
 
-iframe#pdf.full-note {
-  height: calc(100vh - 130px);
+textarea.full-note, div.markdown {
+  height: calc(100vh - 131px);
+  overflow: scroll;
 }
 
 select.inline {

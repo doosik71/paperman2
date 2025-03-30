@@ -30,6 +30,12 @@ def topic_create(request) -> HttpResponse:
     if request.method == "POST":
         title = request.POST["title"]
         keywords = request.POST["keywords"]
+
+        if Topic.objects.filter(title=title).exists():
+            topic = Topic.objects.get(title=title)
+
+            return redirect("topic_detail", topic.id)
+
         Topic.objects.create(title=title, keywords=keywords)
 
         message = f'Topic created: "{title}"'
@@ -103,7 +109,7 @@ def topic_citations(request, id) -> JsonResponse:
 
     if request.method == "POST":
         threading.Thread(target=__update_topic_citations,
-                            args=(topic,)).start()
+                         args=(topic,)).start()
 
         return JsonResponse({"message": "ok"}, status=200)
 
