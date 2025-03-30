@@ -6,4 +6,5 @@ urlpatterns = [
     path("home/", home, name="home"),
     path("status/", get_status, name="get_status"),
     path("gemini/", gemini, name="gemini"),
+    path("deepseek/", deepseek, name="deepseek"),
 ]

@@ -37,13 +37,16 @@
     <input type="checkbox" id="check-markdown" name="view-mode" value="markdown" title="Toggle Markdown" checked
       onchange="onViewMode()">
     <label for="check-markdown" class="form-label">Markdown</label>
-    <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-warning mx-2"
+    <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-success mx-2"
       onclick='onImportPDF("{{ paper.pdf_url }}")'>Import
       PDF</button>
-    <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-success mx-2"
+    <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-warning mx-2"
       onclick='onSummarizeGemini()'><img src="{% static 'images/google_gemini.webp'%}" alt="Gemini" height="22"
         class="mb-1" /> Summarize</button>
-    <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-secondary mx-2"
+        <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-warning mx-2"
+        onclick='onSummarizeDeepseek()'><img src="{% static 'images/deepseek.png'%}" alt="Deepseek" height="22"
+          class="mb-1" /> Summarize</button>
+      <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-secondary mx-2"
       onclick='onSummarizeOllama()'><img src="{% static 'images/ollama.png'%}" alt="Ollama" height="20" class="mb-1" />
       Summarize</button>
     <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-secondary mx-2"
@@ -276,6 +279,51 @@
     }
   }
 
+  async function requestDeepseek(question) {
+    const OPENROUTER_API_KEY = "{{OPENROUTER_API_KEY}}";
+    const csrf_token = "{{ csrf_token }}";
+
+    try {
+      const response = await fetch("/home/deepseek/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrf_token
+        },
+        body: JSON.stringify({
+          key: OPENROUTER_API_KEY,
+          question: question,
+        })
+      });
+
+      if (!response.ok) {
+        reportError(`Error: ${await response.text()}`);
+        return;
+      }
+
+      if (!response.body) {
+        reportError(`Error: No response body received`);
+        return;
+      }
+
+      appendNote('\n\n---\n\n');
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+
+        appendNote(chunk);
+      }
+    } catch (e) {
+      reportError(e);
+    }
+  }
+
   async function onSummarizeOllama() {
     const prompt_1 = `Write a very detailed analysis report for the following academic research paper in structured Markdown format.
 - The report should include 1. Abstract, 2. Introduction, 3. Related Works, 4. Methodology, 5. Experiments and Results, and 6. Conclusion.
@@ -339,6 +387,28 @@ Use $...$ for inline math and $$...$$ for block math.
 
     try {
       requestGemini(question);
+      alert("Sending request!\nIt may take a while to receive a response.");
+    } catch (e) {
+      reportError(e);
+    }
+  }
+
+  async function onSummarizeDeepseek() {
+    const prompt = `Summarize the main points from the following TEXT using markdown bullet points.
+Maintain the numbering and titles of chapters, sections, and subsections as in the paper's table of contents.
+Stay faithful to the original content without making arbitrary modifications.
+Ensure the summary is sufficiently detailed and not too short.
+Sentences should be concise and written in bullet points.
+Use primarily Korean, with English for technical terms.
+Use the declarative form "이다" instead of the polite form "입니다."
+Apply heading level 1 (#) for title captions, level 2 (##) for chapter captions, level 3 (###) for section captions, and level 4 (####) for subsection captions.
+Use $...$ for inline math and $$...$$ for block math.
+---
+**TEXT**: `;
+    const question = prompt + simplemde.value().trim();
+
+    try {
+      requestDeepseek(question);
       alert("Sending request!\nIt may take a while to receive a response.");
     } catch (e) {
       reportError(e);

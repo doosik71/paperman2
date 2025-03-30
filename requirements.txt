@@ -1,3 +1,4 @@
 django
-python-dotenv
 google-genai
+python-dotenv
+openai
