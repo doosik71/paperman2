@@ -147,6 +147,12 @@ div.toolbar {
   border-radius: 0.5em;
 }
 
+iframe#pdf {
+  width: 100%;
+  border: 1px solid lightgray;
+  height: calc(100vh - 47px);
+}
+
 iframe#pdf.full-note {
   width: 100%;
   height: calc(100vh - 136.5px);
