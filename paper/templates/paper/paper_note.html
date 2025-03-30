@@ -24,7 +24,9 @@
         placeholder="Note">{{ paper.note|safe }}</textarea>
     </div>
     <div class="m-2" id="markdown-panel">
-      <div id="markdown" class="border rounded markdown p-2"></div>
+      <div class="border rounded markdown-container overflow-scroll">
+        <div id="markdown" class="p-2"></div>
+      </div>
     </div>
   </div>
   <div class="row">
@@ -285,7 +287,7 @@ The report must be at least 10 A4 pages long.
       });
 
       console.log("Here 2");
-    
+
       if (!response.ok) {
         reportError(`Error: ${await response.text()}`);
         return;
@@ -325,7 +327,7 @@ The report must be at least 10 A4 pages long.
     }
 
     console.log("Here 3");
-    
+
     try {
       const response = await fetch("/home/request_openrouter/", {
         method: "POST",
@@ -341,7 +343,7 @@ The report must be at least 10 A4 pages long.
       });
 
       console.log("Here 4");
-    
+
       if (!response.ok) {
         reportError(`Error: ${await response.text()}`);
         return;
@@ -379,7 +381,7 @@ The report must be at least 10 A4 pages long.
     }
 
     console.log("Here 5");
-    
+
     try {
       const response = await fetch(llmUrl, {
         method: "POST",
@@ -394,7 +396,7 @@ The report must be at least 10 A4 pages long.
       });
 
       console.log("Here 6");
-    
+
       if (!response.ok) {
         reportError(`Error: ${await response.text()}`);
         return;
@@ -457,96 +459,96 @@ The report must be at least 10 A4 pages long.
     }
   }
 
-//   async function onSummarizeOllama() {
-//     const prompt_1 = `Write a very detailed analysis report for the following academic research paper in structured Markdown format.
-// - The report should include 1. Abstract, 2. Introduction, 3. Related Works, 4. Methodology, 5. Experiments and Results, and 6. Conclusion.
-// - Cover each section thoroughly and in detail.
-// - Omit reference.
-// - Omit appendix.
-// ---
-// **PAPER**: `;
-//     const prompt_2 = `The text below is an excerpt from a research paper.
-// Write a detailed analysis report of the paper in Markdown format.
-// The report must be at least 10 A4 pages long.
-// ---
-// **PAPER**: `;
-//     const prompt_3 = `Please re-format the entire text given below into hierarchical Markdown format.
-// - The text below is an excerpt from a academic research paper.
-// - The report should include 1. Abstract, 2. Introduction, 3. Related Works, 4. Proposed Methods, 5. Experiment Results, and 6. Conclusion.
-// - Do not include reference nor appendix.
-// ---
-// **TEXT**: `;
-//     const prompt_4 = `Summarize the following paper in as much detail as possible.
-// - The summary should be at least 5,000 words long and must include the key concepts, research methods, findings, and conclusions of the paper.
-// - Avoid unnecessary interpretations or additional analysis.
-// - just provide a faithful and comprehensive summary of the content.
-// - Reports should be structured in Markdown format.
-// ---
-// **TEXT**: `;
-//     const prompt_5 = `Summarize the main points from the text bellow using markdown bullet points.
-// - Maintain the numbering and titles of chapters, sections, and subsections as in the paper's table of contents.
-// - Stick to the original content without making any arbitrary modifications.
-// - Ensure the summary is detailed enough and easy to understand.
-// - Apply heading level 1 ("#") for title captions, level 2 ("##") for chapter captions, level 3 ("###") for section captions.
-// - Use $...$ for inline math and $$...$$ for block math.
-// ---
-// **TEXT**: `;
-//     const prompt = prompt_1;
-//     const question = prompt + simplemde.value().trim();
+  //   async function onSummarizeOllama() {
+  //     const prompt_1 = `Write a very detailed analysis report for the following academic research paper in structured Markdown format.
+  // - The report should include 1. Abstract, 2. Introduction, 3. Related Works, 4. Methodology, 5. Experiments and Results, and 6. Conclusion.
+  // - Cover each section thoroughly and in detail.
+  // - Omit reference.
+  // - Omit appendix.
+  // ---
+  // **PAPER**: `;
+  //     const prompt_2 = `The text below is an excerpt from a research paper.
+  // Write a detailed analysis report of the paper in Markdown format.
+  // The report must be at least 10 A4 pages long.
+  // ---
+  // **PAPER**: `;
+  //     const prompt_3 = `Please re-format the entire text given below into hierarchical Markdown format.
+  // - The text below is an excerpt from a academic research paper.
+  // - The report should include 1. Abstract, 2. Introduction, 3. Related Works, 4. Proposed Methods, 5. Experiment Results, and 6. Conclusion.
+  // - Do not include reference nor appendix.
+  // ---
+  // **TEXT**: `;
+  //     const prompt_4 = `Summarize the following paper in as much detail as possible.
+  // - The summary should be at least 5,000 words long and must include the key concepts, research methods, findings, and conclusions of the paper.
+  // - Avoid unnecessary interpretations or additional analysis.
+  // - just provide a faithful and comprehensive summary of the content.
+  // - Reports should be structured in Markdown format.
+  // ---
+  // **TEXT**: `;
+  //     const prompt_5 = `Summarize the main points from the text bellow using markdown bullet points.
+  // - Maintain the numbering and titles of chapters, sections, and subsections as in the paper's table of contents.
+  // - Stick to the original content without making any arbitrary modifications.
+  // - Ensure the summary is detailed enough and easy to understand.
+  // - Apply heading level 1 ("#") for title captions, level 2 ("##") for chapter captions, level 3 ("###") for section captions.
+  // - Use $...$ for inline math and $$...$$ for block math.
+  // ---
+  // **TEXT**: `;
+  //     const prompt = prompt_1;
+  //     const question = prompt + simplemde.value().trim();
 
-//     console.log(`**Prompt**: ${prompt}`);
+  //     console.log(`**Prompt**: ${prompt}`);
 
-//     try {
-//       requestOllama(question);
-//       alert("Sending request!\nIt may take a while to receive a response.");
-//     } catch (e) {
-//       reportError(e);
-//     }
-//   }
+  //     try {
+  //       requestOllama(question);
+  //       alert("Sending request!\nIt may take a while to receive a response.");
+  //     } catch (e) {
+  //       reportError(e);
+  //     }
+  //   }
 
-//   async function onSummarizeGemini() {
-//     const prompt = `Summarize the main points from the following TEXT using markdown bullet points.
-// Maintain the numbering and titles of chapters, sections, and subsections as in the paper's table of contents.
-// Stay faithful to the original content without making arbitrary modifications.
-// Ensure the summary is sufficiently detailed and not too short.
-// Sentences should be concise and written in bullet points.
-// Use primarily Korean, with English for technical terms.
-// Use the declarative form "이다" instead of the polite form "입니다."
-// Apply heading level 1 (#) for title captions, level 2 (##) for chapter captions, level 3 (###) for section captions, and level 4 (####) for subsection captions.
-// Use $...$ for inline math and $$...$$ for block math.
-// ---
-// **TEXT**: `;
-//     const question = prompt + simplemde.value().trim();
+  //   async function onSummarizeGemini() {
+  //     const prompt = `Summarize the main points from the following TEXT using markdown bullet points.
+  // Maintain the numbering and titles of chapters, sections, and subsections as in the paper's table of contents.
+  // Stay faithful to the original content without making arbitrary modifications.
+  // Ensure the summary is sufficiently detailed and not too short.
+  // Sentences should be concise and written in bullet points.
+  // Use primarily Korean, with English for technical terms.
+  // Use the declarative form "이다" instead of the polite form "입니다."
+  // Apply heading level 1 (#) for title captions, level 2 (##) for chapter captions, level 3 (###) for section captions, and level 4 (####) for subsection captions.
+  // Use $...$ for inline math and $$...$$ for block math.
+  // ---
+  // **TEXT**: `;
+  //     const question = prompt + simplemde.value().trim();
 
-//     try {
-//       requestGenAI(question);
-//       alert("Sending request!\nIt may take a while to receive a response.");
-//     } catch (e) {
-//       reportError(e);
-//     }
-//   }
+  //     try {
+  //       requestGenAI(question);
+  //       alert("Sending request!\nIt may take a while to receive a response.");
+  //     } catch (e) {
+  //       reportError(e);
+  //     }
+  //   }
 
-//   async function onSummarizeDeepseek() {
-//     const prompt = `Summarize the main points from the following TEXT using markdown bullet points.
-// Maintain the numbering and titles of chapters, sections, and subsections as in the paper's table of contents.
-// Stay faithful to the original content without making arbitrary modifications.
-// Ensure the summary is sufficiently detailed and not too short.
-// Sentences should be concise and written in bullet points.
-// Use primarily Korean, with English for technical terms.
-// Use the declarative form "이다" instead of the polite form "입니다."
-// Apply heading level 1 (#) for title captions, level 2 (##) for chapter captions, level 3 (###) for section captions, and level 4 (####) for subsection captions.
-// Use $...$ for inline math and $$...$$ for block math.
-// ---
-// **TEXT**: `;
-//     const question = prompt + simplemde.value().trim();
+  //   async function onSummarizeDeepseek() {
+  //     const prompt = `Summarize the main points from the following TEXT using markdown bullet points.
+  // Maintain the numbering and titles of chapters, sections, and subsections as in the paper's table of contents.
+  // Stay faithful to the original content without making arbitrary modifications.
+  // Ensure the summary is sufficiently detailed and not too short.
+  // Sentences should be concise and written in bullet points.
+  // Use primarily Korean, with English for technical terms.
+  // Use the declarative form "이다" instead of the polite form "입니다."
+  // Apply heading level 1 (#) for title captions, level 2 (##) for chapter captions, level 3 (###) for section captions, and level 4 (####) for subsection captions.
+  // Use $...$ for inline math and $$...$$ for block math.
+  // ---
+  // **TEXT**: `;
+  //     const question = prompt + simplemde.value().trim();
 
-//     try {
-//       requestOpenRouter(question);
-//       alert("Sending request!\nIt may take a while to receive a response.");
-//     } catch (e) {
-//       reportError(e);
-//     }
-//   }
+  //     try {
+  //       requestOpenRouter(question);
+  //       alert("Sending request!\nIt may take a while to receive a response.");
+  //     } catch (e) {
+  //       reportError(e);
+  //     }
+  //   }
 
   // async function onTranslateOllama() {
   //   const prompt = "Translate the following text into Korean. Use Korean and English only.\n\n---\n\nTEXT: ";

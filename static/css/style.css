@@ -158,8 +158,17 @@ div.CodeMirror {
 
 }
 
-textarea.full-note, div.markdown {
+textarea.full-note {
   height: calc(100vh - 131px);
+  overflow: scroll;
+}
+
+div.markdown-container {
+  background: lightgray;
+  height: calc(100vh - 133px);
+}
+
+div.overflow-scroll {
   overflow: scroll;
 }
 
@@ -187,86 +196,90 @@ div#markdown-panel {
 Markdown
 **************/
 
-div.markdown {
-  background-color: #fafafa;
+div#markdown {
+  background-color: white;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 3em !important;
+  max-width: 8.27in;
 }
 
-div.markdown h1 {
+div#markdown h1 {
   font-size: 2em;
   padding-top: 0.2em;
   padding-bottom: 0.2em;
 }
 
-div.markdown h2 {
+div#markdown h2 {
   font-size: 1.6em;
 }
 
-div.markdown h3 {
+div#markdown h3 {
   font-size: 1.4em;
 }
 
-div.markdown h4 {
+div#markdown h4 {
   font-size: 1.2em;
 }
 
-div.markdown h5 {
+div#markdown h5 {
   font-size: 1.1em;
 }
 
-div.markdown h6 {
+div#markdown h6 {
   font-size: 1em;
 }
 
-div.markdown h1,
-div.markdown h2,
-div.markdown h3,
-div.markdown h4,
-div.markdown h5,
-div.markdown h6 {
+div#markdown h1,
+div#markdown h2,
+div#markdown h3,
+div#markdown h4,
+div#markdown h5,
+div#markdown h6 {
   color: SteelBlue;
   font-weight: 700;
   margin-top: 1em;
   margin-bottom: 1em;
 }
 
-div.markdown ol, div.markdown ul {
+div#markdown ol, div#markdown ul {
   padding-left: 1.5em;
 }
 
-div.markdown a {
+div#markdown a {
   color: dodgerblue;
 }
 
-div.markdown i, div.markdown em {
+div#markdown i, div#markdown em {
   color: orangered;
   padding-right: 0.1em;
 }
 
-div.markdown hr {
+div#markdown hr {
   border-color: navy;
   border-width: 2px;
 }
 
-div.markdown table {
+div#markdown table {
   border-bottom: 2px solid gray;
   margin: 1em auto 1em auto;
 }
 
-div.markdown table th {
+div#markdown table th {
   border-top: 2px solid gray;
   border-bottom: 2px solid gray;
 }
 
-div.markdown table td {
+div#markdown table td {
   border-bottom: 1px solid gray;
 }
 
-div.markdown table th,
-div.markdown table td {
+div#markdown table th,
+div#markdown table td {
   padding: 0.3em;
 }
 
-main div.markdown div.code {
+div#markdown div.code {
   background-color: ghostwhite;
   border: 1px solid lightgray;
   border-radius: 0.5em;
@@ -279,12 +292,16 @@ main div.markdown div.code {
 }
 
 div#home-page figcaption,
-div.markdown figcaption {
+div#markdown figcaption {
   text-align: center;
   font-weight: bold;
   margin-top: 1em;
   margin-bottom: 1em;
 }
+
+/****************
+ * Message
+ ***************/
 
 div.message {
   position: relative;
