@@ -57,6 +57,20 @@ OPENROUTER_API_KEY=<api_key_here>
 OLLAMA_REQUEST_URL=http://127.0.0.1:11434/api/generate
 ```
 
+#### 논문 요약 모델 비교
+
+| Model                                                  | Parameters | Context | Output Token | Cost(In / Out)($) |
+|--------------------------------------------------------|-----------:|--------:|-------------:|:-----------------:|
+| Google GenAI Gemini 2.0 Flash                          |     262.0B |      1M |           8K |     0.1 / 0.4     |
+| Google GenAI Gemini 2.0 Flash-Lite                     |      20.3B |      1M |           8K |   0.075 / 0.300   |
+| OpenRouter Google Gemini 2.0 Flash Experimental (free) |      29.7B |      1M |           8K |       0 / 0       |
+| OpenRouter Google Gemini 2.0 Flash-Lite                |      20.3B |      1M |           8K |   0.075 / 0.300   |
+| OpenRouter Google Gemini 1.5 Flash                     |       8.0B |      1M |           8K |  0.0375 / 0.1500  |
+| OpenRouter DeepSeek R1 (free)                          |      73.3B |    164K |         164K |       0 / 0       |
+| OpenRouter DeepSeek R1 Zero (free)                     |       1.4B |    164K |         164K |       0 / 0       |
+| OpenRouter DeepSeek V3 0324 (free)                     |      84.3B |    131K |         131K |       0 / 0       |
+| OpenRouter DeepSeek V3 (free)                          |      16.8B |    131K |         131K |       0 / 0       |
+
 ### 자세한 사용 방법
 
 - 자세한 사용 방법은 홈 화면을 참조한다.
