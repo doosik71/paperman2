@@ -41,10 +41,6 @@ a {
   text-decoration: none;
 }
 
-table a:visited {
-  color: orangered;
-}
-
 input.disabled {
   background-color: lightgray;
 }
@@ -262,7 +258,7 @@ div#markdown i, div#markdown em {
 }
 
 div#markdown hr {
-  border-color: navy;
+  border-color: SteelBlue;
   border-width: 2px;
 }
 

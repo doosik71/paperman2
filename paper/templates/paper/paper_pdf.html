@@ -10,9 +10,12 @@
 </div>
 <script>
   window.onload = function () {
+    const host = window.location.hostname;
+    const port = window.location.port;
     const pdfUrl = "{{ paper.pdf_url }}";
     const frame = document.getElementById('pdf');
-    frame.src = pdfUrl;
+    const url = `http://${host}:${port}{% url 'get_pdf' %}?url=${pdfUrl}`;
+    frame.src = url;
   }
 </script>
 {% endblock %}

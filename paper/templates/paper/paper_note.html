@@ -592,6 +592,7 @@ The report must be at least 10 A4 pages long.
         [/\n#\s/g, "# "], // Remove first blank line
         [/\n{3,}/g, "\n\n"], // Replace 3+ newlines with 2
         [/[ \t]+$/gm, ""], // Remove trailing space
+        [/\n---\n/g, "\n\n---\n\n"], // Add blank lines before and after the delimiter
         [/^(#+)\s\*\*(.*)\*\*$/gm, "$1 $2"], // Remove bold from headers
         [/\\\*\\\*(.*)\\\*\\\*/g, "**$1**"], // Fix escaped bold markers
         [/^(\s*)\*(\s)/gm, "$1-$2"], // Convert list markers from * to -
@@ -601,7 +602,9 @@ The report must be at least 10 A4 pages long.
         [/\\\$/g, "\$"], // Convert escaped dollar
         [/\\_/g, "_"], // Convert escaped underscore,
         [/(?<=\$(?!\\_)(.*?))_(?=.*?\$)/g, "\\_"], // Convert to escaped underscore in math,
-        [/\$(.*?)\*(.*?)\$/g, "$$$1\\ast$2$$"], // Convert "*" to "\ast" in math,
+        [/(?<=\$(?!\\_)(.*?))\*(?=.*?\$)/g, "\\ast"], // Convert "*" to "\ast" in math,
+        [/(?<=\$(?!\\_)(.*?))\\\{(?=.*?\$)/g, "\\lbrace "], // Convert "\{" to \\lbrace in math,
+        [/(?<=\$(?!\\_)(.*?))\\\}(?=.*?\$)/g, "\\rbrace "], // Convert "\}" to \\rbrace in math,
     ];
 
     text = replacements.reduce(

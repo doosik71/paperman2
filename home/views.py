@@ -1,16 +1,31 @@
-from django.shortcuts import render
-from django.http import JsonResponse, StreamingHttpResponse
-import logger
 import json
+import hashlib
+import logger
+import logging
+import requests
+from django.core.cache import cache
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
+from django.shortcuts import render
 from google import genai
 from openai import OpenAI
 
 
+logging.disable(logging.INFO)
+
+
 def home(request):
+    """
+    Get home page.
+    """
+
     return render(request, "home/home.html")
 
 
 def get_status(_):
+    """
+    Get server status.
+    """
+
     return JsonResponse({"status": logger.status_message})
 
 
@@ -57,9 +72,9 @@ def request_openrouter(request):
             model = body.get("model", "").strip()
             key = body.get("key", "").strip()
             question = body.get("question", "").strip()
-            
+
             logger.info("Asking openrouter with " + model)
-            
+
             if key == "":
                 return JsonResponse({"error": "Empty key."}, status=400)
 
@@ -73,13 +88,8 @@ def request_openrouter(request):
 
             response = client.chat.completions.create(
                 model=model,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": question
-                    }
-                ],
-                stream=True
+                messages=[{"role": "user", "content": question}],
+                stream=True,
             )
 
             def stream_response():
@@ -99,3 +109,35 @@ def request_openrouter(request):
             return JsonResponse({"Error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid method"}, status=400)
+
+
+def get_pdf(request):
+    """
+    Get PDF.
+    """
+
+    url = request.GET.get("url")
+
+    if not url:
+        return HttpResponse("No PDF URL provided", status=400)
+
+    cache_key = hashlib.md5(url.encode('utf-8')).hexdigest()
+    cached_pdf = cache.get(cache_key)
+
+    if cached_pdf:
+        pdf_response = HttpResponse(cached_pdf, content_type="application/pdf")
+        pdf_response["Content-Disposition"] = "inline; filename=document.pdf"
+        return pdf_response
+
+    try:
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        content = response.content
+        cache.set(cache_key, content, timeout=60*60*24)
+        pdf_response = HttpResponse(content, content_type="application/pdf")
+        pdf_response["Content-Disposition"] = "inline; filename=document.pdf"
+
+        return pdf_response
+
+    except requests.exceptions.RequestException as e:
+        return HttpResponse(f"Failed to fetch PDF: {e}", status=500)
