@@ -7,6 +7,7 @@ from .models import Paper
 from bs4 import BeautifulSoup
 from datetime import datetime
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -44,6 +45,7 @@ def paper_list(request) -> HttpResponse:
     )
 
 
+@login_required
 def paper_create(request) -> HttpResponse:
     """
     Create a new paper.
@@ -160,6 +162,7 @@ def paper_note(request, id) -> HttpResponse:
     )
 
 
+@login_required
 def paper_update(request, id) -> HttpResponse:
     """
     Update a paper.
@@ -214,6 +217,7 @@ def paper_update(request, id) -> HttpResponse:
     return redirect("paper_detail", id)
 
 
+@login_required
 def paper_update_note(request, id) -> HttpResponse:
     """
     Update a paper note.
@@ -233,6 +237,7 @@ def paper_update_note(request, id) -> HttpResponse:
     return render(request, "paper/paper_note.html", {"paper": paper})
 
 
+@login_required
 def paper_add(request) -> JsonResponse:
     """
     Add a paper to the database.
@@ -284,6 +289,7 @@ def paper_add(request) -> JsonResponse:
     return JsonResponse({"message": "Paper added successfully"}, status=200)
 
 
+@login_required
 def add_paper_to_topic(
         title,
         author,
@@ -355,6 +361,7 @@ def add_paper_to_topic(
     logger.info(f'Paper added: "{title}"')
 
 
+@login_required
 def paper_tag(request) -> JsonResponse:
     """
     Toggle a paper tag.
@@ -393,6 +400,7 @@ def paper_tag(request) -> JsonResponse:
         return JsonResponse({"error": f"Failed to toggle tag: {str(e)}"}, status=500)
 
 
+@login_required
 def paper_citations(request, id) -> JsonResponse:
     """
     Update paper's citations by using semantic scholar.
@@ -447,6 +455,7 @@ def update_paper_citations(paper) -> tuple:
     return response, paper
 
 
+@login_required
 def paper_citations_google_scholar(request) -> JsonResponse:
     """
     Update paper's citations by using google scholar. (INCOMPLETE)

@@ -204,6 +204,7 @@ div#markdown {
   margin-right: auto;
   padding: 3em !important;
   max-width: 8.27in;
+  min-height: 100%;
 }
 
 div#markdown h1 {
@@ -242,6 +243,15 @@ div#markdown h6 {
   font-weight: 700;
   margin-top: 1em;
   margin-bottom: 1em;
+}
+
+div#markdown h1:first-child,
+div#markdown h2:first-child,
+div#markdown h3:first-child,
+div#markdown h4:first-child,
+div#markdown h5:first-child,
+div#markdown h6:first-child {
+  margin-top: 0;
 }
 
 div#markdown ol, div#markdown ul {

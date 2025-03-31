@@ -5,6 +5,7 @@ import time
 import urllib.request
 import xml.etree.ElementTree as ET
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Topic
@@ -22,6 +23,7 @@ def topic_list(request) -> HttpResponse:
     return render(request, "topic/topic_list.html", {"topics": topics})
 
 
+@login_required
 def topic_create(request) -> HttpResponse:
     """
     Create a new topic.
@@ -60,6 +62,7 @@ def topic_detail(request, id) -> HttpResponse:
     )
 
 
+@login_required
 def topic_update(request, id) -> HttpResponse:
     """
     Update a topic.
@@ -83,6 +86,7 @@ def topic_update(request, id) -> HttpResponse:
     return redirect("topic_detail", id)
 
 
+@login_required
 def topic_delete(request, id):
     """
     Delete a topic.
@@ -100,6 +104,7 @@ def topic_delete(request, id):
     return redirect("topic_list")
 
 
+@login_required
 def topic_citations(request, id) -> JsonResponse:
     """
     Update citations for all papers in topic.
@@ -134,6 +139,7 @@ def __update_topic_citations(topic):
     logger.info(f'Complete citations on the topic: "{topic.title}"')
 
 
+@login_required
 def collect_arxiv(request) -> JsonResponse:
     """
     Collect papers from Arxiv.

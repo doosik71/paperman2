@@ -602,7 +602,7 @@ The report must be at least 10 A4 pages long.
         [/\\\$/g, "\$"], // Convert escaped dollar
         [/\\_/g, "_"], // Convert escaped underscore,
         [/(?<=\$(?!\\_)(.*?))_(?=.*?\$)/g, "\\_"], // Convert to escaped underscore in math,
-        [/(?<=\$(?!\\_)(.*?))\*(?=.*?\$)/g, "\\ast"], // Convert "*" to "\ast" in math,
+        [/(?<=\$(?!\\_)(.*?))\*(?=.*?\$)/g, "\\ast "], // Convert "*" to "\ast" in math,
         [/(?<=\$(?!\\_)(.*?))\\\{(?=.*?\$)/g, "\\lbrace "], // Convert "\{" to \\lbrace in math,
         [/(?<=\$(?!\\_)(.*?))\\\}(?=.*?\$)/g, "\\rbrace "], // Convert "\}" to \\rbrace in math,
     ];
@@ -633,9 +633,12 @@ The report must be at least 10 A4 pages long.
   }
 
   window.onload = function () {
+    const host = window.location.hostname;
+    const port = window.location.port;
     const pdfUrl = "{{ paper.pdf_url }}";
     const frame = document.getElementById('pdf');
-    frame.src = pdfUrl;
+    const url = `http://${host}:${port}{% url 'get_pdf' %}?url=${pdfUrl}`;
+    frame.src = url;
 
     updateMarkdown();
   }

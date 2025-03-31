@@ -6,7 +6,8 @@
     <div class="col-4">
       <form method="POST" class="d-flex" action="{% url 'paper_list' %}">
         {% csrf_token %}
-        <input type="text" class="form-control me-2" id="search" name="search" placeholder="Search" required value="{{search}}">
+        <input type="text" class="form-control me-2" id="search" name="search" placeholder="Search" required
+          value="{{search}}">
         <button type="submit" class="btn btn-primary">Search</button>
       </form>
     </div>
@@ -24,7 +25,7 @@
               <th class="text-center" width="7%">Date</th>
               <th class="text-center" width="7%">Citations</th>
               <th class="text-center" width="9%">Links</th>
-                </tr>
+            </tr>
           </thead>
           <tbody>
             {% for paper in papers %}
@@ -66,16 +67,18 @@
       </div>
     </div>
   </div>
-  {% if user.is_authenticated %}
   <div class="row">
     <div class="col-12 d-flex justify-content-center">
-      <a href="{% url 'paper_create' %}" class="btn btn-primary mx-2">Add</a>
+      {% if user.is_authenticated %}
+      <a href="{% url 'paper_create' %}" class="btn btn-primary mx-2">Add Paper</a>
+      {% else %}
+      <button disabled type="submit" class="btn btn-primary mx-2">Add Paper</button>
+      {% endif %}
     </div>
   </div>
-  {% endif %}
 </div>
 
-<script>  
+<script>
   function onToggleTag(paper_id, tag) {
     {% if user.is_authenticated %}
     const post_url = "{% url 'paper_tag' %}";
