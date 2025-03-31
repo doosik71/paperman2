@@ -153,8 +153,7 @@ def paper_note(request, id) -> HttpResponse:
         "paper/paper_note.html",
         {
             "paper": paper,
-            "LLM_REQUEST_URL": settings.LLM_REQUEST_URL,
-            "LLM_MODEL": settings.LLM_MODEL,
+            "OLLAMA_REQUEST_URL": settings.OLLAMA_REQUEST_URL,
             "GEMINI_API_KEY": settings.GEMINI_API_KEY,
             "OPENROUTER_API_KEY": settings.OPENROUTER_API_KEY,
         },

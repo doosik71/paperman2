@@ -48,7 +48,7 @@
       <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-warning mx-2"
         onclick='onSummarize()'>Summarize</button>
       <label>using</label>
-      <select id="llm-model" name="llm-model" class="mx-2 py-2">
+      <select id="llm-model" name="llm-model" title="Select LLM Model" class="mx-2 py-2">
         <option selected>Google GenAI Gemini 2.0 Flash</option>
         <option>Google GenAI Gemini 2.0 Flash-Lite</option>
         <option>OpenRouter Google Gemini 2.0 Flash Experimental (free)</option>
@@ -69,8 +69,10 @@
         Translate</button> -->
       <!-- <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-warning mx-2"
       onclick='onTranslateGoogle()'><img src="{% static 'images/google_translate.webp' %}" alt="Google Translate" width="20" /> Translate</button> -->
+      <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-secondary mx-2"
+        onclick='onFixMarkdown()'>Fix Markdown</button>
       <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-primary mx-2"
-        onclick='onSave()'>Save</button>
+        onclick='onSave()'>Save Note</button>
     </div>
   </div>
 </div>
@@ -92,8 +94,7 @@
   const pdfPanel = $("#pdf-panel");
   const notePanel = $("#note-panel");
   const markdownPanel = $("#markdown-panel");
-  const llmModel = "{{ LLM_MODEL }}";
-  const llmUrl = "{{ LLM_REQUEST_URL }}";
+  const OLLAMA_REQUEST_URL = "{{ OLLAMA_REQUEST_URL }}";
   var simplemde = new SimpleMDE({
     element: noteControl,
     status: false,
@@ -270,8 +271,6 @@ The report must be at least 10 A4 pages long.
       return;
     }
 
-    console.log("Here 1");
-
     try {
       const response = await fetch("/home/request_genai/", {
         method: "POST",
@@ -285,8 +284,6 @@ The report must be at least 10 A4 pages long.
           question: question,
         })
       });
-
-      console.log("Here 2");
 
       if (!response.ok) {
         reportError(`Error: ${await response.text()}`);
@@ -326,8 +323,6 @@ The report must be at least 10 A4 pages long.
       return;
     }
 
-    console.log("Here 3");
-
     try {
       const response = await fetch("/home/request_openrouter/", {
         method: "POST",
@@ -341,8 +336,6 @@ The report must be at least 10 A4 pages long.
           question: question,
         })
       });
-
-      console.log("Here 4");
 
       if (!response.ok) {
         reportError(`Error: ${await response.text()}`);
@@ -380,10 +373,8 @@ The report must be at least 10 A4 pages long.
       return;
     }
 
-    console.log("Here 5");
-
     try {
-      const response = await fetch(llmUrl, {
+      const response = await fetch(OLLAMA_REQUEST_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -394,8 +385,6 @@ The report must be at least 10 A4 pages long.
           stream: true
         })
       });
-
-      console.log("Here 6");
 
       if (!response.ok) {
         reportError(`Error: ${await response.text()}`);
@@ -428,7 +417,7 @@ The report must be at least 10 A4 pages long.
               const jsonData = JSON.parse(partialData);
               appendNote(jsonData.response);
             } catch (error) {
-              console.error("JSON Parsing Error:", error);
+              reportError(error);
             }
           }
 
@@ -445,7 +434,7 @@ The report must be at least 10 A4 pages long.
               const jsonData = JSON.parse(line);
               appendNote(jsonData.response);
             } catch (error) {
-              console.error("JSON Parsing Error:", error);
+              reportError(error);
             }
           }
         }
@@ -593,6 +582,34 @@ The report must be at least 10 A4 pages long.
   //     reportError(e);
   //   }
   // }
+
+  async function onFixMarkdown() {
+    let text = simplemde.value();
+
+    const replacements = [
+        [/\n{2,}/g, "\n"], // Replace 2+ newlines with 1
+        [/(^#.*)/gm, "\n$1\n"], // Ensure headers have surrounding newlines
+        [/\n#\s/g, "# "], // Remove first blank line
+        [/\n{3,}/g, "\n\n"], // Replace 3+ newlines with 2
+        [/[ \t]+$/gm, ""], // Remove trailing space
+        [/^(#+)\s\*\*(.*)\*\*$/gm, "$1 $2"], // Remove bold from headers
+        [/\\\*\\\*(.*)\\\*\\\*/g, "**$1**"], // Fix escaped bold markers
+        [/^(\s*)\*(\s)/gm, "$1-$2"], // Convert list markers from * to -
+        [/^(\s*)-\s\s+/gm, "$1- "], // Remove multiple white space after hyphen
+        [/\\\(\s*(.*?)\s*\\\)/g, "$$$1$$"], // Convert escaped parentheses
+        [/\\\[([\s\n][\s\S]*?[\s\n])\\\]/g, "$$$$$1$$$$"], // Convert escaped math
+        [/\\\$/g, "\$"], // Convert escaped dollar
+        [/\\_/g, "_"], // Convert escaped underscore,
+        [/(?<=\$(?!\\_)(.*?))_(?=.*?\$)/g, "\\_"], // Convert to escaped underscore in math,
+        [/\$(.*?)\*(.*?)\$/g, "$$$1\\ast$2$$"], // Convert "*" to "\ast" in math,
+    ];
+
+    text = replacements.reduce(
+        (acc, [pattern, replacement]) =>
+        acc.replace(pattern, replacement), text);
+
+    simplemde.value(text);
+  }
 
   async function onSave() {
     $.ajax({

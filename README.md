@@ -38,13 +38,23 @@ python manage.py createsuperuser
 
 - 웹 브라우저에서 <http://127.0.0.1:8080/>에 접속한다.
 
-### 논문 자동 요약을 위한 구글 제미나이 API 설정
+### 논문 자동 요약을 위한 URL 및 API 설정
 
-- `.env` 파일에 구글 제미나이의 API 키를 입력한다.
-- API 키는 <https://aistudio.google.com/apikey>에서 생성한다.
+- **Google Gemini의 API 키**:
+  - `.env` 파일에 Google Gemini의 API 키를 입력한다.
+  - Google Gemini의 API 키는 <https://aistudio.google.com/apikey>에서 무료로 얻을 수 있다.
+  - API 키 생성 후 API 제한사항에 "Generative Language API" 기능이 허용되어 있는지 확인한다.
+- **OpenRouter의 API 키**:
+  - `.env` 파일에 OpenRouter의 API 키를 입력한다.
+  - OpenRouter의 API 키는 <https://openrouter.ai/settings/keys>에서 무료로 얻을 수 있다.
+- **Ollama의 URL**:
+  - `.env` 파일에 Ollama의 URL을 입력한다.
+  - Ollama의 URL은 "http://{ip-address}:11434/api/generate"의 형식이다.
 
 ```text
 GEMINI_API_KEY=<api_key_here>
+OPENROUTER_API_KEY=<api_key_here>
+OLLAMA_REQUEST_URL=http://127.0.0.1:11434/api/generate
 ```
 
 ### 자세한 사용 방법
