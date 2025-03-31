@@ -289,7 +289,6 @@ def paper_add(request) -> JsonResponse:
     return JsonResponse({"message": "Paper added successfully"}, status=200)
 
 
-@login_required
 def add_paper_to_topic(
         title,
         author,

@@ -113,8 +113,7 @@ def topic_citations(request, id) -> JsonResponse:
     topic = get_object_or_404(Topic, id=id)
 
     if request.method == "POST":
-        threading.Thread(target=__update_topic_citations,
-                         args=(topic,)).start()
+        threading.Thread(target=__update_topic_citations, args=(topic,)).start()
 
         return JsonResponse({"message": "ok"}, status=200)
 
@@ -132,7 +131,7 @@ def __update_topic_citations(topic):
     logger.info(f'Updating citations on the topic: "{topic.title}"')
 
     for index, paper in enumerate(papers):
-        logger.info(f'Processing {index + 1:,} of {count:,}')
+        logger.info(f"Processing {index + 1:,} of {count:,}")
         update_paper_citations(paper)
         time.sleep(1)
 
@@ -161,8 +160,9 @@ def collect_arxiv(request) -> JsonResponse:
             if max_results == 0:
                 raise Exception("Invalid max_results")
 
-            threading.Thread(target=__collect_arxiv,
-                             args=(topic_id, keywords, max_results)).start()
+            threading.Thread(
+                target=__collect_arxiv, args=(topic_id, keywords, max_results)
+            ).start()
 
             return JsonResponse({"message": "ok"}, status=200)
         except Exception as e:
@@ -175,7 +175,7 @@ def __collect_arxiv(topic_id: int, keywords: str, max_results: int) -> None:
     if not keywords.strip():
         raise ValueError("Keywords are required!")
 
-    keyword_list = [k.strip() for k in keywords.split(',')]
+    keyword_list = [k.strip() for k in keywords.split(",")]
     count = 0
 
     for keyword in keyword_list:
@@ -183,17 +183,19 @@ def __collect_arxiv(topic_id: int, keywords: str, max_results: int) -> None:
 
         for paper in papers:
             try:
-                title = paper.find('{http://www.w3.org/2005/Atom}title').text
-                authors = ', '.join(a.find(
-                    '{http://www.w3.org/2005/Atom}name').text for a in paper.findall('{http://www.w3.org/2005/Atom}author'))
+                title = paper.find("{http://www.w3.org/2005/Atom}title").text
+                authors = ", ".join(
+                    a.find("{http://www.w3.org/2005/Atom}name").text
+                    for a in paper.findall("{http://www.w3.org/2005/Atom}author")
+                )
                 publisher = "arXiv"
                 publish_date = paper.find(
-                    '{http://www.w3.org/2005/Atom}published').text.split('T')[0]
+                    "{http://www.w3.org/2005/Atom}published"
+                ).text.split("T")[0]
                 doi = ""
-                url = paper.find('{http://www.w3.org/2005/Atom}id').text
-                abstract = paper.find(
-                    '{http://www.w3.org/2005/Atom}summary').text
-                pdf_url = url.replace('/abs/', '/pdf/')
+                url = paper.find("{http://www.w3.org/2005/Atom}id").text
+                abstract = paper.find("{http://www.w3.org/2005/Atom}summary").text
+                pdf_url = url.replace("/abs/", "/pdf/")
                 pdf_name = title.replace(" ", "_") + ".pdf"
                 citations = None
                 tags = ""
@@ -212,7 +214,8 @@ def __collect_arxiv(topic_id: int, keywords: str, max_results: int) -> None:
                     tags,
                     abstract,
                     note,
-                    topic_id)
+                    topic_id,
+                )
 
                 count += 1
             except Exception as e:
@@ -226,15 +229,17 @@ def __get_arxiv_list(keywords: str, max_results: int) -> list:
     Get paper list from Arxiv.
     """
 
-    research_topic = keywords.replace(' ', '+')
-    url = f"https://export.arxiv.org/api/query?search_query=all:{research_topic}&start=0" + \
-        f"&max_results={max_results}&sortBy=relevance&sortOrder=descending"
+    research_topic = keywords.replace(" ", "+")
+    url = (
+        f"https://export.arxiv.org/api/query?search_query=all:{research_topic}&start=0"
+        + f"&max_results={max_results}&sortBy=relevance&sortOrder=descending"
+    )
 
     try:
         with urllib.request.urlopen(url) as response:
             data = response.read()
         root = ET.fromstring(data)
-        return root.findall('.//{http://www.w3.org/2005/Atom}entry')
+        return root.findall(".//{http://www.w3.org/2005/Atom}entry")
     except Exception as e:
-        print(f'Error fetching arXiv data: {e}')
+        print(f"Error fetching arXiv data: {e}")
         return []
