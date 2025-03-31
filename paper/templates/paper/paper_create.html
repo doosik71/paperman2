@@ -50,7 +50,8 @@
             <label for="url" class="form-label fw-bold mt-1">URL</label>
           </div>
           <div class="col-9 mt-1">
-            <input type="text" class="form-control" id="url" name="url" placeholder="URL" required>
+            <input type="text" class="form-control" id="url" name="url" placeholder="URL" required
+              onchange="onChangeURL()">
           </div>
           <div class="col-2 text-right mt-2">
             <label for="pdf_url" class="form-label fw-bold mt-1">PDF URL</label>
@@ -104,12 +105,94 @@
             {% endfor %}
           </div>
           <div class="col-12 mt-3 text-center">
-            <button {% if not user.is_authenticated %}disabled{% endif %} type="submit"
-              class="btn btn-primary mx-2">Add Paper</button>
+            <button {% if not user.is_authenticated %}disabled{% endif %} type="submit" class="btn btn-primary mx-2">Add
+              Paper</button>
           </div>
         </div>
       </form>
     </div>
   </div>
 </div>
+<script>
+  async function onChangeURL() {
+    const url = document.getElementById("url").value;
+    let info = null;
+
+    if (url.startsWith("https://arxiv.org/abs/")) {
+      info = await getInfoFromArxiv(url);
+    }
+
+    const titleElement = document.getElementById("title");
+    const authorElement = document.getElementById("author");
+    const publisherElement = document.getElementById("publisher");
+    const abstractElement = document.getElementById("abstract");
+    const pdfUrlElement = document.getElementById("pdf_url");
+    const pdfNameElement = document.getElementById("pdf_name");
+
+    if (titleElement.value == "")
+      titleElement.value = info.title;
+
+    if (authorElement.value == "")
+      authorElement.value = info.authors;
+
+    if (publisherElement.value == "")
+      publisherElement.value = "arXiv";
+
+    if (abstractElement.value == "")
+      abstractElement.value = info.abstract;
+
+    if (pdfUrlElement.value == "")
+      pdfUrlElement.value = url.replace("/abs/", "/pdf/");
+    
+    if (pdfNameElement.value == "")
+      pdfNameElement.value = info.title.replace(" ", "_") + ".pdf";
+  }
+
+  async function getInfoFromArxiv(url) {
+    const html = await getHtml(url);
+
+    if (html !== "") {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+      const titleSelector = "h1.title";
+      const authorSelector = "div.authors";
+      const abstractSelector = "blockquote.abstract";
+
+      const title = doc.querySelector(titleSelector)?.innerText.trim().replace("Title:", "") || "";
+      const authors = doc.querySelector(authorSelector)?.innerText.trim().replace("Authors:", "") || "";
+      const abstract = doc.querySelector(abstractSelector)?.innerText.trim().replace("Abstract:", "") || "";
+
+      return {
+        title: title,
+        authors: authors,
+        abstract: abstract
+      };
+    } else {
+      return {
+        title: "",
+        authors: "",
+        abstract: ""
+      }
+    }
+  }
+
+  async function getHtml(url) {
+    const csrf_token = "{{ csrf_token }}";
+    const backendUrl = "{% url 'get_html' %}" + `?url=${encodeURIComponent(url)}`;
+    const response = await fetch(backendUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrf_token
+      }
+    });
+
+    if (!response.ok) {
+      return "";
+    }
+
+    const data = await response.json();
+    return data.html || "";
+  }
+</script>
 {% endblock %}

@@ -121,7 +121,7 @@ def get_pdf(request):
     if not url:
         return HttpResponse("No PDF URL provided", status=400)
 
-    cache_key = hashlib.md5(url.encode('utf-8')).hexdigest()
+    cache_key = hashlib.md5(url.encode("utf-8")).hexdigest()
     cached_pdf = cache.get(cache_key)
 
     if cached_pdf:
@@ -133,7 +133,7 @@ def get_pdf(request):
         response = requests.get(url, stream=True)
         response.raise_for_status()
         content = response.content
-        cache.set(cache_key, content, timeout=60*60*24)
+        cache.set(cache_key, content, timeout=60 * 60 * 24)
         pdf_response = HttpResponse(content, content_type="application/pdf")
         pdf_response["Content-Disposition"] = "inline; filename=document.pdf"
 
@@ -141,3 +141,22 @@ def get_pdf(request):
 
     except requests.exceptions.RequestException as e:
         return HttpResponse(f"Failed to fetch PDF: {e}", status=500)
+
+
+def get_html(request):
+    """
+    Get HTML.
+    """
+
+    url = request.GET.get("url")
+
+    if not url:
+        return JsonResponse({"Error": "No URL provided"}, status=400)
+
+    try:
+        headers = {"User-Agent": "Mozilla/5.0"}
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        return JsonResponse({"html": response.text})
+    except requests.exceptions.RequestException as e:
+        return JsonResponse({"Error": str(e)}, status=500)
