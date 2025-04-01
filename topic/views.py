@@ -20,6 +20,13 @@ def topic_list(request) -> HttpResponse:
 
     topics = Topic.objects.all().order_by("title")
 
+    for topic in topics:
+        papers = Paper.objects.filter(topics=topic)
+        topic.paper_count = papers.count()
+        topic.citation_count = papers.filter(citations__isnull=False).count()
+        topic.star_count = papers.filter(tags__icontains="⭐").count()
+        topic.note_count = papers.exclude(note="").count()
+
     return render(request, "topic/topic_list.html", {"topics": topics})
 
 

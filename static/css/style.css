@@ -438,6 +438,10 @@ Print
     width: 48%;
   }
 
+  main div#markdown-panel {
+    width: 100% !important;
+  }
+
   main div#markdown-container {
     border: none !important;
     border-radius: 0 !important;
