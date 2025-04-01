@@ -76,6 +76,9 @@
     </div>
   </div>
 </div>
+
+{{ prompt|json_script:"prompt-data" }}
+
 <script type="text/javascript" charset="utf8"
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script type="text/x-mathjax-config">
@@ -174,52 +177,7 @@
 
   async function onSummarize() {
     model = document.getElementById("llm-model").value;
-
-    const prompt = `Summarize the main points from the following TEXT using markdown bullet points.
-Maintain the numbering and titles of chapters, sections, and subsections as in the paper's table of contents.
-Stay faithful to the original content without making arbitrary modifications.
-Ensure the summary is sufficiently detailed and not too short.
-Sentences should be concise and written in bullet points.
-Use primarily Korean, with English for technical terms.
-Use the declarative form "이다" instead of the polite form "입니다."
-Apply heading level 1 (#) for title captions, level 2 (##) for chapter captions, level 3 (###) for section captions, and level 4 (####) for subsection captions.
-Use $...$ for inline math and $$...$$ for block math.
----
-**TEXT**: `;
-    const prompt_1 = `Write a very detailed analysis report for the following academic research paper in structured Markdown format.
-- The report should include 1. Abstract, 2. Introduction, 3. Related Works, 4. Methodology, 5. Experiments and Results, and 6. Conclusion.
-- Cover each section thoroughly and in detail.
-- Omit reference.
-- Omit appendix.
----
-**PAPER**: `;
-    const prompt_2 = `The text below is an excerpt from a research paper.
-Write a detailed analysis report of the paper in Markdown format.
-The report must be at least 10 A4 pages long.
----
-**PAPER**: `;
-    const prompt_3 = `Please re-format the entire text given below into hierarchical Markdown format.
-- The text below is an excerpt from a academic research paper.
-- The report should include 1. Abstract, 2. Introduction, 3. Related Works, 4. Proposed Methods, 5. Experiment Results, and 6. Conclusion.
-- Do not include reference nor appendix.
----
-**TEXT**: `;
-    const prompt_4 = `Summarize the following paper in as much detail as possible.
-- The summary should be at least 5,000 words long and must include the key concepts, research methods, findings, and conclusions of the paper.
-- Avoid unnecessary interpretations or additional analysis.
-- just provide a faithful and comprehensive summary of the content.
-- Reports should be structured in Markdown format.
----
-**TEXT**: `;
-    const prompt_5 = `Summarize the main points from the text bellow using markdown bullet points.
-- Maintain the numbering and titles of chapters, sections, and subsections as in the paper's table of contents.
-- Stick to the original content without making any arbitrary modifications.
-- Ensure the summary is detailed enough and easy to understand.
-- Apply heading level 1 ("#") for title captions, level 2 ("##") for chapter captions, level 3 ("###") for section captions.
-- Use $...$ for inline math and $$...$$ for block math.
----
-**TEXT**: `;
-
+    const prompt = JSON.parse(document.getElementById("prompt-data").textContent);
     const question = prompt + simplemde.value().trim();
 
     try {
@@ -587,28 +545,28 @@ The report must be at least 10 A4 pages long.
     let text = simplemde.value();
 
     const replacements = [
-        [/\n{2,}/g, "\n"], // Replace 2+ newlines with 1
-        [/(^#.*)/gm, "\n$1\n"], // Ensure headers have surrounding newlines
-        [/\n#\s/g, "# "], // Remove first blank line
-        [/\n{3,}/g, "\n\n"], // Replace 3+ newlines with 2
-        [/[ \t]+$/gm, ""], // Remove trailing space
-        [/\n---\n/g, "\n\n---\n\n"], // Add blank lines before and after the delimiter
-        [/^(#+)\s\*\*(.*)\*\*$/gm, "$1 $2"], // Remove bold from headers
-        [/\\\*\\\*(.*)\\\*\\\*/g, "**$1**"], // Fix escaped bold markers
-        [/^(\s*)\*(\s)/gm, "$1-$2"], // Convert list markers from * to -
-        [/^(\s*)-\s\s+/gm, "$1- "], // Remove multiple white space after hyphen
-        [/\\\(\s*(.*?)\s*\\\)/g, "$$$1$$"], // Convert escaped parentheses
-        [/\\\[([\s\n][\s\S]*?[\s\n])\\\]/g, "$$$$$1$$$$"], // Convert escaped math
-        [/\\\$/g, "\$"], // Convert escaped dollar
-        [/\\_/g, "_"], // Convert escaped underscore,
-        [/(?<=\$(?!\\_)(.*?))_(?=.*?\$)/g, "\\_"], // Convert to escaped underscore in math,
-        [/(?<=\$(?!\\_)(.*?))\*(?=.*?\$)/g, "\\ast "], // Convert "*" to "\ast" in math,
-        [/(?<=\$(?!\\_)(.*?))\\\{(?=.*?\$)/g, "\\lbrace "], // Convert "\{" to \\lbrace in math,
-        [/(?<=\$(?!\\_)(.*?))\\\}(?=.*?\$)/g, "\\rbrace "], // Convert "\}" to \\rbrace in math,
+      [/\n{2,}/g, "\n"], // Replace 2+ newlines with 1
+      [/(^#.*)/gm, "\n$1\n"], // Ensure headers have surrounding newlines
+      [/\n#\s/g, "# "], // Remove first blank line
+      [/\n{3,}/g, "\n\n"], // Replace 3+ newlines with 2
+      [/[ \t]+$/gm, ""], // Remove trailing space
+      [/\n---\n/g, "\n\n---\n\n"], // Add blank lines before and after the delimiter
+      [/^(#+)\s\*\*(.*)\*\*$/gm, "$1 $2"], // Remove bold from headers
+      [/\\\*\\\*(.*)\\\*\\\*/g, "**$1**"], // Fix escaped bold markers
+      [/^(\s*)\*(\s)/gm, "$1-$2"], // Convert list markers from * to -
+      [/^(\s*)-\s\s+/gm, "$1- "], // Remove multiple white space after hyphen
+      [/\\\(\s*(.*?)\s*\\\)/g, "$$$1$$"], // Convert escaped parentheses
+      [/\\\[([\s\n][\s\S]*?[\s\n])\\\]/g, "$$$$$1$$$$"], // Convert escaped math
+      [/\\\$/g, "\$"], // Convert escaped dollar
+      [/\\_/g, "_"], // Convert escaped underscore,
+      [/(?<=\$(?!\\_)(.*?))_(?=.*?\$)/g, "\\_"], // Convert to escaped underscore in math,
+      [/(?<=\$(?!\\_)(.*?))\*(?=.*?\$)/g, "\\ast "], // Convert "*" to "\ast" in math,
+      [/(?<=\$(?!\\_)(.*?))\\\{(?=.*?\$)/g, "\\lbrace "], // Convert "\{" to \\lbrace in math,
+      [/(?<=\$(?!\\_)(.*?))\\\}(?=.*?\$)/g, "\\rbrace "], // Convert "\}" to \\rbrace in math,
     ];
 
     text = replacements.reduce(
-        (acc, [pattern, replacement]) =>
+      (acc, [pattern, replacement]) =>
         acc.replace(pattern, replacement), text);
 
     simplemde.value(text);

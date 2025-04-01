@@ -12,8 +12,8 @@ from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from paperman import settings
 from topic.models import Topic
+from config.models import *
 from urllib.parse import urlencode
 
 
@@ -150,14 +150,20 @@ def paper_note(request, id) -> HttpResponse:
 
     paper = get_object_or_404(Paper, id=id)
 
+    GEMINI_API_KEY = get_config_value("GEMINI_API_KEY")
+    OPENROUTER_API_KEY = get_config_value("OPENROUTER_API_KEY")
+    OLLAMA_REQUEST_URL = get_config_value("OLLAMA_REQUEST_URL")
+    prompt = get_config_value("prompt")
+
     return render(
         request,
         "paper/paper_note.html",
         {
             "paper": paper,
-            "OLLAMA_REQUEST_URL": settings.OLLAMA_REQUEST_URL,
-            "GEMINI_API_KEY": settings.GEMINI_API_KEY,
-            "OPENROUTER_API_KEY": settings.OPENROUTER_API_KEY,
+            "GEMINI_API_KEY": GEMINI_API_KEY,
+            "OPENROUTER_API_KEY": OPENROUTER_API_KEY,
+            "OLLAMA_REQUEST_URL": OLLAMA_REQUEST_URL,
+            "prompt": prompt,
         },
     )
 
