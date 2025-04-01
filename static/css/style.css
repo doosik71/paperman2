@@ -168,9 +168,6 @@ textarea.full-note {
 div.markdown-container {
   background: lightgray;
   height: calc(100vh - 133px);
-}
-
-div.overflow-scroll {
   overflow: scroll;
 }
 
@@ -398,4 +395,36 @@ span.cm-em {
 main div#note-panel div.CodeMirror span.cm-link {
   color: dodgerblue;
   text-decoration: none;
+}
+
+/**************
+Print
+**************/
+
+@media print {
+
+  header,
+  footer,
+  div#pdf-panel,
+  div#note-panel {
+    display: none;
+  }
+
+  main table#papers {
+    font-size: 10px;
+  }
+
+  main table#papers th#th-author {
+    width: 28%;
+  }
+
+  main table#papers th#th-title {
+    width: 48%;
+  }
+
+  main div.markdown-container {
+    border: none !important;
+    height: auto !important;
+    overflow: hidden !important;
+  }
 }

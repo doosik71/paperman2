@@ -18,19 +18,19 @@
         <table id="papers" class="table table-bordered table-hover">
           <thead>
             <tr>
-              <th class="text-center" width="11%">Tags</th>
-              <th class="text-center" width="18%">Author</th>
-              <th class="text-center" width="38%">Title</th>
-              <th class="text-center" width="10%">Publisher</th>
-              <th class="text-center" width="7%">Date</th>
-              <th class="text-center" width="7%">Citations</th>
-              <th class="text-center" width="9%">Links</th>
+              <th id="th-tag" class="text-center d-print-none" width="11%">Tags</th>
+              <th id="th-author" class="text-center" width="18%">Author</th>
+              <th id="th-title" class="text-center" width="38%">Title</th>
+              <th id="th-publisher" class="text-center" width="10%">Publisher</th>
+              <th id="th-date" class="text-center" width="7%">Date</th>
+              <th id="th-citations" class="text-center" width="7%">Citations</th>
+              <th id="th-links" class="text-center d-print-none" width="9%">Links</th>
             </tr>
           </thead>
           <tbody>
             {% for paper in papers %}
             <tr data-paper-id="{{ paper.id }}">
-              <td id="tags" width="50px" class="text-center">
+              <td id="tags" width="50px" class="text-center d-print-none">
                 <span id="tags-{{ paper.id }}"></span>
                 <script>
                   renderTags({{ paper.id }}, '{{ paper.tags|escapejs  }}', '{{ user.is_authenticated }}');
@@ -43,10 +43,10 @@
               <td id="citations" class="text-end">
                 <span id="citations-{{ paper.id }}" class="px-2">{{ paper.citations|default_if_none:"-" }}</span>
                 {% if user.is_authenticated %}
-                <button class="mx-2 circle" onclick='onCitation({{ paper.id }})'>&#8634;</button>
+                <button class="mx-2 circle d-print-none" onclick='onCitation({{ paper.id }})'>&#8634;</button>
                 {% endif %}
               </td>
-              <td id="links" class="text-center">
+              <td id="links" class="text-center d-print-none">
                 <a href="{% url 'paper_pdf' paper.id %}" class="mx-1" title="PDF" target="_blank">
                   <img src="{% static 'images/pdf.png' %}" class="icon" alt="PDF"></a>
                 <a href="{% url 'paper_note' paper.id %}" class="mx-1" title="Note" target="_blank">
@@ -67,7 +67,7 @@
       </div>
     </div>
   </div>
-  <div class="row">
+  <div class="row d-print-none">
     <div class="col-12 d-flex justify-content-center">
       {% if user.is_authenticated %}
       <a href="{% url 'paper_create' %}" class="btn btn-primary mx-2">Add Paper</a>

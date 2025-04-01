@@ -24,12 +24,12 @@
         placeholder="Note">{{ paper.note|safe }}</textarea>
     </div>
     <div class="m-2" id="markdown-panel">
-      <div class="border rounded markdown-container overflow-scroll">
+      <div class="border rounded markdown-container">
         <div id="markdown" class="p-2"></div>
       </div>
     </div>
   </div>
-  <div class="row">
+  <div class="row d-print-none">
     <div class="d-flex w-auto mx-auto toolbar toolbar-border px-3 py-2 shadow-sm bg-light align-items-center">
       <label class="fw-bold me-2">View Mode: </label>
       <input type="checkbox" id="check-pdf" name="view-mode" value="pdf" title="Toggle PDF" checked

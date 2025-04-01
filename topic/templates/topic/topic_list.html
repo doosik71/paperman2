@@ -16,7 +16,7 @@
   </div>
   {% endfor %}
 </div>
-<div class="m-3 text-center">
+<div class="m-3 text-center d-print-none">
   <form action="{% url 'topic_create' %}" method="get">
     <button {% if not user.is_authenticated %}disabled{% endif %} type="submit" class="btn btn-primary">Create new
       topic</button>
