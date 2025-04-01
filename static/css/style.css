@@ -177,18 +177,28 @@ select.inline {
 }
 
 div#pdf-panel {
-  flex: 1 1 60%;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 div#note-panel {
-  flex: 1 1 40%;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 div#markdown-panel {
-  flex: 1 1 40%;
-  overflow-x: hidden;
+  overflow: hidden;
+}
+
+.split {
+  display: flex;
+}
+
+.gutter {
+  background-color: #ddd;
+  cursor: col-resize;
+  height: 20em;
+  margin-top: auto;
+  margin-bottom: auto;
+  width: 10px;
 }
 
 /**************
@@ -202,6 +212,7 @@ div#markdown {
   padding: 3em !important;
   max-width: 8.27in;
   min-height: 100%;
+  transform-origin: top left;
 }
 
 div#markdown h1 {
@@ -368,6 +379,10 @@ think {
 /**************
 Markdown Editor
 **************/
+
+main div.editor-toolbar {
+  max-height: 47.983px;
+}
 
 main div#note-panel div.CodeMirror span.cm-header.cm-header-1 {
   line-height: 1.3em;
