@@ -421,7 +421,8 @@ Print
   header,
   footer,
   div#pdf-panel,
-  div#note-panel {
+  div#note-panel,
+  .gutter {
     display: none;
   }
 
@@ -437,9 +438,15 @@ Print
     width: 48%;
   }
 
-  main div.markdown-container {
+  main div#markdown-container {
     border: none !important;
-    height: auto !important;
-    overflow: hidden !important;
+    border-radius: 0 !important;
+    height: auto;
+    overflow: hidden;
+  }
+
+  main div#markdown {
+    padding: 1em !important;
+    transform: scale(1) !important;
   }
 }
