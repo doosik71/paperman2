@@ -33,13 +33,18 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav">
             <li class="nav-item">
-              <a class="nav-link" href="/">Home</a>
-            </li>
-            <li class="nav-item">
               <a class="nav-link" href="/paper/list">Paper</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/topic/list">Topic</a>
+            </li>
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link" href="/config/">Config</a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <a class="nav-link" href="/">Help</a>
             </li>
           </ul>
           <span class="navbar-text ms-auto" id="status"></span>

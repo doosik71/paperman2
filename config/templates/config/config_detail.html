@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="justify-content-center">
+    <div class="container">
+        {% if messages %}
+        <div class="row">
+            {% for message in messages %}
+            <div class="message">
+                {{ message }}
+                <button type="button" onclick="this.parentElement.style.display='none'" class="message">✖</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="row">
+            <form method="POST" action="{% url 'config_detail' %}">
+                {% csrf_token %}
+                <div class="row my-2">
+                    <div class="col-2 text-right mt-2">
+                        <label for="GEMINI_API_KEY" class="form-label mt-1">GEMINI_API_KEY</label>
+                    </div>
+                    <div class="col-9 mt-1">
+                        <input type="text" class="form-control" id="GEMINI_API_KEY" name="GEMINI_API_KEY"
+                            placeholder="GEMINI_API_KEY" value="{{ GEMINI_API_KEY }}">
+                    </div>
+                    <div class="col-1 pt-2">
+                        <a href="https://aistudio.google.com/apikey" target="_blank">
+                            <img src="{% static 'images/link.png' %}" alt="Link" class="icon">
+                        </a>
+                    </div>
+                    <div class="col-2 text-right mt-2">
+                        <label for="OPENROUTER_API_KEY" class="form-label mt-1">OPENROUTER_API_KEY</label>
+                    </div>
+                    <div class="col-9 mt-1">
+                        <input type="text" class="form-control" id="OPENROUTER_API_KEY" name="OPENROUTER_API_KEY"
+                            placeholder="OPENROUTER_API_KEY" value="{{ OPENROUTER_API_KEY }}">
+                    </div>
+                    <div class="col-1 pt-2">
+                        <a href="https://openrouter.ai/settings/keys" target="_blank">
+                            <img src="{% static 'images/link.png' %}" alt="Link" class="icon">
+                        </a>
+                    </div>
+                    <div class="col-2 text-right mt-2">
+                        <label for="OLLAMA_REQUEST_URL" class="form-label">OLLAMA_REQUEST_URL</label>
+                    </div>
+                    <div class="col-9 mt-1">
+                        <input type="text" class="form-control" id="OLLAMA_REQUEST_URL" name="OLLAMA_REQUEST_URL"
+                            placeholder="OLLAMA_REQUEST_URL" value="{{ OLLAMA_REQUEST_URL }}">
+                    </div>
+                    <div class="col-2 text-right mt-2">
+                        <label for="prompt" class="form-label">Summary Prompt</label>
+                    </div>
+                    <div class="col-9 mt-1">
+                        <textarea type="prompt" class="form-control" id="prompt" name="prompt"
+                            placeholder="Summary Prompt" oninput="autoResize(this)">{{ prompt|safe }}</textarea>
+                    </div>
+                    <div class="col-12 mt-3 text-center">
+                        <button {% if not user.is_authenticated %} disabled {% endif %} type="submit"
+                            class="btn btn-primary mx-2">Save Config</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    function autoResize(textarea) {
+        textarea.style.height = "auto";
+        textarea.style.height = (textarea.scrollHeight + 5) + "px";
+    }
+
+    window.onload = function () {
+        autoResize(document.getElementById("prompt"));
+    };
+</script>
+{% endblock %}

@@ -27,4 +27,5 @@ urlpatterns = [
     path("home/", include("home.urls")),
     path("paper/", include("paper.urls")),
     path("topic/", include("topic.urls")),
+    path("config/", include("config.urls")),
 ]
