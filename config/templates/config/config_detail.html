@@ -17,7 +17,7 @@
             <form method="POST" action="{% url 'config_detail' %}">
                 {% csrf_token %}
                 <div class="row my-2">
-                    <div class="col-2 text-right mt-2">
+                    <div class="col-2 text-end mt-2">
                         <label for="GEMINI_API_KEY" class="form-label mt-1">GEMINI_API_KEY</label>
                     </div>
                     <div class="col-9 mt-1">
@@ -29,7 +29,7 @@
                             <img src="{% static 'images/link.png' %}" alt="Link" class="icon">
                         </a>
                     </div>
-                    <div class="col-2 text-right mt-2">
+                    <div class="col-2 text-end mt-2">
                         <label for="OPENROUTER_API_KEY" class="form-label mt-1">OPENROUTER_API_KEY</label>
                     </div>
                     <div class="col-9 mt-1">
@@ -41,19 +41,26 @@
                             <img src="{% static 'images/link.png' %}" alt="Link" class="icon">
                         </a>
                     </div>
-                    <div class="col-2 text-right mt-2">
+                    <div class="col-2 text-end mt-2">
                         <label for="OLLAMA_REQUEST_URL" class="form-label">OLLAMA_REQUEST_URL</label>
                     </div>
                     <div class="col-9 mt-1">
                         <input type="text" class="form-control" id="OLLAMA_REQUEST_URL" name="OLLAMA_REQUEST_URL"
                             placeholder="OLLAMA_REQUEST_URL" value="{{ OLLAMA_REQUEST_URL }}">
                     </div>
-                    <div class="col-2 text-right mt-2">
-                        <label for="prompt" class="form-label">Summary Prompt</label>
+                    <div class="col-2 text-end mt-2">
+                        <label for="SUMMARY_PROMPT" class="form-label">Summary Prompt</label>
                     </div>
                     <div class="col-9 mt-1">
-                        <textarea type="prompt" class="form-control" id="prompt" name="prompt"
-                            placeholder="Summary Prompt" oninput="autoResize(this)">{{ prompt|safe }}</textarea>
+                        <textarea type="text" class="form-control" id="SUMMARY_PROMPT" name="SUMMARY_PROMPT"
+                            placeholder="Summary Prompt" oninput="autoResize(this)">{{ SUMMARY_PROMPT|safe }}</textarea>
+                    </div>
+                    <div class="col-2 text-end mt-2">
+                        <label for="PRESENTATION_PROMPT" class="form-label">Presentation Prompt</label>
+                    </div>
+                    <div class="col-9 mt-1">
+                        <textarea type="text" class="form-control" id="PRESENTATION_PROMPT" name="PRESENTATION_PROMPT"
+                            placeholder="Presentation Prompt" oninput="autoResize(this)">{{ PRESENTATION_PROMPT|safe }}</textarea>
                     </div>
                     <div class="col-12 mt-3 text-center">
                         <button {% if not user.is_authenticated %} disabled {% endif %} type="submit"
@@ -71,7 +78,8 @@
     }
 
     window.onload = function () {
-        autoResize(document.getElementById("prompt"));
+        autoResize(document.getElementById("SUMMARY_PROMPT"));
+        autoResize(document.getElementById("PRESENTATION_PROMPT"));
     };
 </script>
 {% endblock %}

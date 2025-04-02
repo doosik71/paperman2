@@ -5,19 +5,19 @@
     <form method="POST">
       {% csrf_token %}
       <div class="row my-2">
-        <div class="col-2 text-right mt-1">
+        <div class="col-2 text-end mt-1">
           <label for="title" class="form-label fw-bold mt-1">Title</label>
         </div>
         <div class="col-10">
           <input type="text" class="form-control" id="title" name="title" placeholder="Title" required>
         </div>
-        <div class="col-2 text-right mt-1">
+        <div class="col-2 text-end mt-1">
           <label for="keywords" class="form-label fw-bold mt-1">keywords</label>
         </div>
         <div class="col-10">
           <input type="text" class="form-control" id="keywords" name="keywords" placeholder="Keywords" required>
         </div>
-        <div class="col-2 text-right mt-1">
+        <div class="col-2 text-end mt-1">
         </div>
         <div class="col-10">
           <div class="form-text">Keywords are separated by commas.</div>

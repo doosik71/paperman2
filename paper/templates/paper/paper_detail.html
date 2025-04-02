@@ -17,41 +17,41 @@
       <form method="POST" action="{% url 'paper_update' paper.id %}">
         {% csrf_token %}
         <div class="row my-2">
-          <div class="col-2 text-right mt-2">
+          <div class="col-2 text-end mt-2">
             <label for="title" class="form-label fw-bold mt-1">Title</label>
           </div>
           <div class="col-9 mt-1">
             <input type="text" class="form-control" id="title" name="title" placeholder="Title" required
               value="{{ paper.title }}">
           </div>
-          <div class="col-2 text-right mt-2">
+          <div class="col-2 text-end mt-2">
             <label for="author" class="form-label fw-bold mt-1">Author</label>
           </div>
           <div class="col-9 mt-1">
             <input type="text" class="form-control" id="author" name="author" placeholder="Author" required
               value="{{ paper.author }}">
           </div>
-          <div class="col-2 text-right mt-2">
+          <div class="col-2 text-end mt-2">
             <label for="author" class="form-label">Publisher</label>
           </div>
           <div class="col-9 mt-1">
             <input type="text" class="form-control" id="publisher" name="publisher" placeholder="Publisher"
               value="{{ paper.publisher }}">
           </div>
-          <div class="col-2 text-right mt-2">
+          <div class="col-2 text-end mt-2">
             <label for="publish_date" class="form-label">Publish Date</label>
           </div>
           <div class="col-9 mt-1">
             <input type="date" class="form-control" id="publish_date" name="publish_date" placeholder="Publish Date"
               value="{{ paper.publish_date|date:'Y-m-d'}}">
           </div>
-          <div class="col-2 text-right mt-2">
+          <div class="col-2 text-end mt-2">
             <label for="author" class="form-label">DOI</label>
           </div>
           <div class="col-9 mt-1">
             <input type="text" class="form-control" id="doi" name="doi" placeholder="DOI" value="{{ paper.doi }}">
           </div>
-          <div class="col-2 text-right mt-2">
+          <div class="col-2 text-end mt-2">
             <label for="author" class="form-label fw-bold mt-1">URL</label>
           </div>
           <div class="col-9 mt-1">
@@ -63,7 +63,7 @@
               <img src="{% static 'images/link.png' %}" alt="Link" class="icon">
             </a>
           </div>
-          <div class="col-2 text-right mt-2">
+          <div class="col-2 text-end mt-2">
             <label for="author" class="form-label fw-bold mt-1">PDF URL</label>
           </div>
           <div class="col-9 mt-1">
@@ -75,14 +75,14 @@
               <img src="{% static 'images/pdf.png' %}" class="icon" alt="PDF">
             </a>
           </div>
-          <div class="col-2 text-right mt-2">
+          <div class="col-2 text-end mt-2">
             <label for="author" class="form-label">PDF Name</label>
           </div>
           <div class="col-9 mt-1">
             <input type="text" class="form-control" id="pdf_name" name="pdf_name" placeholder="PDF Name"
               value="{{ paper.pdf_name }}">
           </div>
-          <div class="col-2 text-right mt-2">
+          <div class="col-2 text-end mt-2">
             <label for="author" class="form-label">Citations</label>
           </div>
           <div class="col-9 mt-1">
@@ -99,18 +99,18 @@
               <img src="{% static 'images/semantic_scholar.png' %}" alt="Semantic Scholar" class="icon">
             </a>
           </div>
-          <div class="col-2 text-right mt-2">
+          <div class="col-2 text-end mt-2">
             <label for="author" class="form-label">Tags</label>
           </div>
           <div class="col-9 mt-1">
             <input type="text" class="form-control disabled" id="tags" name="tags" placeholder="Tags"
               value="{{ paper.tags }}" readonly>
           </div>
-          <div class="col-2 text-right mt-2">
+          <div class="col-2 text-end mt-2">
             <label for="abstract" class="form-label">Abstract</label>
           </div>
           <div class="col-9 mt-1">
-            <textarea type="abstract" class="form-control note" id="abstract" name="abstract"
+            <textarea type="abstract" rows="5" class="form-control" id="abstract" name="abstract"
               placeholder="Abstract">{{ paper.abstract|safe }}</textarea>
           </div>
           <div class="col-1 pt-2">
@@ -119,11 +119,11 @@
               <img src="{% static 'images/korean.png' %}" alt="Translate to Korean" class="icon">
             </a>
           </div>
-          <div class="col-2 text-right mt-2">
+          <div class="col-2 text-end mt-2">
             <label for="author" class="form-label">Note</label>
           </div>
           <div class="col-9 mt-1">
-            <textarea type="text" class="form-control note" id="note" name="note"
+            <textarea type="text" rows="5" class="form-control" id="note" name="note"
               placeholder="Note">{{ paper.note|safe }}</textarea>
           </div>
           <div class="col-1 pt-2">
@@ -131,10 +131,10 @@
               <img src="{% static 'images/note.png' %}" alt="Note" class="icon">
             </a>
           </div>
-          <div class="col-2 text-right mt-2">
+          <div class="col-2 text-end mt-2">
             <label for="topic" class="form-label">Topic</label>
           </div>
-          <div class="col-9 mt-1 py-1 border rounded topic-panel">
+          <div id="paper-topic-panel" class="col-9 mt-1 py-1 border rounded">
             {% for topic in topics %}
             <div>
               <input class="form-check-input" type="checkbox" id="topic-{{ topic.id }}" name="topics"

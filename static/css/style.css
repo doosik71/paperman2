@@ -1,3 +1,7 @@
+/********
+ * Body *
+ ********/
+
 body {
   font-family: -apple-system, BlinkMacSystemFont,
     "Segoe UI", "Droid Sans", "Helvetica Neue",
@@ -6,6 +10,10 @@ body {
 
   overflow-x: hidden;
 }
+
+/**********
+ * Common *
+ **********/
 
 h1 {
   font-size: 1.5rem;
@@ -49,30 +57,9 @@ main table thead tr th {
   background-color: ghostwhite;
 }
 
-.text-right {
-  text-align: right;
-}
-
 .smaller {
   font-size: 0.6rem;
   padding-top: 0.4em;
-}
-
-div.topic-panel {
-  margin-left: 12px;
-  width: 73.2%;
-}
-
-header nav span#status {
-  color: darkgray;
-  display: inline-block;
-  font-size: 0.8em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 20em;
-  height: 1.5em;
-  padding: 0;
 }
 
 button.transparent {
@@ -125,10 +112,6 @@ select option {
   font-family: D2Coding, monospace, "Courier New";
 }
 
-textarea.note {
-  height: 200px;
-}
-
 table#papers th, table#papers td {
   padding: 0.2em !important;
   vertical-align: middle;
@@ -143,32 +126,71 @@ div.toolbar {
   border-radius: 0.5em;
 }
 
-iframe#pdf {
+/**********
+ * Header *
+ **********/
+
+#header-status-bar {
+  color: darkgray;
+  display: inline-block;
+  font-size: 0.8em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 20em;
+  height: 1.5em;
+  padding: 0;
+}
+
+/**************
+ * Paper Page *
+ **************/
+
+#paper-topic-panel {
+  margin-left: 12px;
+  width: 73.2%;
+}
+
+/************
+ * PDF Page *
+ ************/
+
+#pdf-pdf-preview {
   width: 100%;
   border: 1px solid lightgray;
   height: calc(100vh - 47px);
 }
 
-iframe#pdf.full-note {
+/*************
+ * Note Page *
+ *************/
+
+#note-page #note-pdf-preview {
   width: 100%;
-  height: calc(100vh - 136.5px);
+  height: calc(100vh - 111.5px);
   border: 1px solid lightgray;
 }
 
-div.CodeMirror {
-  height: calc(100vh - 180px);
-
+#note-page #note-editor-panel div.CodeMirror {
+  height: calc(100vh - 155px);
 }
 
-textarea.full-note {
-  height: calc(100vh - 131px);
-  overflow: scroll;
-}
-
-div.markdown-container {
+#note-page #note-markdown-container {
   background: lightgray;
-  height: calc(100vh - 133px);
+  height: calc(100vh - 108px);
   overflow: scroll;
+}
+
+#note-page.no-toolbar #note-pdf-preview {
+  height: calc(100vh - 71.5px);
+}
+
+#note-page.no-toolbar #note-editor-panel div.CodeMirror {
+  height: calc(100vh - 115px);
+}
+
+#note-page.no-toolbar #note-markdown-container {
+  height: calc(100vh - 68px);
 }
 
 select.inline {
@@ -176,15 +198,15 @@ select.inline {
   width: auto;
 }
 
-div#pdf-panel {
+#note-pdf-panel {
   overflow: hidden;
 }
 
-div#note-panel {
+#note-editor-panel {
   overflow: hidden;
 }
 
-div#markdown-panel {
+#note-markdown-panel {
   overflow: hidden;
 }
 
@@ -201,11 +223,11 @@ div#markdown-panel {
   width: 10px;
 }
 
-/**************
-Markdown
-**************/
+/************************
+ * Note Page - Markdown *
+ ************************/
 
-div#markdown {
+#note-markdown-preview {
   background-color: white;
   margin-left: auto;
   margin-right: auto;
@@ -215,91 +237,93 @@ div#markdown {
   transform-origin: top left;
 }
 
-div#markdown h1 {
+#note-markdown-preview h1 {
   font-size: 2em;
   padding-top: 0.2em;
   padding-bottom: 0.2em;
 }
 
-div#markdown h2 {
+#note-markdown-preview h2 {
   font-size: 1.6em;
 }
 
-div#markdown h3 {
+#note-markdown-preview h3 {
   font-size: 1.4em;
 }
 
-div#markdown h4 {
+#note-markdown-preview h4 {
   font-size: 1.2em;
 }
 
-div#markdown h5 {
+#note-markdown-preview h5 {
   font-size: 1.1em;
 }
 
-div#markdown h6 {
+#note-markdown-preview h6 {
   font-size: 1em;
 }
 
-div#markdown h1,
-div#markdown h2,
-div#markdown h3,
-div#markdown h4,
-div#markdown h5,
-div#markdown h6 {
+#note-markdown-preview h1,
+#note-markdown-preview h2,
+#note-markdown-preview h3,
+#note-markdown-preview h4,
+#note-markdown-preview h5,
+#note-markdown-preview h6 {
   color: SteelBlue;
   font-weight: 700;
   margin-top: 1em;
   margin-bottom: 1em;
 }
 
-div#markdown h1:first-child,
-div#markdown h2:first-child,
-div#markdown h3:first-child,
-div#markdown h4:first-child,
-div#markdown h5:first-child,
-div#markdown h6:first-child {
+#note-markdown-preview h1:first-child,
+#note-markdown-preview h2:first-child,
+#note-markdown-preview h3:first-child,
+#note-markdown-preview h4:first-child,
+#note-markdown-preview h5:first-child,
+#note-markdown-preview h6:first-child {
   margin-top: 0;
 }
 
-div#markdown ol, div#markdown ul {
+#note-markdown-preview ol,
+#note-markdown-preview ul {
   padding-left: 1.5em;
 }
 
-div#markdown a {
+#note-markdown-preview a {
   color: dodgerblue;
 }
 
-div#markdown i, div#markdown em {
+#note-markdown-preview i,
+#note-markdown-preview em {
   color: orangered;
   padding-right: 0.1em;
 }
 
-div#markdown hr {
+#note-markdown-preview hr {
   border-color: SteelBlue;
   border-width: 2px;
 }
 
-div#markdown table {
+#note-markdown-preview table {
   border-bottom: 2px solid gray;
   margin: 1em auto 1em auto;
 }
 
-div#markdown table th {
+#note-markdown-preview table th {
   border-top: 2px solid gray;
   border-bottom: 2px solid gray;
 }
 
-div#markdown table td {
+#note-markdown-preview table td {
   border-bottom: 1px solid gray;
 }
 
-div#markdown table th,
-div#markdown table td {
+#note-markdown-preview table th,
+#note-markdown-preview table td {
   padding: 0.3em;
 }
 
-div#markdown div.code {
+#note-markdown-preview div.code {
   background-color: ghostwhite;
   border: 1px solid lightgray;
   border-radius: 0.5em;
@@ -312,16 +336,52 @@ div#markdown div.code {
 }
 
 div#home-page figcaption,
-div#markdown figcaption {
+#note-markdown-preview figcaption {
   text-align: center;
   font-weight: bold;
   margin-top: 1em;
   margin-bottom: 1em;
 }
 
-/****************
- * Message
- ***************/
+/******************************
+ * Note Page- Markdown Editor *
+ ******************************/
+
+main div.editor-toolbar {
+  max-height: 47.983px;
+}
+
+#note-editor-panel div.CodeMirror span.cm-header.cm-header-1 {
+  line-height: 1.3em;
+  font-size: 2em;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+}
+
+span.cm-header.cm-header-1,
+span.cm-header.cm-header-2,
+span.cm-header.cm-header-3,
+span.cm-header.cm-header-4,
+span.cm-header.cm-header-5,
+span.cm-header.cm-header-6 {
+  color: SteelBlue;
+  font-weight: 700;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+span.cm-em {
+  color: orangered;
+}
+
+#note-editor-panel div.CodeMirror span.cm-link {
+  color: dodgerblue;
+  text-decoration: none;
+}
+
+/***********
+ * Message *
+ ***********/
 
 div.message {
   position: relative;
@@ -342,6 +402,10 @@ button.message {
   font-size: 1em;
   cursor: pointer;
 }
+
+/**********
+ * Others *
+ **********/
 
 .container-1600px {
   max-width: 1600px;
@@ -376,52 +440,16 @@ think {
   font-style: italic;
 }
 
-/**************
-Markdown Editor
-**************/
-
-main div.editor-toolbar {
-  max-height: 47.983px;
-}
-
-main div#note-panel div.CodeMirror span.cm-header.cm-header-1 {
-  line-height: 1.3em;
-  font-size: 2em;
-  padding-top: 0.2em;
-  padding-bottom: 0.2em;
-}
-
-span.cm-header.cm-header-1,
-span.cm-header.cm-header-2,
-span.cm-header.cm-header-3,
-span.cm-header.cm-header-4,
-span.cm-header.cm-header-5,
-span.cm-header.cm-header-6 {
-  color: SteelBlue;
-  font-weight: 700;
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-
-span.cm-em {
-  color: orangered;
-}
-
-main div#note-panel div.CodeMirror span.cm-link {
-  color: dodgerblue;
-  text-decoration: none;
-}
-
-/**************
-Print
-**************/
+/*********
+ * Print *
+ *********/
 
 @media print {
 
   header,
   footer,
-  div#pdf-panel,
-  div#note-panel,
+  #note-pdf-panel,
+  #note-editor-panel,
   .gutter {
     display: none;
   }
@@ -438,18 +466,18 @@ Print
     width: 48%;
   }
 
-  main div#markdown-panel {
+  #note-markdown-panel {
     width: 100% !important;
   }
 
-  main div#markdown-container {
+  #note-markdown-container {
     border: none !important;
     border-radius: 0 !important;
     height: auto;
     overflow: hidden;
   }
 
-  main div#markdown {
+  #note-markdown-preview {
     padding: 1em !important;
     transform: scale(1) !important;
   }

@@ -48,7 +48,7 @@
               <a class="nav-link" href="/">Help</a>
             </li>
           </ul>
-          <span class="navbar-text ms-auto" id="status"></span>
+          <span class="navbar-text ms-auto" id="header-status-bar"></span>
           {% if user.is_authenticated %}
           <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}

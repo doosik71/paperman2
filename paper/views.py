@@ -153,7 +153,8 @@ def paper_note(request, id) -> HttpResponse:
     GEMINI_API_KEY = get_config_value("GEMINI_API_KEY")
     OPENROUTER_API_KEY = get_config_value("OPENROUTER_API_KEY")
     OLLAMA_REQUEST_URL = get_config_value("OLLAMA_REQUEST_URL")
-    prompt = get_config_value("prompt")
+    SUMMARY_PROMPT = get_config_value("SUMMARY_PROMPT")
+    PRESENTATION_PROMPT = get_config_value("PRESENTATION_PROMPT")
 
     return render(
         request,
@@ -163,7 +164,8 @@ def paper_note(request, id) -> HttpResponse:
             "GEMINI_API_KEY": GEMINI_API_KEY,
             "OPENROUTER_API_KEY": OPENROUTER_API_KEY,
             "OLLAMA_REQUEST_URL": OLLAMA_REQUEST_URL,
-            "prompt": prompt,
+            "SUMMARY_PROMPT": SUMMARY_PROMPT,
+            "PRESENTATION_PROMPT": PRESENTATION_PROMPT,
         },
     )
 

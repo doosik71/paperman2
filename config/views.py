@@ -16,12 +16,14 @@ def config_detail(request):
             GEMINI_API_KEY = request.POST["GEMINI_API_KEY"]
             OPENROUTER_API_KEY = request.POST["OPENROUTER_API_KEY"]
             OLLAMA_REQUEST_URL = request.POST["OLLAMA_REQUEST_URL"]
-            prompt = request.POST["prompt"]
+            SUMMARY_PROMPT = request.POST["SUMMARY_PROMPT"]
+            PRESENTATION_PROMPT = request.POST["PRESENTATION_PROMPT"]
 
             set_config_value("GEMINI_API_KEY", GEMINI_API_KEY)
             set_config_value("OPENROUTER_API_KEY", OPENROUTER_API_KEY)
             set_config_value("OLLAMA_REQUEST_URL", OLLAMA_REQUEST_URL)
-            set_config_value("prompt", prompt)
+            set_config_value("SUMMARY_PROMPT", SUMMARY_PROMPT)
+            set_config_value("PRESENTATION_PROMPT", PRESENTATION_PROMPT)
 
             message = "Config updated"
             messages.success(request, message)
@@ -35,13 +37,15 @@ def config_detail(request):
     GEMINI_API_KEY = get_config_value("GEMINI_API_KEY")
     OPENROUTER_API_KEY = get_config_value("OPENROUTER_API_KEY")
     OLLAMA_REQUEST_URL = get_config_value("OLLAMA_REQUEST_URL")
-    prompt = get_config_value("prompt")
+    SUMMARY_PROMPT = get_config_value("SUMMARY_PROMPT")
+    PRESENTATION_PROMPT = get_config_value("PRESENTATION_PROMPT")
 
     config = {
         "GEMINI_API_KEY": GEMINI_API_KEY,
         "OPENROUTER_API_KEY": OPENROUTER_API_KEY,
         "OLLAMA_REQUEST_URL": OLLAMA_REQUEST_URL,
-        "prompt": prompt,
+        "SUMMARY_PROMPT": SUMMARY_PROMPT,
+        "PRESENTATION_PROMPT": PRESENTATION_PROMPT,
     }
 
     return render(request, "config/config_detail.html", config)

@@ -4,7 +4,7 @@
 <div class="container-fluid px-0">
   <div class="row">
     <div class="col-12">
-      <iframe id="pdf" name="pdf" title="pdf"></iframe>
+      <iframe id="pdf-pdf-preview" title="PDF Preview"></iframe>
     </div>
   </div>
 </div>
@@ -13,7 +13,7 @@
     const host = window.location.hostname;
     const port = window.location.port;
     const pdfUrl = "{{ paper.pdf_url }}";
-    const frame = document.getElementById('pdf');
+    const frame = document.getElementById('pdf-pdf-preview');
     const url = `http://${host}:${port}{% url 'get_pdf' %}?url=${pdfUrl}`;
     frame.src = url;
   }

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-<div class="justify-content-center">
+<div id="note-page" class="justify-content-center">
   <div class="container">
     {% if messages %}
     <div class="row">
@@ -15,22 +15,25 @@
     {% endif %}
   </div>
   <div id="split-container" class="d-flex justify-content-center split">
-    <div class="m-2" id="pdf-panel">
+    <div class="mx-2" id="note-pdf-panel">
       <div></div>
-      <iframe id="pdf" name="pdf" title="pdf" class="full-note border rounded"></iframe>
+      <iframe id="note-pdf-preview" title="PDF Preview" class="border rounded"></iframe>
     </div>
-    <div class="m-2" id="note-panel">
-      <textarea type="text" class="full-note container-fluid border rounded" id="note" name="note"
+    <div class="mx-2" id="note-editor-panel">
+      <textarea type="text" class="container-fluid border rounded" id="note" name="note"
         placeholder="Note">{{ paper.note|safe }}</textarea>
     </div>
-    <div class="m-2" id="markdown-panel">
-      <div id="markdown-container" class="border rounded markdown-container">
-        <div id="markdown" class="p-2 ms-0 me-auto"></div>
+    <div class="mx-2" id="note-markdown-panel">
+      <div id="note-markdown-container" class="border rounded">
+        <div id="note-markdown-preview" class="p-2 ms-0 me-auto"></div>
       </div>
     </div>
   </div>
   <div class="row d-print-none">
-    <div class="d-flex w-auto mx-auto toolbar toolbar-border px-3 py-2 shadow-sm bg-light align-items-center">
+    <button id="show-toolbar-button" class="btn border-0 p-0 me-2 d-none" onclick="onShowToolbar()">&bigtriangleup;</button>
+    <div id="bottom-toolbar"class="d-flex w-auto mx-auto toolbar toolbar-border px-3 py-2 shadow-sm bg-light align-items-center">
+      <button id="hide-toolbar-button" class="btn border-0 me-2" onclick="onHideToolbar()">&bigtriangledown;</button>
+      <span class="vr mx-2"></span>
       <label class="fw-bold me-2">View Mode: </label>
       <input type="checkbox" id="check-pdf" name="view-mode" value="pdf" title="Toggle PDF" checked
         onchange="onViewMode('pdf')">
@@ -47,6 +50,8 @@
       <span class="vr mx-2"></span>
       <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-warning mx-2"
         onclick='onSummarize()'>Summarize</button>
+      <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-info mx-2"
+        onclick='onPresentation()'>Presentation</button>
       <label>using</label>
       <select id="llm-model" name="llm-model" title="Select LLM Model" class="mx-2 py-2">
         <option selected>Google GenAI Gemini 2.0 Flash</option>
@@ -72,11 +77,13 @@
       <button type="button" class="circle" onclick='onZoomOut()'>-</button>
       <button type="button" class="circle" onclick='onZoomReset()'>=</button>
       <button type="button" class="circle" onclick='onZoomIn()'>+</button>
+      <button type="button" class="circle" onclick='onZoomFit()'>&#x27F7;</button>
     </div>
   </div>
 </div>
 
-{{ prompt|json_script:"prompt-data" }}
+{{ SUMMARY_PROMPT|json_script:"SUMMARY_PROMPT_DATA" }}
+{{ PRESENTATION_PROMPT|json_script:"PRESENTATION_PROMPT_DATA" }}
 
 <script type="text/javascript" charset="utf8"
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
@@ -92,13 +99,13 @@
 </script>
 <script>
   const noteControl = document.getElementById('note');
-  const markdownControl = document.getElementById('markdown');
-  const pdfPanel = $("#pdf-panel");
-  const notePanel = $("#note-panel");
-  const markdownPanel = $("#markdown-panel");
+  const markdownControl = document.getElementById('note-markdown-preview');
+  const pdfPanel = $("#note-pdf-panel");
+  const notePanel = $("#note-editor-panel");
+  const markdownPanel = $("#note-markdown-panel");
   const OLLAMA_REQUEST_URL = "{{ OLLAMA_REQUEST_URL }}";
 
-  const splitter = Split(['div#pdf-panel', 'div#note-panel', 'div#markdown-panel'], {
+  const splitter = Split(['#note-pdf-panel', '#note-editor-panel', '#note-markdown-panel'], {
     sizes: [40, 30, 30],
     minSize: 0,
     gutterSize: 5,
@@ -200,9 +207,31 @@
     cm.scrollTo(0, scrollTop);
   }
 
+  async function onShowToolbar() {
+    document.getElementById("show-toolbar-button").classList.add("d-none");
+    document.getElementById("bottom-toolbar").classList.remove("d-none");
+    document.getElementById("note-page").classList.remove("no-toolbar");
+  }
+
+  async function onHideToolbar() {
+    document.getElementById("show-toolbar-button").classList.remove("d-none");
+    document.getElementById("bottom-toolbar").classList.add("d-none");
+    document.getElementById("note-page").classList.add("no-toolbar");
+  }
+
   async function onSummarize() {
+    const prompt = JSON.parse(document.getElementById("SUMMARY_PROMPT_DATA").textContent);
+    requestToLLM(prompt);
+  }
+
+  async function onPresentation() {
+    const prompt = JSON.parse(document.getElementById("PRESENTATION_PROMPT_DATA").textContent);
+    requestToLLM(prompt);
+  }
+
+  
+  async function requestToLLM(prompt) {
     model = document.getElementById("llm-model").value;
-    const prompt = JSON.parse(document.getElementById("prompt-data").textContent);
     const question = prompt + simplemde.value().trim();
 
     try {
@@ -435,12 +464,11 @@
     let text = simplemde.value();
 
     const replacements = [
-      [/\n{2,}/g, "\n"], // Replace 2+ newlines with 1
       [/(^#.*)/gm, "\n$1\n"], // Ensure headers have surrounding newlines
       [/\n#\s/g, "# "], // Remove first blank line
+      [/\n---\n/g, "\n\n---\n\n"], // Add blank lines before and after the delimiter
       [/\n{3,}/g, "\n\n"], // Replace 3+ newlines with 2
       [/[ \t]+$/gm, ""], // Remove trailing space
-      [/\n---\n/g, "\n\n---\n\n"], // Add blank lines before and after the delimiter
       [/^(#+)\s\*\*(.*)\*\*$/gm, "$1 $2"], // Remove bold from headers
       [/\\\*\\\*(.*)\\\*\\\*/g, "**$1**"], // Fix escaped bold markers
       [/^(\s*)\*(\s)/gm, "$1-$2"], // Convert list markers from * to -
@@ -448,7 +476,7 @@
       [/\\\(\s*(.*?)\s*\\\)/g, "$$$1$$"], // Convert escaped parentheses
       [/\\\[([\s\n][\s\S]*?[\s\n])\\\]/g, "$$$$$1$$$$"], // Convert escaped math
       [/\\\$/g, "\$"], // Convert escaped dollar
-      [/\\_/g, "_"], // Convert escaped underscore,
+      [/(?<=\$(?!\\_)(.*?))\\_(?=.*?\$)/g, "_"], // Convert escaped underscore,
       [/(?<=\$(?!\\_)(.*?))_(?=.*?\$)/g, "\\_"], // Convert to escaped underscore in math,
       [/(?<=\$(?!\\_)(.*?))\*(?=.*?\$)/g, "\\ast "], // Convert "*" to "\ast" in math,
       [/(?<=\$(?!\\_)(.*?))\\\{(?=.*?\$)/g, "\\lbrace "], // Convert "\{" to \\lbrace in math,
@@ -482,19 +510,6 @@
 
   let currentScale = 1;
 
-  async function onZoomIn() {
-    if (currentScale < 10) {
-      currentScale += 0.2;
-      updateZoom();
-    }
-
-  }
-
-  async function onZoomReset() {
-    currentScale = 1;
-    updateZoom();
-  }
-
   async function onZoomOut() {
     if (currentScale > 0.4) {
       currentScale -= 0.2;
@@ -502,17 +517,40 @@
     }
   }
 
+  async function onZoomReset() {
+    currentScale = 1;
+    updateZoom();
+  }
+
+  async function onZoomIn() {
+    if (currentScale < 10) {
+      currentScale += 0.2;
+      updateZoom();
+    }
+  }
+
+  async function onZoomFit() {
+    currentScale = 10;
+    updateZoom();
+  }
+
   async function updateZoom() {
     markdownControl.style.transform = `scale(${currentScale})`;
     const rect = markdownControl.getBoundingClientRect();
-    const container = document.getElementById('markdown-container');
+    const container = document.getElementById('note-markdown-container');
+
+    if (rect.width > container.clientWidth) {
+      currentScale *= container.clientWidth / rect.width;
+
+      markdownControl.style.transform = `scale(${currentScale})`;
+    }
   }
 
   window.onload = function () {
     const host = window.location.hostname;
     const port = window.location.port;
     const pdfUrl = "{{ paper.pdf_url }}";
-    const frame = document.getElementById('pdf');
+    const frame = document.getElementById('note-pdf-preview');
     const url = `http://${host}:${port}{% url 'get_pdf' %}?url=${pdfUrl}`;
     frame.src = url;
 
