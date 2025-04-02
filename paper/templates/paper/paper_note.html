@@ -483,7 +483,7 @@
   let currentScale = 1;
 
   async function onZoomIn() {
-    if (currentScale < 2) {
+    if (currentScale < 10) {
       currentScale += 0.2;
       updateZoom();
     }
@@ -496,7 +496,7 @@
   }
 
   async function onZoomOut() {
-    if (currentScale > 0.5) {
+    if (currentScale > 0.4) {
       currentScale -= 0.2;
       updateZoom();
     }

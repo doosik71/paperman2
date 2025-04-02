@@ -12,8 +12,19 @@
   <div class="card">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title text-center"><a href="{% url 'topic_detail' topic.id %}">{{ topic.title }}</a></h5>
-      <p class="card-subtitle text-center text-nowrap overflow-hidden text-truncate mb-1">{{ topic.keywords }}</p>
-      <p class="card-subtitle text-center text-muted mt-auto"><b>P</b> {{ topic.paper_count|intcomma }} &middot; <b>C</b> {{ topic.citation_count|intcomma }} &middot; <b>S</b> {{ topic.star_count|intcomma }} &middot; <b>N</b> {{ topic.note_count|intcomma }}</p>
+      <p class="card-subtitle text-center text-nowrap overflow-hidden text-truncate mb-2">{{ topic.keywords }}</p>
+      <p class="card-subtitle text-center text-muted mt-auto">
+        <a href="{% url 'topic_detail' topic.id %}">
+          <span title="Number of papers" class="badge bg-warning">P{{ topic.paper_count|intcomma }}</span></a>
+        <a href="{% url 'topic_detail_mode' topic.id 'cited' %}">
+          <span title="Number of papers cited" class="badge bg-info">C{{ topic.citation_count|intcomma }}</span></a>
+        <a href="{% url 'topic_detail_mode' topic.id 'tagged' %}">
+          <span title="Number of papers tagged" class="badge bg-success">T{{ topic.tags_count|intcomma }}</span></a>
+        <a href="{% url 'topic_detail_mode' topic.id 'starred' %}">
+          <span title="Number of papers starred" class="badge bg-primary">S{{ topic.star_count|intcomma }}</span></a>
+        <a href="{% url 'topic_detail_mode' topic.id 'noted' %}">
+          <span title="Number of papers noted" class="badge bg-danger">N{{ topic.note_count|intcomma }}</span></a>
+      </p>
     </div>
   </div>
   {% endfor %}

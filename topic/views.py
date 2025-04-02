@@ -24,6 +24,7 @@ def topic_list(request) -> HttpResponse:
         papers = Paper.objects.filter(topics=topic)
         topic.paper_count = papers.count()
         topic.citation_count = papers.filter(citations__isnull=False).count()
+        topic.tags_count = papers.exclude(tags="").exclude(tags__isnull=True).count()
         topic.star_count = papers.filter(tags__icontains="⭐").count()
         topic.note_count = papers.exclude(note="").count()
 
@@ -61,8 +62,27 @@ def topic_detail(request, id) -> HttpResponse:
     Show a topic and its papers.
     """
 
+    return topic_detail_mode(request, id, None)
+
+
+def topic_detail_mode(request, id, mode) -> HttpResponse:
+    """
+    Show a topic and its papers.
+    """
+
     topic = get_object_or_404(Topic, id=id)
-    papers = Paper.objects.filter(topics=topic).order_by("-citations")
+    papers = Paper.objects.filter(topics=topic)
+
+    if mode == "cited":
+        papers = papers.filter(citations__isnull=False)
+    elif mode == "tagged":
+        papers = papers.exclude(tags="").exclude(tags__isnull=True)
+    elif mode == "starred":
+        papers = papers.filter(tags__icontains="⭐")
+    elif mode == "noted":
+        papers = papers.exclude(note="")
+
+    papers = papers.order_by("-citations")
 
     return render(
         request, "topic/topic_detail.html", {"topic": topic, "papers": papers}
