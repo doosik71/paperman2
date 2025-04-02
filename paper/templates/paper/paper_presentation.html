@@ -6,10 +6,11 @@
 <div id="presentation-page">
   <div class="reveal">
     <div class="slides">
-      <section data-markdown>
-        <textarea id="presentation-markdown" title="Presentation" data-template style="overflow-y: auto;">
-          {{ paper.note|safe }}
-        </textarea>
+      <section data-markdown data-separator="^---$">
+        <script type="text/template" id="presentation-markdown" data-template>
+<!-- Indentation is important Here -->
+{{ paper.note|safe }}
+        </script>
       </section>
     </div>
   </div>
