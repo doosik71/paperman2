@@ -2,6 +2,12 @@
 
 ## 사용 방법
 
+### 코드 다운로드
+
+```bash
+git clone git@github.com:doosik71/paperman2.git
+```
+
 ### 파이썬 설치
 
 - <https://www.python.org/>에서 파이썬을 설치한다.
@@ -19,7 +25,20 @@ pip install -r requirements.txt
 - 아래의 명령으로 서버를 실행한다.
 
 ```bash
-python manage.py runserver 8080
+python manage.py runserver 8090
+```
+
+- 원격 접속을 허용하려면 아래의 명령을 실행한다.
+
+```bash
+python manage.py runserver 0.0.0.0:8090
+```
+
+### 데이터베이스 파일 생성
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
 ```
 
 ### 관리자 계정 생성
@@ -32,15 +51,15 @@ python manage.py createsuperuser
 
 ### 서버 접속
 
-- 웹 브라우저에서 <http://127.0.0.1:8080/>에 접속한다.
+- 웹 브라우저에서 <http://127.0.0.1:8090/>에 접속한다.
 
 ### 로그인
 
-- 웹 브라우저에서 <http://127.0.0.1:8080/login>에 접속한다.
+- 웹 브라우저에서 <http://127.0.0.1:8090/login>에 접속한다.
 
 ### 실행 환경 설정
 
-- 웹 브라우저에서 <http://127.0.0.1:8080/config>에 접속한다.
+- 웹 브라우저에서 <http://127.0.0.1:8090/config>에 접속한다.
 
 #### 논문 자동 요약을 위한 URL 및 API 설정
 
@@ -57,6 +76,14 @@ python manage.py createsuperuser
 - **논문 요약을 위한 프롬프트**:
   - 환경 설정 화면에서 논문 요약을 위한 프롬프트를 입력한다.
   - 프롬프트 예시는 [prompt.md](./prompt.md) 문서를 참조한다.
+- **발표자료 작성을 위한 프롬프트**:
+  - 환경 설정 화면에서 발표자료 작성을 위한 프롬프트를 입력한다.
+
+### 자세한 사용 방법
+
+- 자세한 사용 방법은 홈 화면을 참조한다.
+
+![홈페이지](./static/images/home_manual.png)
 
 #### 논문 요약 모델 비교
 
@@ -71,30 +98,3 @@ python manage.py createsuperuser
 | OpenRouter DeepSeek R1 Zero (free)                     |       1.4B |    164K |         164K |       0 / 0       |
 | OpenRouter DeepSeek V3 0324 (free)                     |      84.3B |    131K |         131K |       0 / 0       |
 | OpenRouter DeepSeek V3 (free)                          |      16.8B |    131K |         131K |       0 / 0       |
-
-### 자세한 사용 방법
-
-- 자세한 사용 방법은 홈 화면을 참조한다.
-
-![홈페이지](./static/images/home_manual.png)
-
-## 개발자를 위한 노트
-
-### 코드 다운로드
-
-```bash
-git clone git@github.com:doosik71/paperman2.git
-```
-
-### 데이터베이스 파일 생성
-
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
-### 로컬 서버 실행
-
-```bash
-python manage.py runserver 8080
-```
