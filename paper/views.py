@@ -170,6 +170,21 @@ def paper_note(request, id) -> HttpResponse:
     )
 
 
+def paper_presentation(request, id) -> HttpResponse:
+    """
+    Show a paper note as presentation.
+    """
+
+    paper = get_object_or_404(Paper, id=id)
+
+    return render(
+        request,
+        "paper/paper_presentation.html",
+        {
+            "paper": paper,
+        },
+    )
+
 @login_required
 def paper_update(request, id) -> HttpResponse:
     """

@@ -78,6 +78,8 @@
       <button type="button" class="circle" onclick='onZoomReset()'>=</button>
       <button type="button" class="circle" onclick='onZoomIn()'>+</button>
       <button type="button" class="circle" onclick='onZoomFit()'>&#x27F7;</button>
+      <span class="vr mx-2"></span>
+      <a href="{% url 'paper_presentation' paper.id %}" target="_blank"><img src="{% static 'images/presentation.png' %}" width="20" alt="Presentation"></a>
     </div>
   </div>
 </div>

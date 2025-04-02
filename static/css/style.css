@@ -379,6 +379,19 @@ span.cm-em {
   text-decoration: none;
 }
 
+/*********************
+ * Presentation Page *
+ *********************/
+
+#presentation-page {
+  height: calc(100vh - 47px);
+  ;
+}
+
+.reveal {
+  height: 100%;
+}
+
 /***********
  * Message *
  ***********/

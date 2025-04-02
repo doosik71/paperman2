@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/reveal-5.2.1.min.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/theme/white.min.css">
+<div id="presentation-page">
+  <div class="reveal">
+    <div class="slides">
+      <section data-markdown>
+        <textarea id="presentation-markdown" title="Presentation" data-template style="overflow-y: auto;">
+          {{ paper.note|safe }}
+        </textarea>
+      </section>
+    </div>
+  </div>
+</div>
+<script type="module">
+  import Reveal from "{% static 'js/reveal-5.2.1.esm.min.js' %}";
+  import Markdown from "{% static 'js/reveal-markdown-5.2.1.esm.min.js' %}";
+  import MathJax from "{% static 'js/reveal-math-5.2.1.esm.min.js' %}";
+
+  const deck = new Reveal({
+    hash: true,
+    center: false,
+    width: 1600,
+    scrollOverflow: true,
+    plugins: [Markdown, MathJax],
+    mathjax3: {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    }
+  });
+  deck.initialize();
+</script>
+{% endblock %}

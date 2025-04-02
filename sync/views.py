@@ -26,7 +26,7 @@ def sync_sync(request):
             with open(file_path, "rb") as f:
                 response = requests.post(url, files={"file": f})
 
-            message = f"Code: {response.status_code}\nMessage: {response.text}"
+            message = f"Code: {response.status_code}, Message: {response.text}"
             messages.info(request, message)
             logger.info(message)
         except Exception as e:
