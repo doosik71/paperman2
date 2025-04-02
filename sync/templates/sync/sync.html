@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="justify-content-center">
+    <div class="container">
+        {% if messages %}
+        <div class="row">
+            {% for message in messages %}
+            <div class="message">
+                {{ message }}
+                <button type="button" onclick="this.parentElement.style.display='none'" class="message">✖</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="row">
+            <form method="POST" action="{% url 'sync_sync' %}">
+                {% csrf_token %}
+                <div class="row my-2">
+                    <div class="col-2 text-end mt-2">
+                        <label for="address" class="form-label mt-1">Address</label>
+                    </div>
+                    <div class="col-9 mt-1">
+                        <input type="text" class="form-control" id="address" name="address" placeholder="Address"
+                            value="127.0.0.1">
+                    </div>
+                    <div class="col-2 text-end mt-2">
+                        <label for="port" class="form-label mt-1">Port Number</label>
+                    </div>
+                    <div class="col-9 mt-1">
+                        <input type="text" class="form-control" id="port" name="port" placeholder="Port Number"
+                            value="8090">
+                    </div>
+                    <div class="col-12 mt-3 text-center">
+                        <button {% if not user.is_authenticated %} disabled {% endif %} type="submit"
+                            class="btn btn-primary mx-2">Send</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

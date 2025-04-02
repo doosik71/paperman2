@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "config",
     "home",
     "paper",
+    "sync",
     "topic",
 ]
 
