@@ -6,4 +6,4 @@ IF %ERRORLEVEL% NEQ 0 (
     call conda activate python
 )
 
-python manage.py runserver 8080
+python manage.py runserver 8090
