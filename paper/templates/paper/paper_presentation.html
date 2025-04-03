@@ -6,7 +6,7 @@
 <div id="presentation-page">
   <div class="reveal">
     <div class="slides">
-      <section data-markdown data-separator="^---$">
+      <section data-markdown data-separator="^---$" data-separator-vertical="^\+\+\+$">
         <script type="text/template" id="presentation-markdown" data-template>
 <!-- Indentation is important Here -->
 {{ paper.note|safe }}
@@ -15,24 +15,20 @@
     </div>
   </div>
 </div>
-<script type="module">
-  import Reveal from "{% static 'js/reveal-5.2.1.esm.min.js' %}";
-  import Markdown from "{% static 'js/reveal-markdown-5.2.1.esm.min.js' %}";
-  import MathJax from "{% static 'js/reveal-math-5.2.1.esm.min.js' %}";
-
-  const deck = new Reveal({
+<script src="{% static 'js/reveal-5.2.1.min.js' %}"></script>
+<script src="{% static 'js/reveal-markdown-5.2.1.min.js' %}"></script>
+<script src="{% static 'js/reveal-math-5.2.1.min.js' %}"></script>
+<script>
+  Reveal.initialize({
     hash: true,
     center: false,
+    controlsBackArrows: 'visible',
+    slideNumber: true,
     width: 1600,
-    scrollOverflow: true,
-    plugins: [Markdown, MathJax],
-    mathjax3: {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']]
-      }
-    }
+    plugins: [
+      RevealMarkdown,
+      RevealMath,
+    ],
   });
-  deck.initialize();
 </script>
 {% endblock %}

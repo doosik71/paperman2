@@ -385,11 +385,15 @@ span.cm-em {
 
 #presentation-page {
   height: calc(100vh - 47px);
-  ;
 }
 
 .reveal {
   height: 100%;
+}
+
+.reveal.overview [hidden] {
+  display: block !important;
+  visibility: visible !important;
 }
 
 /***********
