@@ -9,6 +9,9 @@
     </div>
   </div>
 </div>
+
+{{ paper.note|json_script:"PAPER_NOTE_DATA" }}
+
 <script type="text/javascript" charset="utf8"
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script type="text/x-mathjax-config">
@@ -26,9 +29,8 @@
   const markdownPanel = $("#note-markdown-panel");
 
   function updateMarkdown() {
-    let html = marked(`{{paper.note|safe}}`);
-    html = DOMPurify.sanitize(html);
-    markdownControl.innerHTML = html;
+    const html = JSON.parse(document.getElementById("PAPER_NOTE_DATA").textContent);
+    markdownControl.innerHTML = DOMPurify.sanitize(marked(html));
 
     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
   }
