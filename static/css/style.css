@@ -99,7 +99,7 @@ button.balloon {
   align-items: flex-start;
 }
 
-button.inactive {
+button.inactive, img.inactive {
   opacity: 0.3;
 }
 
