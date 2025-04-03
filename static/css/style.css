@@ -401,9 +401,34 @@ span.cm-em {
   height: 100%;
 }
 
-.reveal.overview [hidden] {
+#presentation-page div.reveal.overview section[hidden] {
   display: block !important;
-  visibility: visible !important;
+}
+
+#presentation-page div.reveal .slide-number {
+  left: 50%;
+  right: auto;
+  border-radius: 0.5em;
+  transform: translateX(-50%);
+}
+
+#presentation-page div.reveal h1,
+#presentation-page div.reveal h2,
+#presentation-page div.reveal h3,
+#presentation-page div.reveal h4,
+#presentation-page div.reveal h5,
+#presentation-page div.reveal h6 {
+  color: SteelBlue;
+  margin: 0.5em 0;
+}
+
+#presentation-page div.reveal table {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+#presentation-page div.reveal .MathJax_Display {
+  margin: 0.5em 0em;
 }
 
 /***********
@@ -500,12 +525,14 @@ think {
   #note-markdown-container {
     border: none !important;
     border-radius: 0 !important;
-    height: auto;
-    overflow: hidden;
+    height: auto !important;
+    overflow: hidden !important;
   }
 
   #note-markdown-preview {
     padding: 1em !important;
     transform: scale(1) !important;
+    height: auto !important;
+    overflow: hidden !important;
   }
 }

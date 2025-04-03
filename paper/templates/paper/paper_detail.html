@@ -3,6 +3,7 @@
 {% block content %}
 <div class="justify-content-center">
   <div class="container">
+    {% if user.is_authenticated %}
     {% if messages %}
     <div class="row">
       {% for message in messages %}
@@ -12,6 +13,7 @@
       </div>
       {% endfor %}
     </div>
+    {% endif %}
     {% endif %}
     <div class="row">
       <form method="POST" action="{% url 'paper_update' paper.id %}">
@@ -90,11 +92,11 @@
               value="{{ paper.citations|default_if_none:'' }}">
           </div>
           <div class="col-1 pt-2">
-            <a href="https://scholar.google.com/scholar?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
-              target="_blank" rel="noopener">
+            <a href="https://scholar.google.com/scholar?q={{paper.title|safe}},+{{paper.author|safe}}" target="_blank"
+              rel="noopener">
               <img src="{% static 'images/google_scholar.png' %}" alt="Google Scholar" class="icon">
             </a>
-            <a href="https://www.semanticscholar.org/search?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
+            <a href="https://www.semanticscholar.org/search?q={{paper.title|safe}},+{{paper.author|safe}}"
               target="_blank" rel="noopener">
               <img src="{% static 'images/semantic_scholar.png' %}" alt="Semantic Scholar" class="icon">
             </a>
@@ -114,7 +116,7 @@
               placeholder="Abstract">{{ paper.abstract|safe }}</textarea>
           </div>
           <div class="col-1 pt-2">
-            <a href="https://www.bing.com/translator?from=en&to=ko&text={{paper.abstract|escapejs}}" target="_blank"
+            <a href="https://www.bing.com/translator?from=en&to=ko&text={{paper.abstract|safe}}" target="_blank"
               rel="noopener">
               <img src="{% static 'images/korean.png' %}" alt="Translate to Korean" class="icon">
             </a>
@@ -127,8 +129,14 @@
               placeholder="Note">{{ paper.note|safe }}</textarea>
           </div>
           <div class="col-1 pt-2">
-            <a href="{% url 'paper_note' paper.id %}">
+            <a href="{% url 'paper_editor' paper.id %}" target="_blank">
+              <img src="{% static 'images/editor.png' %}" alt="Note" class="icon">
+            </a>
+            <a href="{% url 'paper_note' paper.id %}" target="_blank">
               <img src="{% static 'images/note.png' %}" alt="Note" class="icon">
+            </a>
+            <a href="{% url 'paper_presentation' paper.id %}" target="_blank">
+              <img src="{% static 'images/presentation.png' %}" alt="Note" class="icon">
             </a>
           </div>
           <div class="col-2 text-end mt-2">

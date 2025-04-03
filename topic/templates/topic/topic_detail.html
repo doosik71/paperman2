@@ -35,6 +35,7 @@
 </script>
 <div class="justify-content-center">
   <div class="container">
+    {% if user.is_authenticated %}
     {% if messages %}
     <div class="row">
       {% for message in messages %}
@@ -44,6 +45,7 @@
       </div>
       {% endfor %}
     </div>
+    {% endif %}
     {% endif %}
     <div class="row">
       <form id="topic-form" method="POST">
@@ -134,16 +136,20 @@
             {% endif %}
           </td>
           <td id="links" class="text-center d-print-none">
-            <a href="{% url 'paper_pdf' paper.id %}" class="mx-1" title="PDF" target="_blank">
+            <a href="{% url 'paper_pdf' paper.id %}" title="PDF" target="_blank">
               <img src="{% static 'images/pdf.png' %}" class="icon" alt="PDF"></a>
-            <a href="{% url 'paper_editor' paper.id %}" class="mx-1" title="Note Editor" target="_blank">
+            <a href="{% url 'paper_editor' paper.id %}" title="Note Editor" target="_blank">
+              <img src="{% static 'images/editor.png' %}" class="icon" alt="Note Editor"></a>
+            <a href="{% url 'paper_note' paper.id %}" title="Note" target="_blank">
               <img src="{% static 'images/note.png' %}" class="icon" alt="Note"></a>
-            <a href="https://scholar.google.com/scholar?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
-              class="mx-1" title="Google scholar" target="_blank" rel="noopener">
+            <a href="{% url 'paper_presentation' paper.id %}" title="Presentation" target="_blank">
+              <img src="{% static 'images/presentation.png' %}" class="icon" alt="Presentation"></a>
+            <a href="https://scholar.google.com/scholar?q={{paper.title|safe}},+{{paper.author|safe}}"
+              title="Google scholar" target="_blank" rel="noopener">
               <img src="{% static 'images/google_scholar.png' %}" alt="Google Scholar" class="icon">
             </a>
-            <a href="https://www.semanticscholar.org/search?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
-              class="mx-1" title="Semantic Scholar" target="_blank" rel="noopener">
+            <a href="https://www.semanticscholar.org/search?q={{paper.title|safe}},+{{paper.author|safe}}"
+              title="Semantic Scholar" target="_blank" rel="noopener">
               <img src="{% static 'images/semantic_scholar.png' %}" alt="Semantic Scholar" class="icon">
             </a>
           </td>

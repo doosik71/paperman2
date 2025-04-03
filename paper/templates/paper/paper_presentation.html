@@ -3,14 +3,12 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/reveal-5.2.1.min.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/theme/white.min.css">
+{{ paper.note|json_script:"PAPER_NOTE_DATA" }}
 <div id="presentation-page">
   <div class="reveal">
     <div class="slides">
       <section data-markdown data-separator="^---$" data-separator-vertical="^\+\+\+$">
-        <script type="text/template" id="presentation-markdown" data-template>
-<!-- Indentation is important Here -->
-{{ paper.note|safe }}
-        </script>
+        <script type="text/template" id="presentation-markdown" data-template></script>
       </section>
     </div>
   </div>
@@ -19,11 +17,14 @@
 <script src="{% static 'js/reveal-markdown-5.2.1.min.js' %}"></script>
 <script src="{% static 'js/reveal-math-5.2.1.min.js' %}"></script>
 <script>
+  let note = JSON.parse(document.getElementById("PAPER_NOTE_DATA").textContent) || "# No Note Available";
+  document.getElementById("presentation-markdown").innerHTML = note;
+
   Reveal.initialize({
     hash: true,
     center: false,
     controlsBackArrows: 'visible',
-    slideNumber: true,
+    slideNumber: 'c/t',
     width: 1600,
     plugins: [
       RevealMarkdown,

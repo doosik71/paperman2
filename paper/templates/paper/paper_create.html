@@ -2,6 +2,7 @@
 {% block content %}
 <div class="justify-content-center">
   <div class="container">
+    {% if user.is_authenticated %}
     {% if messages %}
     <div class="row">
       {% for message in messages %}
@@ -11,6 +12,7 @@
       </div>
       {% endfor %}
     </div>
+    {% endif %}
     {% endif %}
     <div class="row">
       <form method="POST" action="{% url 'paper_create' %}">

@@ -7,6 +7,7 @@
 <script src="{% static 'js/purify-3.2.4.min.js' %}"></script>
 <div id="editor-page" class="justify-content-center">
   <div class="container">
+    {% if user.is_authenticated %}
     {% if messages %}
     <div class="row">
       {% for message in messages %}
@@ -16,6 +17,7 @@
       </div>
       {% endfor %}
     </div>
+    {% endif %}
     {% endif %}
   </div>
   <div id="split-container" class="d-flex justify-content-center split">
@@ -34,8 +36,10 @@
     </div>
   </div>
   <div class="row d-print-none">
-    <button id="show-toolbar-button" class="btn border-0 p-0 me-2 d-none" onclick="onShowToolbar()">&bigtriangleup;</button>
-    <div id="bottom-toolbar"class="d-flex w-auto mx-auto toolbar toolbar-border px-3 py-2 shadow-sm bg-light align-items-center">
+    <button id="show-toolbar-button" class="btn border-0 p-0 me-2 d-none"
+      onclick="onShowToolbar()">&bigtriangleup;</button>
+    <div id="bottom-toolbar"
+      class="d-flex w-auto mx-auto toolbar toolbar-border px-3 py-2 shadow-sm bg-light align-items-center">
       <button id="hide-toolbar-button" class="btn border-0 me-2" onclick="onHideToolbar()">&bigtriangledown;</button>
       <span class="vr mx-2"></span>
       <label class="fw-bold me-2">View Mode: </label>
@@ -83,8 +87,10 @@
       <button type="button" class="circle" onclick='onZoomIn()'>+</button>
       <button type="button" class="circle" onclick='onZoomFit()'>&#x27F7;</button>
       <span class="vr mx-2"></span>
-      <a href="{% url 'paper_note' paper.id %}" target="_blank" class="mx-1"><img src="{% static 'images/note.png' %}" width="20" alt="Note"></a>
-      <a href="{% url 'paper_presentation' paper.id %}" target="_blank" class="mx-1"><img src="{% static 'images/presentation.png' %}" width="20" alt="Presentation"></a>
+      <a href="{% url 'paper_note' paper.id %}" target="_blank" class="mx-1"><img src="{% static 'images/note.png' %}"
+          width="20" alt="Note"></a>
+      <a href="{% url 'paper_presentation' paper.id %}" target="_blank" class="mx-1"><img
+          src="{% static 'images/presentation.png' %}" width="20" alt="Presentation"></a>
     </div>
   </div>
 </div>
@@ -111,6 +117,7 @@
   const notePanel = $("#note-editor-panel");
   const markdownPanel = $("#note-markdown-panel");
   const OLLAMA_REQUEST_URL = "{{ OLLAMA_REQUEST_URL }}";
+  let isNoteChanged = false;
 
   const splitter = Split(['#note-pdf-panel', '#note-editor-panel', '#note-markdown-panel'], {
     sizes: [40, 30, 30],
@@ -128,6 +135,7 @@
 
   simplemde.codemirror.on("change", () => {
     document.querySelector('div.CodeMirror').style.border = '1px solid orangered';
+    isNoteChanged = true;
     setTimeout(() => requestAnimationFrame(updateMarkdown), 100);
   });
 
@@ -225,7 +233,7 @@
     requestToLLM(prompt);
   }
 
-  
+
   async function requestToLLM(prompt) {
     model = document.getElementById("llm-model").value;
     const question = prompt + simplemde.value().trim();
@@ -496,6 +504,7 @@
       },
       success: function (response) {
         document.querySelector('div.CodeMirror').style.border = '1px solid lightgray';
+        isNoteChanged = false;
       },
       error: function (xhr, msg, err) {
         alert("Error: " + msg);
@@ -560,6 +569,13 @@
     if (event.ctrlKey && event.key === "s") {
       event.preventDefault();
       onSave();
+    }
+  });
+
+  window.addEventListener('beforeunload', function (e) {
+    if (isNoteChanged) {
+      e.preventDefault();
+      e.returnValue = '';
     }
   });
 </script>

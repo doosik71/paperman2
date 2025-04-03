@@ -29,9 +29,9 @@
   const markdownPanel = $("#note-markdown-panel");
 
   function updateMarkdown() {
-    const html = JSON.parse(document.getElementById("PAPER_NOTE_DATA").textContent);
-    markdownControl.innerHTML = DOMPurify.sanitize(marked(html));
+    const html = JSON.parse(document.getElementById("PAPER_NOTE_DATA").textContent) || "# No Note Available";
 
+    markdownControl.innerHTML = DOMPurify.sanitize(marked(html));
     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
   }
 
