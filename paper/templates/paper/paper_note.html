@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/simplemde.min.css' %}">
+<script type="text/javascript" charset="utf8" src="{% static 'js/simplemde.min.js' %}"></script>
+<script type="text/javascript" charset="utf8" src="{% static 'js/split.min.js' %}"></script>
+<script src="{% static 'js/purify-3.2.4.min.js' %}"></script>
 <div id="note-page" class="justify-content-center">
   <div class="container">
     {% if messages %}
@@ -175,12 +179,11 @@
   }
 
   function updateMarkdown() {
-    let markdown = simplemde.value();
-    markdown = marked(markdown);
-
     const regex = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Cyrillic}\p{Script=Devanagari}]/gu;
-    markdown = markdown.replace(regex, match => `<span style="color: red;">${match}</span>`);
-    markdownControl.innerHTML = markdown;
+    let html = marked(simplemde.value());
+    html = DOMPurify.sanitize(html);
+    html = html.replace(regex, match => `<span style="color: red;">${match}</span>`);
+    markdownControl.innerHTML = html;
 
     // 마크다운이 변경될 때마다 수식을 다시 렌더링해야 한다.
     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
