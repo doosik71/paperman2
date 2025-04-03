@@ -136,7 +136,7 @@
           <td id="links" class="text-center d-print-none">
             <a href="{% url 'paper_pdf' paper.id %}" class="mx-1" title="PDF" target="_blank">
               <img src="{% static 'images/pdf.png' %}" class="icon" alt="PDF"></a>
-            <a href="{% url 'paper_note' paper.id %}" class="mx-1" title="Note" target="_blank">
+            <a href="{% url 'paper_editor' paper.id %}" class="mx-1" title="Note Editor" target="_blank">
               <img src="{% static 'images/note.png' %}" class="icon" alt="Note"></a>
             <a href="https://scholar.google.com/scholar?q={{paper.title|escapejs}},+{{paper.author|escapejs}}"
               class="mx-1" title="Google scholar" target="_blank" rel="noopener">

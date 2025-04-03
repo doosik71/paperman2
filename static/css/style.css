@@ -161,35 +161,35 @@ div.toolbar {
   height: calc(100vh - 47px);
 }
 
-/*************
- * Note Page *
- *************/
+/********************
+ * Note Editor Page *
+ ********************/
 
-#note-page #note-pdf-preview {
+#editor-page #note-pdf-preview {
   width: 100%;
   height: calc(100vh - 111.5px);
   border: 1px solid lightgray;
 }
 
-#note-page #note-editor-panel div.CodeMirror {
+#editor-page #note-editor-panel div.CodeMirror {
   height: calc(100vh - 155px);
 }
 
-#note-page #note-markdown-container {
+#editor-page #note-markdown-container {
   background: lightgray;
   height: calc(100vh - 108px);
   overflow: scroll;
 }
 
-#note-page.no-toolbar #note-pdf-preview {
+#editor-page.no-toolbar #note-pdf-preview {
   height: calc(100vh - 71.5px);
 }
 
-#note-page.no-toolbar #note-editor-panel div.CodeMirror {
+#editor-page.no-toolbar #note-editor-panel div.CodeMirror {
   height: calc(100vh - 115px);
 }
 
-#note-page.no-toolbar #note-markdown-container {
+#editor-page.no-toolbar #note-markdown-container {
   height: calc(100vh - 68px);
 }
 
@@ -223,9 +223,9 @@ select.inline {
   width: 10px;
 }
 
-/************************
- * Note Page - Markdown *
- ************************/
+/*******************************
+ * Note Editor Page - Markdown *
+ *******************************/
 
 #note-markdown-preview {
   background-color: white;
@@ -343,9 +343,9 @@ div#home-page figcaption,
   margin-bottom: 1em;
 }
 
-/******************************
- * Note Page- Markdown Editor *
- ******************************/
+/*************************************
+ * Note Editor Page- Markdown Editor *
+ *************************************/
 
 main div.editor-toolbar {
   max-height: 47.983px;
@@ -377,6 +377,16 @@ span.cm-em {
 #note-editor-panel div.CodeMirror span.cm-link {
   color: dodgerblue;
   text-decoration: none;
+}
+
+/*************
+ * Note Page *
+ *************/
+
+#note-page #note-markdown-container {
+  background: lightgray;
+  height: calc(100vh - 46px);
+  overflow: scroll;
 }
 
 /*********************

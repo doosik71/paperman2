@@ -143,6 +143,33 @@ def paper_pdf(request, id) -> HttpResponse:
     return render(request, "paper/paper_pdf.html", {"paper": paper})
 
 
+def paper_editor(request, id) -> HttpResponse:
+    """
+    Show a paper note editor.
+    """
+
+    paper = get_object_or_404(Paper, id=id)
+
+    GEMINI_API_KEY = get_config_value("GEMINI_API_KEY")
+    OPENROUTER_API_KEY = get_config_value("OPENROUTER_API_KEY")
+    OLLAMA_REQUEST_URL = get_config_value("OLLAMA_REQUEST_URL")
+    SUMMARY_PROMPT = get_config_value("SUMMARY_PROMPT")
+    PRESENTATION_PROMPT = get_config_value("PRESENTATION_PROMPT")
+
+    return render(
+        request,
+        "paper/paper_editor.html",
+        {
+            "paper": paper,
+            "GEMINI_API_KEY": GEMINI_API_KEY,
+            "OPENROUTER_API_KEY": OPENROUTER_API_KEY,
+            "OLLAMA_REQUEST_URL": OLLAMA_REQUEST_URL,
+            "SUMMARY_PROMPT": SUMMARY_PROMPT,
+            "PRESENTATION_PROMPT": PRESENTATION_PROMPT,
+        },
+    )
+
+
 def paper_note(request, id) -> HttpResponse:
     """
     Show a paper note.
