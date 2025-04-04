@@ -465,8 +465,11 @@
   }
 
   async function onFixMarkdown() {
-    let text = simplemde.value();
-
+    const cm = simplemde.codemirror;
+    const doc = cm.getDoc();
+    const scrollTop = cm.getScrollInfo().top;
+    const cursor = doc.getCursor();
+    const text = simplemde.value();
     const replacements = [
       [/(^#.*)/gm, "\n$1\n"], // Ensure headers have surrounding newlines
       [/\n#\s/g, "# "], // Remove first blank line
@@ -487,11 +490,13 @@
       [/(?<=\$(?!\\_)(.*?))\\\}(?=.*?\$)/g, "\\rbrace "], // Convert "\}" to \\rbrace in math,
     ];
 
-    text = replacements.reduce(
+    const fixedText = replacements.reduce(
       (acc, [pattern, replacement]) =>
         acc.replace(pattern, replacement), text);
 
-    simplemde.value(text);
+    simplemde.value(fixedText);
+    doc.setCursor(cursor);
+    cm.scrollTo(null, scrollTop);
   }
 
   async function onSave() {
