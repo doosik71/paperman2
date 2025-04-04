@@ -1,5 +1,5 @@
 import datetime
-import logger
+import tinylogger
 import os
 import requests
 from django.conf import settings
@@ -21,18 +21,18 @@ def sync_sync(request):
             url = f"http://{address}:{port}/sync/upload"
             file_path = "db.sqlite3"
 
-            logger.info(url)
+            tinylogger.info(url)
             
             with open(file_path, "rb") as f:
                 response = requests.post(url, files={"file": f})
 
             message = f"Code: {response.status_code}, Message: {response.text}"
             messages.info(request, message)
-            logger.info(message)
+            tinylogger.info(message)
         except Exception as e:
             message = f"Error: {e}"
             messages.error(request, message)
-            logger.error(message)
+            tinylogger.error(message)
 
     return render(request, "sync/sync.html")
 

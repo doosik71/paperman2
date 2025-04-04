@@ -1,5 +1,5 @@
 import json
-import logger
+import tinylogger
 import re
 import requests
 import time
@@ -105,13 +105,13 @@ def paper_create(request) -> HttpResponse:
 
             message = f'Paper created: "{title}"'
             messages.success(request, message)
-            logger.info(message)
+            tinylogger.info(message)
 
             return redirect("paper_detail", paper.id)
         except Exception as e:
             message = f"Error: {e}"
             messages.error(request, message)
-            logger.error(message)
+            tinylogger.error(message)
 
     return render(request, "paper/paper_create.html", {"topics": topics})
 
@@ -258,11 +258,11 @@ def paper_update(request, id) -> HttpResponse:
 
             message = f'Paper updated: "{paper.title}"'
             messages.success(request, message)
-            logger.info(message)
+            tinylogger.info(message)
         except Exception as e:
             message = f"Error: {e}"
             messages.error(request, message)
-            logger.error(message)
+            tinylogger.error(message)
 
     return redirect("paper_detail", id)
 
@@ -281,8 +281,8 @@ def paper_update_note(request, id) -> HttpResponse:
         paper.save()
 
         message = f'Paper\'s note updated: "{paper.title}"'
-        messages.success(request, message)
-        logger.info(message)
+        # messages.success(request, message)
+        tinylogger.info(message)
 
     return render(request, "paper/paper_note.html", {"paper": paper})
 
@@ -330,7 +330,7 @@ def paper_add(request) -> JsonResponse:
                 note,
                 topic_id)
     except Exception as error:
-        logger.error("Error:", error)
+        tinylogger.error("Error:", error)
 
         return JsonResponse(
             {"error": f"Failed to create paper: {str(error)}"}, status=500
@@ -407,7 +407,7 @@ def add_paper_to_topic(
     p.topics.add(topic)
     p.save()
     
-    logger.info(f'Paper added: "{title}"')
+    tinylogger.info(f'Paper added: "{title}"')
 
 
 @login_required
@@ -491,15 +491,15 @@ def update_paper_citations(paper) -> tuple:
 
             try:
                 paper.save()
-                logger.info(
+                tinylogger.info(
                     f'{paper.citations} citation(s) for "{paper.title}"')
                 return response, paper
             except Exception as e:
-                logger.error(e)
+                tinylogger.error(e)
 
     paper.citations = 0
     paper.save()
-    logger.info(f'No citation for "{paper.title}"')
+    tinylogger.info(f'No citation for "{paper.title}"')
 
     return response, paper
 
@@ -528,17 +528,17 @@ def paper_citations_google_scholar(request) -> JsonResponse:
     }
     query = urlencode(query).replace("%22", '"')
     url = "https://scholar.google.com/scholar?" + query
-    logger.info(url)
+    tinylogger.info(url)
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
-        logger.info(response.text)
+        tinylogger.info(response.text)
         soup = BeautifulSoup(response.text, "html.parser")
         gs_ri_divs = soup.find_all("div", class_="gs_ri")
-        logger.info(gs_ri_divs)
+        tinylogger.info(gs_ri_divs)
 
         if gs_ri_divs:
             gs_ri_html = [str(div) for div in gs_ri_divs]
@@ -552,7 +552,7 @@ def paper_citations_google_scholar(request) -> JsonResponse:
                     try:
                         paper.save()
                     except Exception as e:
-                        logger.error(e)
+                        tinylogger.error(e)
 
                     return JsonResponse({"citations": paper.citations}, status=200)
 

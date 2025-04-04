@@ -16,6 +16,7 @@
 <script src="{% static 'js/reveal-5.2.1.min.js' %}"></script>
 <script src="{% static 'js/reveal-markdown-5.2.1.min.js' %}"></script>
 <script src="{% static 'js/reveal-math-5.2.1.min.js' %}"></script>
+<script src="{% static 'js/reveal-search-5.2.1.min.js' %}"></script>
 <script>
   let note = JSON.parse(document.getElementById("PAPER_NOTE_DATA").textContent) || "# No Note Available";
   document.getElementById("presentation-markdown").innerHTML = note;
@@ -29,6 +30,7 @@
     plugins: [
       RevealMarkdown,
       RevealMath,
+      RevealSearch,
     ],
   });
 </script>

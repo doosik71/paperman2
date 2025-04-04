@@ -1,4 +1,4 @@
-import logger
+import tinylogger
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -27,12 +27,12 @@ def config_detail(request):
 
             message = "Config updated"
             messages.success(request, message)
-            logger.info(message)
+            tinylogger.info(message)
 
         except Exception as e:
             message = f"Error: {e}"
             messages.error(request, message)
-            logger.error(message)
+            tinylogger.error(message)
 
     GEMINI_API_KEY = get_config_value("GEMINI_API_KEY")
     OPENROUTER_API_KEY = get_config_value("OPENROUTER_API_KEY")

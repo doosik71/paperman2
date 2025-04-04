@@ -19,7 +19,7 @@ function renderTags(paper_id, tags) {
     if (tags.includes(tag)) {
       return `<button class="transparent active" onclick="onToggleTag(${paper_id}, '${tag}')" title="${tooltip[tag]}">${tag}</button>`;
     } else {
-      return `<button class="transparent inactive" onclick="onToggleTag(${paper_id}, '${tag}')" title="${tooltip[tag]}">${tag}</button>`;
+      return `<button class="transparent opacity-25" onclick="onToggleTag(${paper_id}, '${tag}')" title="${tooltip[tag]}">${tag}</button>`;
     }
   }).join('');
 

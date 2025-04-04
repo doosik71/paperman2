@@ -1,5 +1,5 @@
 import json
-import logger
+import tinylogger
 import threading
 import time
 import urllib.request
@@ -50,7 +50,7 @@ def topic_create(request) -> HttpResponse:
 
         message = f'Topic created: "{title}"'
         messages.success(request, message)
-        logger.info(message)
+        tinylogger.info(message)
 
         return redirect("topic_list")
 
@@ -108,7 +108,7 @@ def topic_update(request, id) -> HttpResponse:
 
         message = f'Topic updated: "{title}"'
         messages.success(request, message)
-        logger.info(message)
+        tinylogger.info(message)
 
     return redirect("topic_detail", id)
 
@@ -126,7 +126,7 @@ def topic_delete(request, id):
 
         message = f'Topic deleted: "{topic.title}"'
         messages.success(request, message)
-        logger.info(message)
+        tinylogger.info(message)
 
     return redirect("topic_list")
 
@@ -155,14 +155,14 @@ def __update_topic_citations(topic):
     papers = Paper.objects.filter(topics=topic, citations__isnull=True)
     count = len(papers)
 
-    logger.info(f'Updating citations on the topic: "{topic.title}"')
+    tinylogger.info(f'Updating citations on the topic: "{topic.title}"')
 
     for index, paper in enumerate(papers):
-        logger.info(f"Processing {index + 1:,} of {count:,}")
+        tinylogger.info(f"Processing {index + 1:,} of {count:,}")
         update_paper_citations(paper)
         time.sleep(1)
 
-    logger.info(f'Complete citations on the topic: "{topic.title}"')
+    tinylogger.info(f'Complete citations on the topic: "{topic.title}"')
 
 
 @login_required
@@ -248,7 +248,7 @@ def __collect_arxiv(topic_id: int, keywords: str, max_results: int) -> None:
             except Exception as e:
                 print(f'Error while processing paper "{title}": {e}')
 
-    logger.info(f"{count:,} papers are added")
+    tinylogger.info(f"{count:,} papers are added")
 
 
 def __get_arxiv_list(keywords: str, max_results: int) -> list:

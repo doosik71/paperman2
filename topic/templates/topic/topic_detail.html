@@ -141,9 +141,9 @@
             <a href="{% url 'paper_editor' paper.id %}" title="Note Editor" target="_blank">
               <img src="{% static 'images/editor.png' %}" class="icon" alt="Note Editor"></a>
             <a href="{% url 'paper_note' paper.id %}" title="Note" target="_blank">
-              <img src="{% static 'images/note.png' %}" class="icon {% if not paper.note %}inactive{% endif %}" alt="Note"></a>
+              <img src="{% static 'images/note.png' %}" class="icon {% if not paper.note %}opacity-25{% endif %}" alt="Note"></a>
             <a href="{% url 'paper_presentation' paper.id %}" title="Presentation" target="_blank">
-              <img src="{% static 'images/presentation.png' %}" class="icon {% if not paper.note %}inactive{% elif '---' not in paper.note %}inactive{% endif %}" alt="Presentation"></a>
+              <img src="{% static 'images/presentation.png' %}" class="icon {% if not paper.note %}opacity-25{% elif '---' not in paper.note %}opacity-25{% endif %}" alt="Presentation"></a>
             <a href="https://scholar.google.com/scholar?q={{paper.title|safe}},+{{paper.author|safe}}"
               title="Google scholar" target="_blank" rel="noopener">
               <img src="{% static 'images/google_scholar.png' %}" alt="Google Scholar" class="icon">

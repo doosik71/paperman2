@@ -99,10 +99,6 @@ button.balloon {
   align-items: flex-start;
 }
 
-button.inactive, img.inactive {
-  opacity: 0.3;
-}
-
 img.icon {
   width: 1em;
   height: 1em;

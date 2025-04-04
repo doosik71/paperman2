@@ -1,6 +1,6 @@
 import json
 import hashlib
-import logger
+import tinylogger
 import logging
 import requests
 from django.core.cache import cache
@@ -26,7 +26,7 @@ def get_status(_):
     Get server status.
     """
 
-    return JsonResponse({"status": logger.status_message})
+    return JsonResponse({"status": tinylogger.status_message})
 
 
 def request_genai(request):
@@ -37,7 +37,7 @@ def request_genai(request):
             key = body.get("key", "").strip()
             question = body.get("question", "").strip()
 
-            logger.info("Asking genai with " + model)
+            tinylogger.info("Asking genai with " + model)
 
             if key == "":
                 return JsonResponse({"error": "Empty key."}, status=400)
@@ -73,7 +73,7 @@ def request_openrouter(request):
             key = body.get("key", "").strip()
             question = body.get("question", "").strip()
 
-            logger.info("Asking openrouter with " + model)
+            tinylogger.info("Asking openrouter with " + model)
 
             if key == "":
                 return JsonResponse({"error": "Empty key."}, status=400)
@@ -98,7 +98,7 @@ def request_openrouter(request):
                         if chunk:
                             yield chunk.choices[0].delta.content
                 except Exception as e:
-                    logger.info(str(e))
+                    tinylogger.info(str(e))
 
             return StreamingHttpResponse(
                 stream_response(),
