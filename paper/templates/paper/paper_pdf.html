@@ -1,21 +1,157 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-<div class="container-fluid px-0">
-  <div class="row">
-    <div class="col-12">
-      <iframe id="pdf-pdf-preview" title="PDF Preview"></iframe>
+<script type="text/javascript" charset="utf8" src="{% static 'js/split.min.js' %}"></script>
+<div id="pdf-preview-page" class="justify-content-center">
+  <div id="pdf-split-container" class="d-flex justify-content-center split">
+    <iframe id="pdf-pdf-preview" title="PDF Preview" class="mx-2"></iframe>
+    <div id="pdf-qa-panel" class="mx-2">
+      <div class="d-flex mt-2 mb-1">
+        <input id="pdf-question" type="text" class="form-control" onkeydown="handleKey(event)" />
+        <button type="button" onclick="onSend()" class="btn btn-success px-2 ms-2 border">Send</button>
+      </div>
+      <div class="d-flex mt-1 mb-2">
+        <select id="pdf-selected-question" class="form-control bg-light" onchange="onChangeQuestion()">
+          <option value="" selected disabled hidden>Select frequently asked questions</option>
+          <option>논문의 연구 주제 분야를 설명해줘.</option>
+          <option>논문의 목차를 출력해줘.</option>
+          <option>논문의 요약문(abstract)을 설명해줘.</option>
+          <option>논문의 도입부(introduction)를 설명해줘.</option>
+          <option>논문의 배경(background)을 설명해줘.</option>
+          <option>논문에서 언급한 기존 연구(previous works)를 설명해줘.</option>
+          <option>논문에서 제안하는 방법론(proposed method)을 설명해줘.</option>
+          <option>논문에서 제시한 핵심적인 수식(mathematical formula)을 설명해줘.</option>
+          <option>논문의 실험 결과(experiments)를 설명해줘.</option>
+          <option>논문의 결론(conclusion)을 설명해줘.</option>
+          <option>논문에서 제시한 방법의 강점 및 약점을 분석해줘.</option>
+          <option>논문의 한계 및 향후 연구방향을 제시해줘.</option>
+          <option>논문의 참고문헌 중 본 연구의 핵심 방법과 깊은 관련이 있는 문헌을 제시해줘.</option>
+          <option>이 논문의 이해에 도움이 되는 다른 논문을 추천해줘.</option>
+          <option>논문의 이해에 도움을 줄 수 있는 배경 지식을 설명해줘.</option>
+          <option>논문에서 사용한 주요 축약어(abbreviations)를 설명해줘.</option>
+        </select>
+        <button type="button" onclick="onClear()" class="btn btn-warning px-2 ms-2 border">Clear</button>
+      </div>
+      <div id="pdf-qa-container" class="my-2 border rounded overflow-scroll">
+        <div id="pdf-qa-text" class="p-2 m-1">
+        </div>
+      </div>
     </div>
   </div>
 </div>
 <script>
-  window.onload = function () {
-    const host = window.location.hostname;
-    const port = window.location.port;
-    const pdfUrl = "{{ paper.pdf_url }}";
+  const questionControl = document.getElementById("pdf-question");
+  const selectionControl = document.getElementById("pdf-selected-question");
+  const qaControl = document.getElementById("pdf-qa-text");
+  const pdfUrlProxy = "{% url 'get_pdf' %}?url={{ paper.pdf_url }}";
+  let pdfText = "";
+  let qaText = "";
+</script>
+<script type="text/javascript" charset="utf8"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    }
+  });
+</script>
+<script>
+  function handleKey(event) {
+    if (event.key === "Enter") {
+      onSend();
+    }
+  }
+
+  function onChangeQuestion() {
+    questionControl.value = selectionControl.value;
+  }
+
+  async function onSend() {
+    const question = questionControl.value.trim();
+    const prompt = question + "\nPlease answer based on the TEXT below.\nTEXT: " + pdfText;
+
+    if (!question)
+      return;
+
+    appendToQA("<i>**Q**: " + question + "</i>\n\n**A**: ");
+    requestGenAI(prompt);
+  }
+
+  async function onClear() {
+    qaText = "";
+    qaControl.innerHTML = "";
+  }
+
+  function appendToQA(text) {
+    qaText += text;
+    qaControl.innerHTML = marked(qaText);
+
+    const container = document.getElementById("pdf-qa-container");
+    container.scrollTop = container.scrollHeight;
+  }
+
+  async function requestGenAI(question) {
+    const csrf_token = "{{ csrf_token }}";
+    const model_id = "gemini-2.0-flash";
+
+    try {
+      const response = await fetch("/home/request_genai/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrf_token
+        },
+        body: JSON.stringify({
+          model: model_id,
+          question: question,
+        })
+      });
+
+      if (!response.ok) {
+        reportError(`Error: ${await response.text()}`);
+        return;
+      }
+
+      if (!response.body) {
+        reportError(`Error: No response body received`);
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+
+        appendToQA(chunk);
+      }
+
+      appendToQA("\n\n---\n\n");
+    } catch (e) {
+      reportError(e);
+    }
+  }
+
+  const splitter = Split(['#pdf-pdf-preview', '#pdf-qa-panel'], {
+    sizes: [70, 30],
+    minSize: 0,
+    gutterSize: 5,
+    snapOffset: 60,
+    cursor: 'col-resize'
+  });
+
+  window.onload = async function () {
     const frame = document.getElementById('pdf-pdf-preview');
-    const url = `http://${host}:${port}{% url 'get_pdf' %}?url=${pdfUrl}`;
-    frame.src = url;
+    frame.src = pdfUrlProxy;
+
+    pdfText = await extractPDF(pdfUrlProxy);
   }
 </script>
 {% endblock %}

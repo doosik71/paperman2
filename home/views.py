@@ -8,6 +8,7 @@ from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
 from google import genai
 from openai import OpenAI
+from config.models import *
 
 
 logging.disable(logging.INFO)
@@ -34,7 +35,7 @@ def request_genai(request):
         try:
             body = json.loads(request.body)
             model = body.get("model", "").strip()
-            key = body.get("key", "").strip()
+            key = get_config_value("GEMINI_API_KEY")
             question = body.get("question", "").strip()
 
             tinylogger.info("Asking genai with " + model)
@@ -125,11 +126,13 @@ def get_pdf(request):
     cached_pdf = cache.get(cache_key)
 
     if cached_pdf:
+        tinylogger.info('Reading cached PDF')
         pdf_response = HttpResponse(cached_pdf, content_type="application/pdf")
         pdf_response["Content-Disposition"] = "inline; filename=document.pdf"
         return pdf_response
 
     try:
+        tinylogger.info(f'Caching PDF from {url}')
         response = requests.get(url, stream=True)
         response.raise_for_status()
         content = response.content

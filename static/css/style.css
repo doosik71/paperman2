@@ -157,6 +157,16 @@ div.toolbar {
   height: calc(100vh - 47px);
 }
 
+#pdf-qa-container {
+  height: calc(100vh - 148px);
+}
+
+#pdf-qa-container i,
+#pdf-qa-container em {
+  color: orangered;
+  padding-right: 0.1em;
+}
+
 /********************
  * Note Editor Page *
  ********************/

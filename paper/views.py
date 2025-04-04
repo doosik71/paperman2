@@ -140,7 +140,10 @@ def paper_pdf(request, id) -> HttpResponse:
 
     paper = get_object_or_404(Paper, id=id)
 
-    return render(request, "paper/paper_pdf.html", {"paper": paper})
+    return render(
+        request,
+        "paper/paper_pdf.html",
+        {"paper": paper})
 
 
 def paper_editor(request, id) -> HttpResponse:
@@ -211,6 +214,7 @@ def paper_presentation(request, id) -> HttpResponse:
             "paper": paper,
         },
     )
+
 
 @login_required
 def paper_update(request, id) -> HttpResponse:
@@ -316,19 +320,19 @@ def paper_add(request) -> JsonResponse:
 
     try:
         add_paper_to_topic(
-                title,
-                author,
-                publisher,
-                publish_date,
-                doi,
-                url,
-                pdf_url,
-                pdf_name,
-                citations,
-                tags,
-                abstract,
-                note,
-                topic_id)
+            title,
+            author,
+            publisher,
+            publish_date,
+            doi,
+            url,
+            pdf_url,
+            pdf_name,
+            citations,
+            tags,
+            abstract,
+            note,
+            topic_id)
     except Exception as error:
         tinylogger.error("Error:", error)
 
@@ -370,13 +374,13 @@ def add_paper_to_topic(
 
     if title is None or title == "":
         raise Exception("Invalid title")
-    
+
     if author is None or author == "":
         raise Exception("Invalid author")
-    
+
     if url is None or url == "":
         raise Exception("Invalid url")
-    
+
     if pdf_url is None or pdf_url == "":
         raise Exception("Invalid pdf_url")
 
@@ -406,7 +410,7 @@ def add_paper_to_topic(
     topic = Topic.objects.get(id=topic_id)
     p.topics.add(topic)
     p.save()
-    
+
     tinylogger.info(f'Paper added: "{title}"')
 
 

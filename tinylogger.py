@@ -19,7 +19,7 @@ def log(icon: str, message: str) -> None:
     global status_message
     status_message = icon + " " + message
 
-    print(__now(), icon, message)
+    print(__now(), icon, message, flush=True)
 
 
 def debug(message) -> None:
