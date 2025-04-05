@@ -1,3 +1,4 @@
 django
 google-genai
 openai
+beautifulsoup4

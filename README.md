@@ -20,20 +20,6 @@ git clone git@github.com:doosik71/paperman2.git
 pip install -r requirements.txt
 ```
 
-### 서버 실행
-
-- 아래의 명령으로 서버를 실행한다.
-
-```bash
-python manage.py runserver 8090
-```
-
-- 원격 접속을 허용하려면 아래의 명령을 실행한다.
-
-```bash
-python manage.py runserver 0.0.0.0:8090
-```
-
 ### 데이터베이스 파일 생성
 
 ```bash
@@ -47,6 +33,20 @@ python manage.py migrate
 
 ```bash
 python manage.py createsuperuser
+```
+
+### 서버 실행
+
+- 아래의 명령으로 서버를 실행한다.
+
+```bash
+python manage.py runserver 8090
+```
+
+- 원격 접속을 허용하려면 아래의 명령을 실행한다.
+
+```bash
+python manage.py runserver 0.0.0.0:8090
 ```
 
 ### 서버 접속
