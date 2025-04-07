@@ -104,10 +104,6 @@ img.icon {
   height: 1em;
 }
 
-select option {
-  font-family: D2Coding, monospace, "Courier New";
-}
-
 table#papers th, table#papers td {
   padding: 0.2em !important;
   vertical-align: middle;

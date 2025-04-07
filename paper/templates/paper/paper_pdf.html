@@ -13,22 +13,6 @@
       <div class="d-flex mt-1 mb-2">
         <select id="pdf-selected-question" class="form-control bg-light" onchange="onChangeQuestion()">
           <option value="" selected disabled hidden>Select frequently asked questions</option>
-          <option>논문의 연구 주제 분야를 설명해줘.</option>
-          <option>논문의 목차를 출력해줘.</option>
-          <option>논문의 요약문(abstract)을 설명해줘.</option>
-          <option>논문의 도입부(introduction)를 설명해줘.</option>
-          <option>논문의 배경(background)을 설명해줘.</option>
-          <option>논문에서 언급한 기존 연구(previous works)를 설명해줘.</option>
-          <option>논문에서 제안하는 방법론(proposed method)을 설명해줘.</option>
-          <option>논문에서 제시한 핵심적인 수식(mathematical formula)을 설명해줘.</option>
-          <option>논문의 실험 결과(experiments)를 설명해줘.</option>
-          <option>논문의 결론(conclusion)을 설명해줘.</option>
-          <option>논문에서 제시한 방법의 강점 및 약점을 분석해줘.</option>
-          <option>논문의 한계 및 향후 연구방향을 제시해줘.</option>
-          <option>논문의 참고문헌 중 본 연구의 핵심 방법과 깊은 관련이 있는 문헌을 제시해줘.</option>
-          <option>이 논문의 이해에 도움이 되는 다른 논문을 추천해줘.</option>
-          <option>논문의 이해에 도움을 줄 수 있는 배경 지식을 설명해줘.</option>
-          <option>논문에서 사용한 주요 축약어(abbreviations)를 설명해줘.</option>
         </select>
         <button type="button" onclick="onClear()" class="btn btn-warning px-2 ms-2 border">Clear</button>
       </div>
@@ -60,6 +44,66 @@
   });
 </script>
 <script>
+  // Define default prompts
+  const defaultPrompts = [
+    "Summarize the paper in three sentences.",
+    "Explain the abstract of the paper.",
+    "What are the key contributions of this paper?",
+    "Explain the conclusion of the paper.",
+    "Explain the research topic of the paper.",
+    "Explain the introduction of the paper.",
+    "Explain the background of the paper.",
+    "What are the limitations of the approach in this paper?",
+    "How does this paper relate to other work in the field?",
+    "Explain the previous works mentioned in the paper.",
+    "Explain the proposed method in the paper.",
+    "Explain the key mathematical formula presented in the paper.",
+    "Explain the experimental results of the paper.",
+    "Analyze the strengths and weaknesses of the method proposed in the paper.",
+    "Suggest the limitations of the paper and future research directions.",
+    "Suggest references highly related to the core methods of this research among the references of the paper.",
+    "Recommend other papers that help understand this paper.",
+    "Explain the background knowledge that can help understand the paper.",
+    "Explain the main abbreviations used in the paper.",
+    "Print the table of contents of the paper."
+  ];
+
+  // Add default prompts to the select element
+  defaultPrompts.forEach(prompt => {
+    let option = document.createElement('option');
+    option.value = prompt;
+    option.text = prompt;
+    selectionControl.add(option);
+  });
+
+  // Load user prompts from local storage
+  let userPrompts = JSON.parse(localStorage.getItem('pdfUserPrompts') || '[]');
+
+  // Add user prompts from local storage after default prompts
+  userPrompts.forEach(prompt => {
+    let option = document.createElement('option');
+    option.value = prompt;
+    option.text = prompt;
+    selectionControl.add(option);
+  });
+
+  function addPromptToLocalStorage(prompt) {
+    if (!defaultPrompts.includes(prompt)) {
+      userPrompts.push(prompt);
+      if (userPrompts.length > 10) {
+        userPrompts.shift(); // Remove the oldest prompt
+      }
+      localStorage.setItem('pdfUserPrompts', JSON.stringify(userPrompts));
+
+      // Add the new prompt to the select element
+      let option = document.createElement('option');
+      option.value = prompt;
+      option.text = prompt;
+      selectionControl.add(option);
+      selectionControl.appendChild(option); // Append to the end of the list
+    }
+  }
+
   function handleKey(event) {
     if (event.key === "Enter") {
       onSend();
@@ -72,12 +116,18 @@
 
   async function onSend() {
     const question = questionControl.value.trim();
-    const prompt = question + "\nPlease answer based on the TEXT below.\nTEXT: " + pdfText;
+    const prompt = question + "\nPlease answer in Korean based on the TEXT below, but use English for technical terms.\nTEXT: " + pdfText;
 
-    if (!question)
+    if (!question) {
       return;
+    }
 
-    appendToQA("<i>**Q**: " + question + "</i>\n\n**A**: ");
+    // Add the new question to local storage
+    addPromptToLocalStorage(question);
+
+    const qImage = '<img src="/static/images/question.png" width="16" height="20">';
+    const aImage = '<img src="/static/images/answer.png" width="16" height="20">';
+    appendToQA(qImage + " " + question + "\n\n" + aImage + " ");
     requestGenAI(prompt);
   }
 
