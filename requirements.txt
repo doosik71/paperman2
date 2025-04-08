@@ -1,4 +1,5 @@
+beautifulsoup4
 django
 google-genai
 openai
-beautifulsoup4
+pypdf

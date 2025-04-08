@@ -1,22 +1,25 @@
-# 논문 요약을 위한 프롬프트 예시
+# 프롬프트 예시
 
-## 예시 1
+## 논문 요약을 위한 프롬프트 예시
+
+### 예시 1
 
 ```text
-Summarize the main points from the following TEXT using markdown bullet points.
+Summarize the main points from the following **TEXT** using markdown bullet points.
 Maintain the numbering and titles of chapters, sections, and subsections as in the paper's table of contents.
 Stay faithful to the original content without making arbitrary modifications.
 Ensure the summary is sufficiently detailed and not too short.
 Sentences should be concise and written in bullet points.
 Use primarily Korean, with English for technical terms.
-Use the declarative form "이다" instead of the polite form "입니다."
+Use the declarative form "이다", "하다", etc. instead of the polite form "입니다."
 Apply heading level 1 (#) for title captions, level 2 (##) for chapter captions, level 3 (###) for section captions, and level 4 (####) for subsection captions.
 Use $...$ for inline math and $$...$$ for block math.
+Escape underscore("_") as "\_" in mathematical formulas to avoid conflicts with markdown syntax.
 ---
-**TEXT**:
+**TEXT**: 
 ```
 
-## 예시 2
+### 예시 2
 
 ```text
 Write a very detailed analysis report for the following academic research paper in structured Markdown format.
@@ -28,7 +31,7 @@ Write a very detailed analysis report for the following academic research paper 
 **PAPER**:
 ```
 
-## 예시 3
+### 예시 3
 
 ```text
 The text below is an excerpt from a research paper.
@@ -38,7 +41,7 @@ The report must be at least 10 A4 pages long.
 **PAPER**:
 ```
 
-## 예시 4
+### 예시 4
 
 ```text
 Please re-format the entire text given below into hierarchical Markdown format.
@@ -49,7 +52,7 @@ Please re-format the entire text given below into hierarchical Markdown format.
 **TEXT**:
 ```
 
-## 예시 5
+### 예시 5
 
 ```text
 Summarize the following paper in as much detail as possible.
@@ -61,7 +64,7 @@ Summarize the following paper in as much detail as possible.
 **TEXT**:
 ```
 
-## 예시 6
+### 예시 6
 
 ```text
 Summarize the main points from the text bellow using markdown bullet points.
@@ -72,4 +75,24 @@ Summarize the main points from the text bellow using markdown bullet points.
 - Use $...$ for inline math and $$...$$ for block math.
 ---
 **TEXT**:
+```
+
+## 발표 자료 요약을 위한 프롬프트 예시
+
+### 예시 7
+
+```text
+Write a research paper presentation material of approximately 20 pages summarizing the contents below **TEXT**.
+The format should be Markdown format.
+Sentences should be concise and written in bullet points.
+Use primarily Korean, with English for technical terms.
+Use the declarative form "이다", "하다", etc. instead of the polite form "입니다."
+The core technical content of the paper should be explained in detail.
+Use $...$ for inline math and $$...$$ for block math.
+Escape underscore("_") as "\_" in mathematical formulas to avoid conflicts with markdown syntax.
+The first page is the title of the paper with a level 1 heading ("#").
+The remaining pages should start with the subheadings in the 2nd level subheading ("##"), and each page should be no longer than 6 lines.
+Each page must be separated by a "---" delimiter.
+---
+**TEXT**: 
 ```

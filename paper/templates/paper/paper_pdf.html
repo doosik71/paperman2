@@ -7,10 +7,14 @@
     <iframe id="pdf-pdf-preview" title="PDF Preview" class="mx-2"></iframe>
     <div id="pdf-qa-panel" class="mx-2">
       <div class="d-flex mt-2 mb-1">
+        <label for="pdf-question" class="form-label fw-bold mt-1 mx-1">
+          <img src="/static/images/question.png" width="22" height="26" alt="question">
+        </label>
         <input id="pdf-question" type="text" class="form-control" onkeydown="handleKey(event)" />
         <button type="button" onclick="onSend()" class="btn btn-success px-2 ms-2 border">Send</button>
       </div>
       <div class="d-flex mt-1 mb-2">
+        <label for="pdf-selected-question" class="form-label fw-bold mt-1 mx-2 text-muted">&#x2630;</label>
         <select id="pdf-selected-question" class="form-control bg-light" onchange="onChangeQuestion()">
           <option value="" selected disabled hidden>Select frequently asked questions</option>
         </select>
@@ -125,8 +129,8 @@
     // Add the new question to local storage
     addPromptToLocalStorage(question);
 
-    const qImage = '<img src="/static/images/question.png" width="16" height="20">';
-    const aImage = '<img src="/static/images/answer.png" width="16" height="20">';
+    const qImage = '<img src="/static/images/question.png" width="16" height="20" alt="question">';
+    const aImage = '<img src="/static/images/answer.png" width="16" height="20" alt="answer">';
     appendToQA(qImage + " " + question + "\n\n" + aImage + " ");
     requestGenAI(prompt);
   }

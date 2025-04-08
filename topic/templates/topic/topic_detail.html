@@ -126,8 +126,8 @@
             </script>
           </td>
           <td id="author">{{ paper.author }}</td>
-          <td id="title"><a href="{% url 'paper_detail' paper.id %}">{{ paper.title }}</a></td>
-          <td id="publisher" class=" text-center"><a href="{{ paper.url }}">{{ paper.publisher }}</a></td>
+          <td id="title"><a href="{% url 'paper_detail' paper.id %}" target="_blank">{{ paper.title }}</a></td>
+          <td id="publisher" class=" text-center"><a href="{{ paper.url }}" target="_blank">{{ paper.publisher }}</a></td>
           <td id="publish_date" class="text-center">{{ paper.publish_date|date:"Y.m.d"|default:"-" }}</td>
           <td id="citations" class="text-end">
             <span id="citations-{{ paper.id }}" class="px-2">{{ paper.citations|default_if_none:"-" }}</span>
