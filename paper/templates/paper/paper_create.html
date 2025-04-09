@@ -95,16 +95,20 @@
           <div class="col-2 text-end mt-2">
             <label for="topic" class="form-label">Topic</label>
           </div>
-          <div id="paper-topic-panel" class="col-9 mt-1 py-1 border rounded">
-            {% for topic in topics %}
-            <div>
-              <input class="form-check-input" type="checkbox" id="topic-{{ topic.id }}" name="topics"
-                value="{{ topic.id }}" title="{{ topic.title }}" {% if topic.id in topic_ids %} checked {% endif %}>
-              <label class="form-check-label" for="topic-{{ topic.id }}">
-                {{ topic.title }}
-              </label>
+          <div class="col-9 mt-1">
+            <div id="paper-topic-panel" class="p-2 border rounded overflow-scroll">
+              <div>
+                {% for topic in topics %}
+                <div>
+                  <input class="form-check-input" type="checkbox" id="topic-{{ topic.id }}" name="topics"
+                    value="{{ topic.id }}" title="{{ topic.title }}" {% if topic.id in topic_ids %} checked {% endif %}>
+                  <label class="form-check-label" for="topic-{{ topic.id }}">
+                    {{ topic.title }}
+                  </label>
+                </div>
+                {% endfor %}
+              </div>
             </div>
-            {% endfor %}
           </div>
           <div class="col-12 mt-3 text-center">
             <button {% if not user.is_authenticated %}disabled{% endif %} type="submit" class="btn btn-primary mx-2">Add
@@ -145,7 +149,7 @@
 
     if (pdfUrlElement.value == "")
       pdfUrlElement.value = url.replace("/abs/", "/pdf/");
-    
+
     if (pdfNameElement.value == "")
       pdfNameElement.value = info.title.replace(" ", "_") + ".pdf";
   }

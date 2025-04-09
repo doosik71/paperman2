@@ -395,7 +395,7 @@ span.cm-em {
  *********************/
 
 #presentation-page {
-  height: calc(100vh - 47px);
+  height: 100vh;
 }
 
 .reveal {
@@ -436,6 +436,25 @@ span.cm-em {
 
 #presentation-page div.reveal .MathJax_Display {
   margin: 0.5em 0em;
+}
+
+#presentation-page section {
+  overflow-y: scroll;
+  height: 100%;
+}
+
+#presentation-page section {
+  scrollbar-width: none;
+}
+
+#presentation-page section ::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
+#presentation-page section ::-webkit-scrollbar-track,
+#presentation-page section ::-webkit-scrollbar-thumb {
+  background: transparent;
 }
 
 /***********

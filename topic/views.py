@@ -270,3 +270,113 @@ def __get_arxiv_list(keywords: str, max_results: int) -> list:
     except Exception as e:
         print(f"Error fetching arXiv data: {e}")
         return []
+
+
+@login_required
+def collect_semantic_scholar(request) -> JsonResponse:
+    """
+    Collect papers from Semantic Scholar.
+    """
+
+    if request.method == "POST":
+        try:
+            body = json.loads(request.body)
+            topic_id = body.get("topic_id", "")
+            keywords = body.get("keywords", "")
+            max_results = int(body.get("max_results", 0))
+
+            if topic_id == "":
+                raise Exception("Invalid topic id")
+
+            if keywords == "":
+                raise Exception("Invalid keywords")
+
+            if max_results == 0:
+                raise Exception("Invalid max_results")
+
+            threading.Thread(
+                target=__collect_semantic_scholar,
+                args=(topic_id, keywords, max_results),
+            ).start()
+
+            return JsonResponse({"message": "ok"}, status=200)
+        except Exception as e:
+            return JsonResponse({"Error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid method"}, status=400)
+
+
+def __collect_semantic_scholar(topic_id: int, keywords: str, max_results: int) -> None:
+    if not keywords.strip():
+        raise ValueError("Keywords are required!")
+
+    keyword_list = [k.strip() for k in keywords.split(",")]
+    count = 0
+
+    for keyword in keyword_list:
+        papers = __get_semantic_scholar_list(keyword, max_results)
+
+        for paper in papers:
+            try:
+                title = paper.find("{http://www.w3.org/2005/Atom}title").text
+                authors = ", ".join(
+                    a.find("{http://www.w3.org/2005/Atom}name").text
+                    for a in paper.findall("{http://www.w3.org/2005/Atom}author")
+                )
+                publisher = "arXiv"
+                publish_date = paper.find(
+                    "{http://www.w3.org/2005/Atom}published"
+                ).text.split("T")[0]
+                doi = ""
+                url = paper.find("{http://www.w3.org/2005/Atom}id").text
+                abstract = paper.find("{http://www.w3.org/2005/Atom}summary").text
+                pdf_url = url.replace("/abs/", "/pdf/")
+                pdf_name = title.replace(" ", "_") + ".pdf"
+                citations = None
+                tags = ""
+                note = ""
+
+                add_paper_to_topic(
+                    title,
+                    authors,
+                    publisher,
+                    publish_date,
+                    doi,
+                    url,
+                    pdf_url,
+                    pdf_name,
+                    citations,
+                    tags,
+                    abstract,
+                    note,
+                    topic_id,
+                )
+
+                count += 1
+            except Exception as e:
+                print(f'Error while processing paper "{title}": {e}')
+
+    tinylogger.info(f"{count:,} papers are added")
+
+
+def __get_semantic_scholar_list(keywords: str, max_results: int) -> list:
+    """
+    Get paper list from Semantic Scholar.
+    """
+
+    research_topic = keywords.replace(" ", "+")
+    fields = 'title,authors,url,publicationVenue.name,abstract,publicationDate,citationCount,openAccessPdf.url,externalIds.DOI'
+    url = f"https://api.semanticscholar.org/graph/v1/paper/search?query={research_topic}&fields={fields}&offset=0&limit={max_results}"
+
+    # https://api.semanticscholar.org/api-docs/graph
+    # https://www.semanticscholar.org/product/api#api-key-form
+    # https://api.semanticscholar.org/graph/v1/paper/search?query=domain+adaptation&fields=title,authors,url,abstract,year,citationCount&offset=0&limit=10
+
+    try:
+        with urllib.request.urlopen(url) as response:
+            data = response.read()
+        root = ET.fromstring(data)
+        return root.findall(".//{http://www.w3.org/2005/Atom}entry")
+    except Exception as e:
+        print(f"Error fetching arXiv data: {e}")
+        return []

@@ -191,6 +191,28 @@
     alert(`Starting background task!`);
   }
 
+  async function onCollectSemanticScholar() {
+    const topic_id = "{{ topic.id }}";
+    const keywords = document.getElementById('keywords').value;
+    const max_results = document.getElementById('max_results').value
+
+    fetch("{% url 'collect_semantic_scholar' %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': "{{ csrf_token }}"
+      },
+      body: JSON.stringify({
+        topic_id: topic_id,
+        keywords: keywords,
+        max_results: max_results,
+      })
+
+    }).catch(error => reportError(error));
+
+    alert(`Starting background task!`);
+  }
+
   function onToggleTag(paper_id, tag) {
     {% if user.is_authenticated %}
     const post_url = "{% url 'paper_tag' %}";

@@ -18,20 +18,57 @@
 <script src="{% static 'js/reveal-math-5.2.1.min.js' %}"></script>
 <script src="{% static 'js/reveal-search-5.2.1.min.js' %}"></script>
 <script>
+  // Hide header.
+  document.querySelector("header").style.display = "none";
+
+  // Set note.
   let note = JSON.parse(document.getElementById("PAPER_NOTE_DATA").textContent) || "# No Note Available";
+
+  // Remove the first section of the note.
+  // The first section is the full note.
+  note = note.split("\n---\n")
+  if (note.length > 1) {
+    note = note.slice(1).join("\n---\n");
+  } else {
+    note = note[0];
+  }
+
   document.getElementById("presentation-markdown").innerHTML = note;
 
+  // Initialize Reveal.js.
   Reveal.initialize({
     hash: true,
     center: false,
     controlsBackArrows: 'visible',
     slideNumber: 'c/t',
     width: 1600,
+    height: 800,
     plugins: [
       RevealMarkdown,
       RevealMath,
       RevealSearch,
     ],
+  });
+
+  // Ctrl+P to print mode.
+  document.addEventListener('keydown', function (event) {
+    if (event.ctrlKey && event.key === 'p') {
+      let url = window.location.href;
+
+      // Check if the URL already contains "?print-pdf"
+      if (url.includes("?print-pdf")) {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (url.includes("#")) {
+        url = url.split("#")[0];
+      }
+
+      // Redirect to the new URL
+      window.location.href = url + "?print-pdf";
+    }
   });
 </script>
 {% endblock %}

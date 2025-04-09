@@ -14,7 +14,7 @@
         </div>
         {% endif %}
         <div class="row">
-            <form method="POST" action="{% url 'config_detail' %}">
+            <form id="config-detail-form" method="POST" action="{% url 'config_detail' %}">
                 {% csrf_token %}
                 <div class="row my-2">
                     <div class="col-2 text-end mt-2">
@@ -60,10 +60,11 @@
                     </div>
                     <div class="col-9 mt-1">
                         <textarea type="text" class="form-control" id="PRESENTATION_PROMPT" name="PRESENTATION_PROMPT"
-                            placeholder="Presentation Prompt" oninput="autoResize(this)">{{ PRESENTATION_PROMPT|safe }}</textarea>
+                            placeholder="Presentation Prompt"
+                            oninput="autoResize(this)">{{ PRESENTATION_PROMPT|safe }}</textarea>
                     </div>
                     <div class="col-12 mt-3 text-center">
-                        <button {% if not user.is_authenticated %} disabled {% endif %} type="submit"
+                        <button id="config-save-button" {% if not user.is_authenticated %} disabled {% endif %} type="submit"
                             class="btn btn-primary mx-2">Save Config</button>
                     </div>
                 </div>
@@ -76,6 +77,14 @@
         textarea.style.height = "auto";
         textarea.style.height = (textarea.scrollHeight + 5) + "px";
     }
+
+    document.addEventListener("keydown", function (event) {
+        if (event.ctrlKey && event.key === "s") {
+            event.preventDefault();
+            const form = document.getElementById("config-detail-form");
+            form.submit();
+        }
+    });
 
     window.onload = function () {
         autoResize(document.getElementById("SUMMARY_PROMPT"));
