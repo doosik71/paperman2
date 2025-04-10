@@ -11,7 +11,7 @@
     {% endfor %}
   </div>
   <div class="d-flex justify-content-center">
-    <img src="{% url 'get_image' paper.id '0' '0' '0' '0' '0' %}" alt="Image" id="image" class="mx-2 border" />
+    <img src="{% url 'get_image' paper.id '0' %}?r=0,0,0,0" alt="Image" id="image" draggable="false" class="mx-2 border" />
     <div id="v-line"></div>
     <div id="h-line"></div>
     <div id="selection-box"></div>
@@ -35,12 +35,13 @@
     if (newPage < 0 || newPage >= totalPages) return;
 
     const image = document.getElementById('image');
-    const imageUrl = "{% url 'get_image' paper.id 9999 '0' '0' '0' '0' %}".replace(/9999/g, newPage);
+    const imageUrl = "{% url 'get_image' paper.id 9999 %}?r=0,0,0,0".replace(/9999/g, newPage);
     image.src = imageUrl;
     currentPage = newPage;
     const paperId = '{{ paper.id }}';
-    imageUrlDiv.innerHTML = `/paper/image/${paperId}/${currentPage}/?/?/?/?/`;
-    imageUrlDiv.href = '#';
+    const url = `/paper/image/${paperId}/${currentPage}/?r=0,0,0,0`;
+    imageUrlDiv.innerHTML = url;
+    imageUrlDiv.href = url;
   }
 
   image.addEventListener('mousemove', function (e) {
@@ -71,35 +72,40 @@
     }
   });
 
-  image.addEventListener('click', function (e) {
-    if ((startX == null && startY == null) || (endX !== null && endY !== null)) {
-      const rect = image.getBoundingClientRect();
-      startX = Math.floor(e.clientX - rect.left);
-      startY = Math.floor(e.clientY - rect.top);
-      endX = null;
-      endY = null;
-      const paperId = '{{ paper.id }}';
-      imageUrlDiv.innerHTML = `/paper/image/${paperId}/${currentPage}/${startX}/${startY}/?/?/`;
-      imageUrlDiv.href = '#';
+  image.addEventListener('mousedown', function (e) {
+    const rect = image.getBoundingClientRect();
+    startX = Math.floor(e.clientX - rect.left);
+    startY = Math.floor(e.clientY - rect.top);
+    endX = null;
+    endY = null;
+    const paperId = '{{ paper.id }}';
+    const url = `/paper/image/${paperId}/${currentPage}/?r=${startX},${startY},0,0`;
+    imageUrlDiv.innerHTML = url;
+    imageUrlDiv.href = url;
 
-      selectionBox.style.left = `${e.clientX + window.scrollX}px`;
-      selectionBox.style.top = `${e.clientY + window.scrollY}px`;
-      selectionBox.style.width = `0px`;
-      selectionBox.style.height = `0px`;
-      selectionBox.style.display = 'block';
-    } else {
-      const rect = image.getBoundingClientRect();
-      endX = Math.floor(e.clientX - rect.left);
-      endY = Math.floor(e.clientY - rect.top);
-
-      const width = Math.abs(endX - startX);
-      const height = Math.abs(endY - startY);
-      const paperId = '{{ paper.id }}';
-
-      url = `/paper/image/${paperId}/${currentPage}/${startX}/${startY}/${width}/${height}/`
-      imageUrlDiv.innerHTML = url;
-      imageUrlDiv.href = url;
+    selectionBox.style.left = `${e.clientX + window.scrollX}px`;
+    selectionBox.style.top = `${e.clientY + window.scrollY}px`;
+    selectionBox.style.width = `0px`;
+    selectionBox.style.height = `0px`;
+    selectionBox.style.display = 'block';
+  });
+  
+  image.addEventListener('mouseup', function (e) {
+    if (startX == null && startY == null) {
+      return;
     }
+
+    const rect = image.getBoundingClientRect();
+    endX = Math.floor(e.clientX - rect.left);
+    endY = Math.floor(e.clientY - rect.top);
+
+    const width = Math.abs(endX - startX);
+    const height = Math.abs(endY - startY);
+    const paperId = '{{ paper.id }}';
+
+    url = `/paper/image/${paperId}/${currentPage}/?r=${startX},${startY},${width},${height}`
+    imageUrlDiv.innerHTML = url;
+    imageUrlDiv.href = url;
   });
 
   document.addEventListener('keydown', function (e) {

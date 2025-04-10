@@ -16,5 +16,5 @@ urlpatterns = [
     path("tag/", paper_tag, name="paper_tag"),
     path("citations/<int:id>/", paper_citations, name="paper_citations"),
     path("select_image/<int:id>/", select_image, name="select_image"),
-    path("image/<int:id>/<int:page>/<str:x>/<str:y>/<str:w>/<str:h>/", get_image, name="get_image"),
+    path("image/<int:id>/<int:page>/", get_image, name="get_image"),
 ]

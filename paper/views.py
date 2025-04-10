@@ -568,8 +568,10 @@ def _get_image_from_pdf(
     Get image from PDF. Resolution is 300dpi.
     """
 
-    tinylogger.info(f"Get image from PDF: {id}, page: {page}, x: {x}, y: {y}, w: {w}, h: {h}")
-    
+    tinylogger.info(
+        f"Get image from PDF: {id}, page: {page}, x: {x}, y: {y}, w: {w}, h: {h}"
+    )
+
     if x < 0 or y < 0:
         raise ValueError("Invalid coordinates")
 
@@ -590,7 +592,7 @@ def _get_image_from_pdf(
             clip_rect = page_obj.rect
 
         print(clip_rect)
-        
+
         pix = page_obj.get_pixmap(
             matrix=mat, clip=clip_rect, alpha=False, colorspace=pymupdf.csRGB
         )
@@ -616,23 +618,34 @@ def select_image(request, id: int) -> HttpResponse:
     return render(
         request,
         "paper/paper_image.html",
-        {"paper": paper,
-         "page_range": range(total_pages)},
+        {"paper": paper, "page_range": range(total_pages)},
     )
 
 
-def get_image(request, id: int, page: int, x: str, y: str, w: str, h: str):
+def get_image(request, id: int, page: int):
     """
     Get image from PDF.
 
-    Example: http://127.0.0.1:8090/paper/image/22309/0/10.0/10.0/50.0/50.0
+    Example: http://127.0.0.1:8090/paper/image/22309/0/?r=584,476,1394,141
     """
 
     if request.method != "GET":
         return JsonResponse({"Error": "Invalid request method"}, status=405)
 
+    r = request.GET.get("r", "")
+    coords = r.split(",")
+    print(coords)
+
+    if len(coords) != 4:
+        return JsonResponse({"Error": "Invalid coordinates"}, status=400)
+
     try:
-        image = _get_image_from_pdf(id, page, int(x), int(y), int(w), int(h))
+        x, y, w, h = map(int, coords)
+    except ValueError:
+        return JsonResponse({"Error": "Coordinates must be integers"}, status=400)
+
+    try:
+        image = _get_image_from_pdf(id, page, x, y, w, h)
     except Exception as e:
         return JsonResponse({"Error": str(e)}, status=500)
 
