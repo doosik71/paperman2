@@ -339,6 +339,11 @@ select.inline {
   padding-right: 0.1em;
 }
 
+#note-markdown-preview img {
+  max-width: 100%;
+  height: auto;
+}
+
 #note-markdown-preview hr {
   border-color: SteelBlue;
   border-width: 2px;
@@ -466,6 +471,18 @@ span.cm-em {
 #presentation-page div.reveal em {
   color: orangered;
   padding-right: 0.1em;
+}
+
+#presentation-page div.reveal img {
+  max-width: 100%;
+  max-height: 45vh;
+  margin: 0.5em auto;
+  width: auto;
+  height: auto;
+}
+
+#presentation-page div.reveal figcaption {
+  font-weight: bold;
 }
 
 #presentation-page div.reveal table {
