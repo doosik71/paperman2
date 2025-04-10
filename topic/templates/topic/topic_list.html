@@ -6,33 +6,76 @@
     width: 18rem;
   }
 </style>
-<h1 class="m-3 text-center">Topic List</h1>
-<div class="d-flex flex-wrap gap-3 justify-content-center my-3">
-  {% for topic in topics %}
-  <div class="card">
-    <div class="card-body d-flex flex-column">
-      <h5 class="card-title text-center"><a href="{% url 'topic_detail' topic.id %}">{{ topic.title }}</a></h5>
-      <p class="card-subtitle text-center text-nowrap overflow-hidden text-truncate mb-2">{{ topic.keywords }}</p>
-      <p class="card-subtitle text-center text-muted mt-auto">
-        <a href="{% url 'topic_detail' topic.id %}">
-          <span title="Number of papers" class="badge bg-warning">P{{ topic.paper_count|intcomma }}</span></a>
-        <a href="{% url 'topic_detail_mode' topic.id 'cited' %}">
-          <span title="Number of papers cited" class="badge bg-info opacity-75">C{{ topic.citation_count|intcomma }}</span></a>
-        <a href="{% url 'topic_detail_mode' topic.id 'tagged' %}">
-          <span title="Number of papers tagged" class="badge bg-success opacity-75">T{{ topic.tags_count|intcomma }}</span></a>
-        <a href="{% url 'topic_detail_mode' topic.id 'starred' %}">
-          <span title="Number of papers starred" class="badge bg-primary opacity-75">S{{ topic.star_count|intcomma }}</span></a>
-        <a href="{% url 'topic_detail_mode' topic.id 'noted' %}">
-          <span title="Number of papers noted" class="badge bg-danger opacity-75">N{{ topic.note_count|intcomma }}</span></a>
-      </p>
+<div id="topic-list">
+  <h1 class="m-3 text-center">Topic List</h1>
+  <div class="row justify-content-center">
+    <div class="col-2 text-center">
+      <div class="input-group">
+        <input type="text" id="topic-list-search" class="form-control" placeholder="Search for topics..."
+          onkeyup="onfilterTopics()" />
+        <button class="clear-btn input-group-text" id="topic-list-clear-button">&times;</button>
+      </div>
     </div>
   </div>
-  {% endfor %}
+  <div class="d-flex flex-wrap gap-3 justify-content-center my-3">
+    {% for topic in topics %}
+    <div class="card">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title text-center">
+          <a href="{% url 'topic_detail' topic.id %}">{{ topic.title }}</a>
+        </h5>
+        <p class="card-subtitle text-center text-nowrap overflow-hidden text-truncate mb-2">
+          {{ topic.keywords }}</p>
+        <p class="card-subtitle text-center text-muted mt-auto">
+          <a href="{% url 'topic_detail' topic.id %}">
+            <span title="Number of papers" class="badge bg-warning">
+              P{{ topic.paper_count|intcomma }}</span></a>
+          <a href="{% url 'topic_detail_mode' topic.id 'cited' %}">
+            <span title="Number of papers cited" class="badge bg-info opacity-75">
+              C{{ topic.citation_count|intcomma }}</span></a>
+          <a href="{% url 'topic_detail_mode' topic.id 'tagged' %}">
+            <span title="Number of papers tagged" class="badge bg-success opacity-75">
+              T{{ topic.tags_count|intcomma }}</span></a>
+          <a href="{% url 'topic_detail_mode' topic.id 'starred' %}">
+            <span title="Number of papers starred" class="badge bg-primary opacity-75">
+              S{{ topic.star_count|intcomma }}</span></a>
+          <a href="{% url 'topic_detail_mode' topic.id 'noted' %}">
+            <span title="Number of papers noted" class="badge bg-danger opacity-75">
+              N{{ topic.note_count|intcomma }}</span></a>
+        </p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="m-3 text-center d-print-none">
+    <form action="{% url 'topic_create' %}" method="get">
+      <button {% if not user.is_authenticated %}disabled{% endif %} type="submit" class="btn btn-primary">Create new
+        topic</button>
+    </form>
+  </div>
 </div>
-<div class="m-3 text-center d-print-none">
-  <form action="{% url 'topic_create' %}" method="get">
-    <button {% if not user.is_authenticated %}disabled{% endif %} type="submit" class="btn btn-primary">Create new
-      topic</button>
-  </form>
-</div>
+<script>
+  document.getElementById("topic-list-clear-button").addEventListener("click", function () {
+    const input = document.getElementById("topic-list-search");
+    input.value = "";
+    onfilterTopics();
+    input.focus();
+  });
+
+  function onfilterTopics() {
+    const input = document.getElementById("topic-list-search");
+    const filter = input.value.toLowerCase();
+    const cards = document.querySelectorAll("#topic-list div.card");
+
+    cards.forEach(card => {
+      const title = card.querySelector(".card-title a").textContent.toLowerCase();
+      const keywords = card.querySelector(".card-subtitle").textContent.toLowerCase();
+      if (title.includes(filter) || keywords.includes(filter)) {
+        card.style.display = "block";
+      } else {
+        card.style.display = "none";
+      }
+    });
+  }
+</script>
 {% endblock %}
