@@ -90,7 +90,9 @@
       <button type="button" class="circle" onclick='onZoomIn()'>+</button>
       <button type="button" class="circle" onclick='onZoomFit()'>&#x27F7;</button>
       <span class="vr mx-2"></span>
-      <a href="{% url 'paper_note' paper.id %}" target="_blank" class="mx-1"><img src="{% static 'images/note.png' %}"
+      <a href="{% url 'select_image' paper.id %}" target="_blank" class="mx-1"><img src="{% static 'images/link.png' %}"
+        width="20" alt="Image Clip"></a>
+    <a href="{% url 'paper_note' paper.id %}" target="_blank" class="mx-1"><img src="{% static 'images/note.png' %}"
           width="20" alt="Note"></a>
       <a href="{% url 'paper_presentation' paper.id %}" target="_blank" class="mx-1"><img
           src="{% static 'images/presentation.png' %}" width="20" alt="Presentation"></a>
@@ -121,7 +123,8 @@
   const markdownPanel = $("#note-markdown-panel");
   const OLLAMA_REQUEST_URL = "{{ OLLAMA_REQUEST_URL }}";
   let isNoteChanged = false;
-
+  const debouncedUpdateMarkdown = debounce(updateMarkdown, 300);
+  
   const splitter = Split(['#note-pdf-panel', '#note-editor-panel', '#note-markdown-panel'], {
     sizes: [40, 30, 30],
     minSize: 0,
@@ -139,7 +142,7 @@
   simplemde.codemirror.on("change", () => {
     document.querySelector('div.CodeMirror').style.border = '1px solid orangered';
     isNoteChanged = true;
-    setTimeout(() => requestAnimationFrame(updateMarkdown), 100);
+    debouncedUpdateMarkdown();
   });
 
   function onViewMode(mode) {
@@ -180,15 +183,32 @@
     splitter.setSizes(sizes);
   }
 
+  function debounce(func, delay) {
+    let timerId;
+
+    return function (...args) {
+      clearTimeout(timerId);
+      timerId = setTimeout(() => func.apply(this, args), delay);
+    };
+  }
+
   function updateMarkdown() {
     const regex = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Cyrillic}\p{Script=Devanagari}]/gu;
     let html = marked(simplemde.value());
     html = DOMPurify.sanitize(html);
     html = html.replace(regex, match => `<span style="color: red;">${match}</span>`);
-    markdownControl.innerHTML = html;
 
-    // 마크다운이 변경될 때마다 수식을 다시 렌더링해야 한다.
-    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+    const hiddenDiv = document.createElement("div");
+    hiddenDiv.style.position = "absolute";
+    hiddenDiv.style.left = "-9999px";
+    hiddenDiv.style.top = "-9999px";
+    hiddenDiv.innerHTML = html;
+    document.body.appendChild(hiddenDiv);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, hiddenDiv]);
+    MathJax.Hub.Queue(function () {
+      markdownControl.innerHTML = hiddenDiv.innerHTML;
+      document.body.removeChild(hiddenDiv);
+    });
   }
 
   async function onImportPDF(pdfUrl) {
@@ -280,7 +300,7 @@
 
     return modelMap[model] || null;
   }
-  
+
   async function requestGenAI(model, question) {
     const csrf_token = "{{ csrf_token }}";
     const model_id = getModelName(model);

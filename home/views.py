@@ -114,6 +114,29 @@ def request_openrouter(request):
     return JsonResponse({"error": "Invalid method"}, status=400)
 
 
+def retrieve_pdf(url: str) -> bytes:
+    """
+    Retrieve PDF from a URL and cache it.
+    """
+
+    if not url or url == "":
+        raise ValueError("Invalid URL")
+
+    cache_key = hashlib.md5(url.encode("utf-8")).hexdigest()
+    cached_pdf = cache.get(cache_key)
+
+    if cached_pdf:
+        tinylogger.info("Reading cached PDF")
+        return cached_pdf
+    else:
+        tinylogger.info(f"Caching PDF from {url}")
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        content = response.content
+        cache.set(cache_key, content, timeout=60 * 60 * 24)
+        return content
+
+
 def get_pdf(request):
     """
     Get PDF.
@@ -121,31 +144,18 @@ def get_pdf(request):
 
     url = request.GET.get("url")
 
-    if not url:
-        return HttpResponse("No PDF URL provided", status=400)
-
-    cache_key = hashlib.md5(url.encode("utf-8")).hexdigest()
-    cached_pdf = cache.get(cache_key)
-
-    if cached_pdf:
-        tinylogger.info("Reading cached PDF")
-        pdf_response = HttpResponse(cached_pdf, content_type="application/pdf")
-        pdf_response["Content-Disposition"] = "inline; filename=document.pdf"
-        return pdf_response
-
     try:
-        tinylogger.info(f"Caching PDF from {url}")
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
-        content = response.content
-        cache.set(cache_key, content, timeout=60 * 60 * 24)
-        pdf_response = HttpResponse(content, content_type="application/pdf")
-        pdf_response["Content-Disposition"] = "inline; filename=document.pdf"
-
-        return pdf_response
-
-    except requests.exceptions.RequestException as e:
+        content = retrieve_pdf(url)
+    except Exception as e:
         return HttpResponse(f"Failed to fetch PDF: {e}", status=500)
+
+    if not content:
+        return HttpResponse("No PDF content", status=400)
+
+    pdf_response = HttpResponse(content, content_type="application/pdf")
+    pdf_response["Content-Disposition"] = "inline; filename=document.pdf"
+
+    return pdf_response
 
 
 def get_html(request):

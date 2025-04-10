@@ -1,5 +1,6 @@
 import json
 import tinylogger
+import pymupdf
 import re
 import requests
 import time
@@ -15,6 +16,7 @@ from django.utils import timezone
 from topic.models import Topic
 from config.models import *
 from urllib.parse import urlencode
+from home.views import retrieve_pdf
 
 
 def paper_list(request) -> HttpResponse:
@@ -140,10 +142,7 @@ def paper_pdf(request, id) -> HttpResponse:
 
     paper = get_object_or_404(Paper, id=id)
 
-    return render(
-        request,
-        "paper/paper_pdf.html",
-        {"paper": paper})
+    return render(request, "paper/paper_pdf.html", {"paper": paper})
 
 
 def paper_editor(request, id) -> HttpResponse:
@@ -332,7 +331,8 @@ def paper_add(request) -> JsonResponse:
             tags,
             abstract,
             note,
-            topic_id)
+            topic_id,
+        )
     except Exception as error:
         tinylogger.error("Error:", error)
 
@@ -344,19 +344,20 @@ def paper_add(request) -> JsonResponse:
 
 
 def add_paper_to_topic(
-        title,
-        author,
-        publisher,
-        publish_date,
-        doi,
-        url,
-        pdf_url,
-        pdf_name,
-        citations,
-        tags,
-        abstract,
-        note,
-        topic_id) -> None:
+    title,
+    author,
+    publisher,
+    publish_date,
+    doi,
+    url,
+    pdf_url,
+    pdf_name,
+    citations,
+    tags,
+    abstract,
+    note,
+    topic_id,
+) -> None:
     """
     Add paper to topic.
     """
@@ -385,9 +386,7 @@ def add_paper_to_topic(
         raise Exception("Invalid pdf_url")
 
     publish_date = datetime.strptime(publish_date, "%Y-%m-%d")
-    publish_date = timezone.make_aware(
-        publish_date, timezone.get_current_timezone()
-    )
+    publish_date = timezone.make_aware(publish_date, timezone.get_current_timezone())
 
     if Paper.objects.filter(url=url).exists():
         p = Paper.objects.get(url=url)
@@ -495,8 +494,7 @@ def update_paper_citations(paper) -> tuple:
 
             try:
                 paper.save()
-                tinylogger.info(
-                    f'{paper.citations} citation(s) for "{paper.title}"')
+                tinylogger.info(f'{paper.citations} citation(s) for "{paper.title}"')
                 return response, paper
             except Exception as e:
                 tinylogger.error(e)
@@ -561,3 +559,86 @@ def paper_citations_google_scholar(request) -> JsonResponse:
                     return JsonResponse({"citations": paper.citations}, status=200)
 
     return JsonResponse({"citations": 0}, status=400)
+
+
+def _get_image_from_pdf(
+    id: int, page: int, x: int = 0, y: int = 0, w: int = 0, h: int = 0
+) -> bytes:
+    """
+    Get image from PDF. Resolution is 300dpi.
+    """
+
+    tinylogger.info(f"Get image from PDF: {id}, page: {page}, x: {x}, y: {y}, w: {w}, h: {h}")
+    
+    if x < 0 or y < 0:
+        raise ValueError("Invalid coordinates")
+
+    paper = get_object_or_404(Paper, id=id)
+    pdf_data = retrieve_pdf(paper.pdf_url)
+
+    with pymupdf.open(stream=pdf_data, filetype="pdf") as pdf_document:
+        page_obj = pdf_document.load_page(page)
+        zoom = 300 / 72
+        mat = pymupdf.Matrix(zoom, zoom)
+
+        if x >= page_obj.rect.width * zoom or y >= page_obj.rect.height * zoom:
+            raise ValueError("Invalid coordinates")
+
+        if w > 0 and h > 0:
+            clip_rect = pymupdf.Rect(x, y, x + w, y + h) / zoom
+        else:
+            clip_rect = page_obj.rect
+
+        print(clip_rect)
+        
+        pix = page_obj.get_pixmap(
+            matrix=mat, clip=clip_rect, alpha=False, colorspace=pymupdf.csRGB
+        )
+        return pix.tobytes("png")
+
+
+def select_image(request, id: int) -> HttpResponse:
+    """
+    Get page image from PDF.
+
+    Example: http://127.0.0.1:8090/paper/select_image/22309
+    """
+
+    if request.method != "GET":
+        return JsonResponse({"Error": "Invalid request method"}, status=405)
+
+    paper = get_object_or_404(Paper, id=id)
+    pdf_data = retrieve_pdf(paper.pdf_url)
+
+    with pymupdf.open(stream=pdf_data, filetype="pdf") as pdf_document:
+        total_pages = pdf_document.page_count
+
+    return render(
+        request,
+        "paper/paper_image.html",
+        {"paper": paper,
+         "page_range": range(total_pages)},
+    )
+
+
+def get_image(request, id: int, page: int, x: str, y: str, w: str, h: str):
+    """
+    Get image from PDF.
+
+    Example: http://127.0.0.1:8090/paper/image/22309/0/10.0/10.0/50.0/50.0
+    """
+
+    if request.method != "GET":
+        return JsonResponse({"Error": "Invalid request method"}, status=405)
+
+    try:
+        image = _get_image_from_pdf(id, page, int(x), int(y), int(w), int(h))
+    except Exception as e:
+        return JsonResponse({"Error": str(e)}, status=500)
+
+    # 추출한 이미지를 http 응답으로 반환
+    response = HttpResponse(content_type="image/png")
+    response["Content-Disposition"] = 'inline; filename="image.png"'
+    response.write(image)
+
+    return response

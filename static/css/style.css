@@ -143,6 +143,45 @@ div.toolbar {
 }
 
 /************
+ * Image Page *
+ ************/
+
+#pdf-image-preview img {
+  cursor: crosshair;
+  width: auto;
+  height: auto;
+}
+
+#pdf-image-preview #v-line,
+#pdf-image-preview #h-line {
+  position: absolute;
+  background-color: rgba(255, 0, 0, 0.5);
+  pointer-events: none;
+  z-index: 10;
+  display: none;
+}
+
+#pdf-image-preview #v-line {
+  width: 1px;
+  height: 100%;
+  top: 0;
+}
+
+#pdf-image-preview #h-line {
+  height: 1px;
+  width: 100%;
+  left: 0;
+}
+
+#pdf-image-preview #selection-box {
+  position: absolute;
+  background-color: rgba(0, 0, 255, 0.1);
+  pointer-events: none;
+  z-index: 10;
+  display: none;
+}
+
+/************
  * PDF Page *
  ************/
 

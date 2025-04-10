@@ -3,3 +3,4 @@ django
 google-genai
 openai
 pypdf
+PyMuPDF
