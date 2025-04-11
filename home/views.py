@@ -5,6 +5,7 @@ import time
 import tinylogger
 import logging
 import requests
+import urllib.parse
 from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
@@ -130,9 +131,22 @@ def retrieve_pdf(url: str) -> bytes:
         return cached_pdf
     else:
         tinylogger.info(f"Caching PDF from {url}")
-        response = requests.get(url, stream=True)
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/122.0.0.0 Safari/537.36"
+            ),
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Referer": "https://ieeexplore.ieee.org/",
+            "Connection": "keep-alive",
+        }
+        response = requests.get(url, headers=headers, stream=True)
         response.raise_for_status()
         content = response.content
+        
+        print(content)
         cache.set(cache_key, content, timeout=60 * 60 * 24)
         return content
 
@@ -142,12 +156,15 @@ def get_pdf(request):
     Get PDF.
     """
 
-    url = request.GET.get("url")
+    url = urllib.parse.unquote(request.GET.get("url"))
+    tinylogger.info(f"Getting PDF from {url}")
 
     try:
         content = retrieve_pdf(url)
     except Exception as e:
-        return HttpResponse(f"Failed to fetch PDF: {e}", status=500)
+        message = f"Failed to fetch PDF: {e}"
+        tinylogger.error(message)
+        return HttpResponse(message, status=500)
 
     if not content:
         return HttpResponse("No PDF content", status=400)
@@ -169,8 +186,7 @@ def get_html(request) -> JsonResponse:
         return JsonResponse({"Error": "No URL provided"}, status=400)
 
     try:
-        headers = {
-            "User-Agent": "Mozilla/5.0"}
+        headers = {"User-Agent": "Mozilla/5.0"}
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         return JsonResponse({"html": response.text})
@@ -184,9 +200,7 @@ def get_json(request) -> JsonResponse:
     """
 
     url = request.GET.get("url")
-    params = {
-        "fields": "title,authors,year,abstract,venue,citationCount,url"
-    }
+    params = {"fields": "title,authors,year,abstract,venue,citationCount,url"}
 
     response = requests.get(url, params=params)
 

@@ -610,8 +610,8 @@
     }
 
     document.addEventListener("adobe_dc_view_sdk.ready", function () {
-      const filename = "{{ paper.pdf_name|escapejs }}";
-      const pdfUrl = "{{ paper.pdf_url }}";
+      const filename = '{{ paper.pdf_name|escapejs|default:"noname.pdf" }}';
+      const pdfUrl = "{{ paper.pdf_url|urlencode }}";
       const url = `{% url 'get_pdf' %}?url=${pdfUrl}`;
       const previewConfig = {
         embedMode: "FULL_WINDOW",
