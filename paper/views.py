@@ -243,11 +243,11 @@ def paper_update(request, id) -> HttpResponse:
 
             if publish_date:
                 publish_date = datetime.strptime(publish_date, "%Y-%m-%d")
-                publish_date = timezone.make_aware(
+                paper.publish_date = timezone.make_aware(
                     publish_date, timezone.get_current_timezone()
                 )
             else:
-                publish_date = None
+                paper.publish_date = None
 
             if paper.citations == "":
                 paper.citations = None

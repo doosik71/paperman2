@@ -126,60 +126,134 @@
 
     if (url.startsWith("https://arxiv.org/abs/")) {
       info = await getInfoFromArxiv(url);
+    } else if (url.startsWith("https://www.semanticscholar.org/paper/")) {
+      info = await getInfoFromSemanticScholar(url);
+    } else {
+      return;
     }
 
     const titleElement = document.getElementById("title");
     const authorElement = document.getElementById("author");
     const publisherElement = document.getElementById("publisher");
+    const publishDateElement = document.getElementById("publish_date");
     const abstractElement = document.getElementById("abstract");
     const pdfUrlElement = document.getElementById("pdf_url");
     const pdfNameElement = document.getElementById("pdf_name");
 
-    if (titleElement.value == "")
+    if (titleElement.value == "" && info.title != "")
       titleElement.value = info.title;
 
-    if (authorElement.value == "")
+    if (authorElement.value == "" && info.authors != "")
       authorElement.value = info.authors;
 
-    if (publisherElement.value == "")
-      publisherElement.value = "arXiv";
+    if (publisherElement.value == "" && info.publisher != "")
+      publisherElement.value = info.publisher;
 
-    if (abstractElement.value == "")
+    if (publishDateElement.value == "" && info.publishDate != "")
+      publishDateElement.value = info.publishDate;
+
+    if (abstractElement.value == "" && info.abstract != "")
       abstractElement.value = info.abstract;
 
-    if (pdfUrlElement.value == "")
-      pdfUrlElement.value = url.replace("/abs/", "/pdf/");
+    if (pdfUrlElement.value == "" && info.pdfUrl != "")
+      pdfUrlElement.value = info.pdfUrl;
 
-    if (pdfNameElement.value == "")
-      pdfNameElement.value = info.title.replace(" ", "_") + ".pdf";
+    if (pdfNameElement.value == "" && info.pdfName != "")
+      pdfNameElement.value = info.pdfName;
   }
 
   async function getInfoFromArxiv(url) {
-    const html = await getHtml(url);
+    try {
+      const html = await getHtml(url);
 
-    if (html !== "") {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, "text/html");
-      const titleSelector = "h1.title";
-      const authorSelector = "div.authors";
-      const abstractSelector = "blockquote.abstract";
+      if (html !== "") {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const titleSelector = "h1.title";
+        const authorSelector = "div.authors";
+        const abstractSelector = "blockquote.abstract";
 
-      const title = doc.querySelector(titleSelector)?.innerText.trim().replace("Title:", "") || "";
-      const authors = doc.querySelector(authorSelector)?.innerText.trim().replace("Authors:", "") || "";
-      const abstract = doc.querySelector(abstractSelector)?.innerText.trim().replace("Abstract:", "") || "";
+        const title = doc.querySelector(titleSelector)?.innerText.trim().replace("Title:", "") || "";
+        const authors = doc.querySelector(authorSelector)?.innerText.trim().replace("Authors:", "") || "";
+        const abstract = doc.querySelector(abstractSelector)?.innerText.trim().replace("Abstract:", "") || "";
 
-      return {
-        title: title,
-        authors: authors,
-        abstract: abstract
-      };
-    } else {
-      return {
-        title: "",
-        authors: "",
-        abstract: ""
+        return {
+          title: title,
+          authors: authors,
+          publisher: "arXiv",
+          publishDate: "",
+          abstract: abstract,
+          pdfUrl: url.replace("/abs/", "/pdf/"),
+          pdfName: escapeToFileName(title) + ".pdf",
+        };
       }
+    } catch (error) { }
+
+    return {
+      title: "",
+      authors: "",
+      publisher: "",
+      publishDate: "",
+      abstract: "",
+      pdfUrl: "",
+      pdfName: "",
     }
+  }
+
+  async function getInfoFromSemanticScholar(url) {
+    const paperId = url.split("/").pop();
+    url = "https://api.semanticscholar.org/graph/v1/paper/" + paperId;
+    // params = {
+    //     "fields": "title,authors,year,abstract,venue,referenceCount,citationCount,externalIds,url"
+    // }
+
+    console.log(url);
+
+    try {
+      const result = await getJson(url);
+
+      if (!result.ok) {
+        throw new Error(result.text);
+      }
+
+      const data = result.data;
+
+      const authors = data.authors || [];
+      const authorNames = authors.map(author => author.name).join(", ");
+      const publishYear = data.year || "";
+      const publishDate = publishYear !== "" ? publishYear + "-01-01" : "";
+
+      return {
+        title: data.title || "",
+        authors: authorNames || "",
+        publisher: data.venue || "",
+        publishDate: publishDate,
+        abstract: data.abstract || "",
+        pdfUrl: "",
+        pdfName: escapeToFileName(data.title) + ".pdf",
+        citations: data.citationCount || "",
+      };
+    } catch (error) {
+      console.error("Error fetching data from Semantic Scholar:", error);
+    }
+
+    return {
+      title: "",
+      authors: "",
+      publisher: "",
+      publishDate: "",
+      abstract: "",
+      pdfUrl: "",
+      pdfName: "",
+    }
+  }
+
+  function escapeToFileName(name) {
+    return name.trim()
+      .replace(/[\s]+/g, '-')
+      .replace(/[^a-zA-Z0-9가-힣-_]/g, "_")
+      .replace(/[_-]{2,}/g, '_')
+      .replace(/^[_-]+|[_-]+$/g, '');
   }
 
   async function getHtml(url) {
@@ -194,11 +268,46 @@
     });
 
     if (!response.ok) {
-      return "";
+      return response.text();
     }
 
     const data = await response.json();
     return data.html || "";
+  }
+
+  async function getJson(url) {
+    const csrf_token = "{{ csrf_token }}";
+    const backendUrl = "{% url 'get_json' %}" + `?url=${encodeURIComponent(url)}`;
+
+    try {
+      const response = await fetch(backendUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrf_token
+        }
+      });
+
+      if (!response.ok) {
+        return {
+          ok: false,
+          status: response.status,
+          text: await response.text()
+        };
+      }
+
+      const data = await response.json();
+      return {
+        ok: true,
+        data: data
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        status: -1,
+        text: error.message
+      };
+    }
   }
 </script>
 {% endblock %}

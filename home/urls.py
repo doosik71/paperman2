@@ -10,5 +10,6 @@ urlpatterns = [
     path("request_openrouter/", request_openrouter, name="request_openrouter"),
     path("get_pdf/", get_pdf, name="get_pdf"),
     path("get_html/", get_html, name="get_html"),
+    path("get_json/", get_json, name="get_json"),
     path("summarize_pdf/", summarize_pdf, name="summarize_pdf"),
 ]

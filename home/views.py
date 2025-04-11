@@ -158,7 +158,7 @@ def get_pdf(request):
     return pdf_response
 
 
-def get_html(request):
+def get_html(request) -> JsonResponse:
     """
     Get HTML.
     """
@@ -169,12 +169,31 @@ def get_html(request):
         return JsonResponse({"Error": "No URL provided"}, status=400)
 
     try:
-        headers = {"User-Agent": "Mozilla/5.0"}
+        headers = {
+            "User-Agent": "Mozilla/5.0"}
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         return JsonResponse({"html": response.text})
     except requests.exceptions.RequestException as e:
         return JsonResponse({"Error": str(e)}, status=500)
+
+
+def get_json(request) -> JsonResponse:
+    """
+    Get JSON.
+    """
+
+    url = request.GET.get("url")
+    params = {
+        "fields": "title,authors,year,abstract,venue,citationCount,url"
+    }
+
+    response = requests.get(url, params=params)
+
+    if response.status_code == 200:
+        return JsonResponse(response.json(), status=200)
+    else:
+        return JsonResponse({"Error": response.text}, status=500)
 
 
 def summarize_pdf(request):
