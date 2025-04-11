@@ -8,6 +8,7 @@ urlpatterns = [
     path('detail/<int:id>/', paper_detail, name='paper_detail'),
     path('update/<int:id>/', paper_update, name='paper_update'),
     path('update_note/<int:id>/', paper_update_note, name='paper_update_note'),
+    path('update_annnotation/<int:id>/', paper_update_annnotation, name='paper_update_annnotation'),
     path('pdf/<int:id>/', paper_pdf, name='paper_pdf'),
     path('editor/<int:id>/', paper_editor, name='paper_editor'),
     path('note/<int:id>/', paper_note, name='paper_note'),

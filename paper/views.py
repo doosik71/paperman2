@@ -157,6 +157,7 @@ def paper_editor(request, id) -> HttpResponse:
     OLLAMA_REQUEST_URL = get_config_value("OLLAMA_REQUEST_URL")
     SUMMARY_PROMPT = get_config_value("SUMMARY_PROMPT")
     PRESENTATION_PROMPT = get_config_value("PRESENTATION_PROMPT")
+    ADOBE_CLIENT_ID = get_config_value("ADOBE_CLIENT_ID")
 
     return render(
         request,
@@ -168,6 +169,7 @@ def paper_editor(request, id) -> HttpResponse:
             "OLLAMA_REQUEST_URL": OLLAMA_REQUEST_URL,
             "SUMMARY_PROMPT": SUMMARY_PROMPT,
             "PRESENTATION_PROMPT": PRESENTATION_PROMPT,
+            "ADOBE_CLIENT_ID": ADOBE_CLIENT_ID,
         },
     )
 
@@ -271,7 +273,7 @@ def paper_update(request, id) -> HttpResponse:
 
 
 @login_required
-def paper_update_note(request, id) -> HttpResponse:
+def paper_update_note(request, id) -> JsonResponse:
     """
     Update a paper note.
     """
@@ -280,14 +282,30 @@ def paper_update_note(request, id) -> HttpResponse:
 
     if request.method == "POST":
         paper.note = request.POST["note"].strip()
-
         paper.save()
 
-        message = f'Paper\'s note updated: "{paper.title}"'
-        # messages.success(request, message)
+        message = f'Note updated: "{paper.title}"'
         tinylogger.info(message)
 
-    return render(request, "paper/paper_note.html", {"paper": paper})
+    return JsonResponse({"message": "ok"}, status=200)
+
+
+@login_required
+def paper_update_annnotation(request, id) -> JsonResponse:
+    """
+    Update a paper annnotation.
+    """
+
+    paper = get_object_or_404(Paper, id=id)
+
+    if request.method == "POST":
+        paper.annotation = request.POST["annotation"]
+        paper.save()
+
+        message = f'Annotation updated: "{paper.title}"'
+        tinylogger.info(message)
+
+    return JsonResponse({"message": "ok"}, status=200)
 
 
 @login_required

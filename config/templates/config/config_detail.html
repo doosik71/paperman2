@@ -25,7 +25,7 @@
                             placeholder="GEMINI_API_KEY" value="{{ GEMINI_API_KEY }}">
                     </div>
                     <div class="col-1 pt-2">
-                        <a href="https://aistudio.google.com/apikey" target="_blank">
+                        <a href="https://aistudio.google.com/apikey" rel="noopener" target="_blank">
                             <img src="{% static 'images/link.png' %}" alt="Link" class="icon">
                         </a>
                     </div>
@@ -37,7 +37,7 @@
                             placeholder="OPENROUTER_API_KEY" value="{{ OPENROUTER_API_KEY }}">
                     </div>
                     <div class="col-1 pt-2">
-                        <a href="https://openrouter.ai/settings/keys" target="_blank">
+                        <a href="https://openrouter.ai/settings/keys" rel="noopener" target="_blank">
                             <img src="{% static 'images/link.png' %}" alt="Link" class="icon">
                         </a>
                     </div>
@@ -63,9 +63,22 @@
                             placeholder="Presentation Prompt"
                             oninput="autoResize(this)">{{ PRESENTATION_PROMPT|safe }}</textarea>
                     </div>
+                    <div class="col-2 text-end mt-2">
+                        <label for="ADOBE_CLIENT_ID" class="form-label mt-1">ADOBE_CLIENT_ID</label>
+                    </div>
+                    <div class="col-9 mt-1">
+                        <input type="text" class="form-control" id="ADOBE_CLIENT_ID" name="ADOBE_CLIENT_ID"
+                            placeholder="ADOBE_CLIENT_ID" value="{{ ADOBE_CLIENT_ID }}">
+                    </div>
+                    <div class="col-1 pt-2">
+                        <a href="https://acrobatservices.adobe.com/dc-integration-creation-app-cdn/main.html?api=pdf-embed-api"
+                            rel="noopener" target="_blank">
+                            <img src="{% static 'images/link.png' %}" alt="Link" class="icon">
+                        </a>
+                    </div>
                     <div class="col-12 mt-3 text-center">
-                        <button id="config-save-button" {% if not user.is_authenticated %} disabled {% endif %} type="submit"
-                            class="btn btn-primary mx-2">Save Config</button>
+                        <button id="config-save-button" {% if not user.is_authenticated %} disabled {% endif %}
+                            type="submit" class="btn btn-primary mx-2">Save Config</button>
                     </div>
                 </div>
             </form>

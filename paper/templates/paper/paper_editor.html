@@ -25,8 +25,8 @@
   </div>
   <div id="split-container" class="d-flex justify-content-center split">
     <div class="mx-2" id="note-pdf-panel">
-      <div></div>
-      <iframe id="note-pdf-preview" title="PDF Preview" class="border rounded"></iframe>
+      <div id="adobe-dc-view" title="PDF Preview" class="border rounded"></div>
+      <iframe id="note-pdf-preview" class="border rounded" src="" title="PDF Preview"></iframe>
     </div>
     <div class="mx-2" id="note-editor-panel">
       <textarea type="text" class="container-fluid border rounded" id="note" name="note"
@@ -91,8 +91,8 @@
       <button type="button" class="circle" onclick='onZoomFit()'>&#x27F7;</button>
       <span class="vr mx-2"></span>
       <a href="{% url 'select_image' paper.id %}" target="_blank" class="mx-1"><img src="{% static 'images/link.png' %}"
-        width="20" alt="Image Clip"></a>
-    <a href="{% url 'paper_note' paper.id %}" target="_blank" class="mx-1"><img src="{% static 'images/note.png' %}"
+          width="20" alt="Image Clip"></a>
+      <a href="{% url 'paper_note' paper.id %}" target="_blank" class="mx-1"><img src="{% static 'images/note.png' %}"
           width="20" alt="Note"></a>
       <a href="{% url 'paper_presentation' paper.id %}" target="_blank" class="mx-1"><img
           src="{% static 'images/presentation.png' %}" width="20" alt="Presentation"></a>
@@ -102,6 +102,7 @@
 
 {{ SUMMARY_PROMPT|json_script:"SUMMARY_PROMPT_DATA" }}
 {{ PRESENTATION_PROMPT|json_script:"PRESENTATION_PROMPT_DATA" }}
+{{ paper.annotation|default:"[]"|json_script:"annotation-data" }}
 
 <script type="text/javascript" charset="utf8"
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
@@ -123,8 +124,9 @@
   const markdownPanel = $("#note-markdown-panel");
   const OLLAMA_REQUEST_URL = "{{ OLLAMA_REQUEST_URL }}";
   let isNoteChanged = false;
+  let annotations = [];
   const debouncedUpdateMarkdown = debounce(updateMarkdown, 300);
-  
+
   const splitter = Split(['#note-pdf-panel', '#note-editor-panel', '#note-markdown-panel'], {
     sizes: [40, 30, 30],
     minSize: 0,
@@ -538,6 +540,23 @@
         console.error(err);
       }
     });
+
+    const annotation_data = JSON.stringify(annotations);
+
+    $.ajax({
+      url: "{% url 'paper_update_annnotation' paper.id %}",
+      type: "POST",
+      data: {
+        annotation: annotation_data,
+        csrfmiddlewaretoken: "{{ csrf_token }}"
+      },
+      success: function (response) {
+      },
+      error: function (xhr, msg, err) {
+        alert("Error: " + msg);
+        console.error(err);
+      }
+    });
   }
 
   let currentScale = 1;
@@ -578,33 +597,59 @@
     }
   }
 
-  // function handleClipboardImage() {
-  //   const items = event.clipboardData?.items || [];
-  //   let handled = false;
+  function onAdobeViewerLoaded() {
+    document.addEventListener("adobe_dc_view_sdk.ready", function () {
+      const filename = "{{ paper.pdf_name|escapejs }}";
+      const pdfUrl = "{{ paper.pdf_url }}";
+      const url = `{% url 'get_pdf' %}?url=${pdfUrl}`;
+      const clientId = "{{ ADOBE_CLIENT_ID }}";
+      const previewConfig = {
+        embedMode: "FULL_WINDOW",
+        enableAnnotationAPIs: true,
+      };
+      const eventOptions = {
+        listenOn: [
+          "ANNOTATION_ADDED", "ANNOTATION_UPDATED", "ANNOTATION_DELETED"
+        ]
+      };
 
-  //   for (const item of items) {
-  //     if (item.type.startsWith("image/")) {
-  //       event.preventDefault();
-  //       const blob = item.getAsFile();
-  //       const reader = new FileReader();
+      var adobeDCView = new AdobeDC.View({ clientId: clientId, divId: "adobe-dc-view" });
+      var previewFilePromise = adobeDCView.previewFile({
+        content: { location: { url: url } },
+        metaData: { fileName: filename, id: "{{ paper.id }}" },
+      }, previewConfig);
 
-  //       reader.onload = function (e) {
-  //         const base64 = e.target.result;
-  //         const fileType = blob.type.split("/")[1];
-  //         const fileName = `clipboard-image.${fileType}`;
-  //         const markdownImage = `![${fileName}](${base64})\n`;
-  //         const cm = simplemde.codemirror;
-  //         const doc = cm.getDoc();
-  //         const cursor = doc.getCursor();
-  //         doc.replaceRange(markdownImage, cursor);
-  //       };
+      previewFilePromise.then(adobeViewer => {
+        adobeViewer.getAnnotationManager().then(annotationManager => {
+          const annotation_data = document.getElementById("annotation-data").textContent
+          annotations = JSON.parse(JSON.parse(annotation_data));
 
-  //       reader.readAsDataURL(blob);
-  //       handled = true;
-  //       break;
-  //     }
-  //   }
-  // }
+          if (annotations.length > 0) {
+            annotationManager.addAnnotations(annotations)
+              .catch(error => {
+                console.log("Error adding annotations:", error);
+                annotations = [];
+              });
+          }
+
+          annotationManager.registerEventListener(
+            function (event) {
+              if (event.type === "ANNOTATION_ADDED" || event.type === "ANNOTATION_UPDATED") {
+                const index = annotations.findIndex(annotation => annotation.id === event.data.id);
+                if (index !== -1) {
+                  annotations[index] = event.data;
+                } else {
+                  annotations.push(event.data);
+                }
+              } else if (event.type === "ANNOTATION_DELETED") {
+                annotations = annotations.filter(annotation => annotation.id !== event.data.id);
+              }
+            },
+            eventOptions);
+        });
+      });
+    });
+  }
 
   window.onload = function () {
     const host = window.location.hostname;
@@ -612,11 +657,17 @@
     const pdfUrl = "{{ paper.pdf_url }}";
     const frame = document.getElementById('note-pdf-preview');
     const url = `http://${host}:${port}{% url 'get_pdf' %}?url=${pdfUrl}`;
-    frame.src = url;
+    const clientId = "{{ ADOBE_CLIENT_ID }}";
+
+    if (clientId !== "") {
+      document.getElementById("note-pdf-preview").style.display = "none";
+    } else {
+      document.getElementById("adobe-dc-view").style.display = "none";
+      frame.src = url;
+    }
 
     updateMarkdown();
     onZoomFit();
-    // simplemde.codemirror.getWrapperElement().addEventListener("paste", handleClipboardImage);
   }
 </script>
 
@@ -636,5 +687,6 @@
     }
   });
 </script>
+<script src="https://acrobatservices.adobe.com/view-sdk/viewer.js" onload="onAdobeViewerLoaded()"></script>
 {% endif %}
 {% endblock %}
