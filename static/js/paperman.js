@@ -17,9 +17,9 @@ function renderTags(paper_id, tags) {
 
   const html = full_tags.map(tag => {
     if (tags.includes(tag)) {
-      return `<button class="transparent active" onclick="onToggleTag(${paper_id}, '${tag}')" title="${tooltip[tag]}">${tag}</button>`;
+      return `<button class="transparent active outlined-text" onclick="onToggleTag(${paper_id}, '${tag}')" title="${tooltip[tag]}">${tag}</button>`;
     } else {
-      return `<button class="transparent opacity-25" onclick="onToggleTag(${paper_id}, '${tag}')" title="${tooltip[tag]}">${tag}</button>`;
+      return `<button class="transparent opacity-25 outlined-text" onclick="onToggleTag(${paper_id}, '${tag}')" title="${tooltip[tag]}">${tag}</button>`;
     }
   }).join('');
 

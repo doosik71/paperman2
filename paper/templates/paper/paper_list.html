@@ -47,7 +47,7 @@
                 {% endif %}
               </td>
               <td id="links" class="text-center d-print-none">
-                <a href="{% url 'paper_pdf' paper.id %}" class="mx-1" title="PDF" target="_blank">
+                <a href="{% url 'paper_pdf' paper.id %}" title="PDF" target="_blank">
                   <img src="{% static 'images/pdf.png' %}" class="icon" alt="PDF"></a>
                 <a href="{% url 'paper_note' paper.id %}" title="Note" target="_blank">
                   <img src="{% static 'images/note.png' %}" class="icon {% if not paper.note %}opacity-25{% endif %}"
@@ -56,12 +56,12 @@
                   <img src="{% static 'images/presentation.png' %}"
                     class="icon {% if not paper.note %}opacity-25{% elif '---' not in paper.note %}opacity-25{% endif %}"
                     alt="Presentation"></a>
-                <a href="https://scholar.google.com/scholar?q={{paper.title|safe}},+{{paper.author|safe}}" class="mx-1"
+                <a href="https://scholar.google.com/scholar?q={{paper.title|safe}},+{{paper.author|safe}}"
                   title="Google scholar" target="_blank" rel="noopener">
                   <img src="{% static 'images/google_scholar.png' %}" alt="Google Scholar" class="icon">
                 </a>
                 <a href="https://www.semanticscholar.org/search?q={{paper.title|safe}},+{{paper.author|safe}}"
-                  class="mx-1" title="Semantic Scholar" target="_blank" rel="noopener">
+                  title="Semantic Scholar" target="_blank" rel="noopener">
                   <img src="{% static 'images/semantic_scholar.png' %}" alt="Semantic Scholar" class="icon">
                 </a>
               </td>

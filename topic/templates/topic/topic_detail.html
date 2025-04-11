@@ -89,13 +89,13 @@
           onclick="onCollectArxiv()">Collect Arxiv</button>
         <div class="vr mx-3"></div>
         <label class="form-label mt-2 mx-2">Tags:</label>
-        <button type="button" class="transparent" onclick="onTagFilter('papers', '🗙')">🗙</button>
-        <button type="button" class="transparent" onclick="onTagFilter('papers', '📌')">📌</button>
-        <button type="button" class="transparent" onclick="onTagFilter('papers', '🔎')">🔎</button>
-        <button type="button" class="transparent" onclick="onTagFilter('papers', '📖')">📖</button>
-        <button type="button" class="transparent" onclick="onTagFilter('papers', '👍')">👍</button>
-        <button type="button" class="transparent" onclick="onTagFilter('papers', '⭐')">⭐</button>
-        <button type="button" class="transparent" onclick="onTagFilter('papers', '✅')">✅</button>
+        <button type="button" class="transparent outlined-text" onclick="onTagFilter('papers', '🗙')">🗙</button>
+        <button type="button" class="transparent outlined-text" onclick="onTagFilter('papers', '📌')">📌</button>
+        <button type="button" class="transparent outlined-text" onclick="onTagFilter('papers', '🔎')">🔎</button>
+        <button type="button" class="transparent outlined-text" onclick="onTagFilter('papers', '📖')">📖</button>
+        <button type="button" class="transparent outlined-text" onclick="onTagFilter('papers', '👍')">👍</button>
+        <button type="button" class="transparent outlined-text" onclick="onTagFilter('papers', '⭐')">⭐</button>
+        <button type="button" class="transparent outlined-text" onclick="onTagFilter('papers', '✅')">✅</button>
         <div class="vr mx-3"></div>
         <label class="form-label mt-2 mx-2">Citations:</label>
         <button {% if not user.is_authenticated %} disabled {% endif %} class="btn btn-secondary mx-2 py-0"

@@ -104,7 +104,8 @@ img.icon {
   height: 1em;
 }
 
-table#papers th, table#papers td {
+table#papers th,
+table#papers td {
   padding: 0.2em !important;
   vertical-align: middle;
 }
@@ -392,7 +393,7 @@ div#home-page figcaption,
  * Note Editor Page- Markdown Editor *
  *************************************/
 
- #note-editor-panel div.editor-toolbar {
+#note-editor-panel div.editor-toolbar {
   max-height: 47.983px;
 }
 
@@ -475,10 +476,14 @@ div#home-page figcaption,
 
 #presentation-page div.reveal img {
   max-width: 100%;
-  max-height: 45vh;
+  max-height: 50vh;
   margin: 0.5em auto;
   width: auto;
   height: auto;
+}
+
+#presentation-page div.reveal pre code {
+  max-height: 50vh;
 }
 
 #presentation-page div.reveal figcaption {
@@ -617,4 +622,20 @@ think {
     height: auto !important;
     overflow: hidden !important;
   }
+}
+
+/*********
+ * Fonts *
+ *********/
+
+.outlined-text {
+  text-shadow:
+    -1px -1px 0 gray,
+    1px -1px 0 gray,
+    -1px 1px 0 gray,
+    1px 1px 0 gray,
+    -1px 0px 0 gray,
+    1px 0px 0 gray,
+    0px -1px 0 gray,
+    0px 1px 0 gray;
 }
