@@ -632,9 +632,7 @@ def get_image(request, id: int, page: int):
     if request.method != "GET":
         return JsonResponse({"Error": "Invalid request method"}, status=405)
 
-    r = request.GET.get("r", "")
-    coords = r.split(",")
-    print(coords)
+    coords = request.GET.get("r", "").split(",")
 
     if len(coords) != 4:
         return JsonResponse({"Error": "Invalid coordinates"}, status=400)

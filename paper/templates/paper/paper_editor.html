@@ -578,33 +578,33 @@
     }
   }
 
-  function handleClipboardImage() {
-    const items = event.clipboardData?.items || [];
-    let handled = false;
+  // function handleClipboardImage() {
+  //   const items = event.clipboardData?.items || [];
+  //   let handled = false;
 
-    for (const item of items) {
-      if (item.type.startsWith("image/")) {
-        event.preventDefault();
-        const blob = item.getAsFile();
-        const reader = new FileReader();
+  //   for (const item of items) {
+  //     if (item.type.startsWith("image/")) {
+  //       event.preventDefault();
+  //       const blob = item.getAsFile();
+  //       const reader = new FileReader();
 
-        reader.onload = function (e) {
-          const base64 = e.target.result;
-          const fileType = blob.type.split("/")[1];
-          const fileName = `clipboard-image.${fileType}`;
-          const markdownImage = `![${fileName}](${base64})\n`;
-          const cm = simplemde.codemirror;
-          const doc = cm.getDoc();
-          const cursor = doc.getCursor();
-          doc.replaceRange(markdownImage, cursor);
-        };
+  //       reader.onload = function (e) {
+  //         const base64 = e.target.result;
+  //         const fileType = blob.type.split("/")[1];
+  //         const fileName = `clipboard-image.${fileType}`;
+  //         const markdownImage = `![${fileName}](${base64})\n`;
+  //         const cm = simplemde.codemirror;
+  //         const doc = cm.getDoc();
+  //         const cursor = doc.getCursor();
+  //         doc.replaceRange(markdownImage, cursor);
+  //       };
 
-        reader.readAsDataURL(blob);
-        handled = true;
-        break;
-      }
-    }
-  }
+  //       reader.readAsDataURL(blob);
+  //       handled = true;
+  //       break;
+  //     }
+  //   }
+  // }
 
   window.onload = function () {
     const host = window.location.hostname;
@@ -615,7 +615,8 @@
     frame.src = url;
 
     updateMarkdown();
-    simplemde.codemirror.getWrapperElement().addEventListener("paste", handleClipboardImage);
+    onZoomFit();
+    // simplemde.codemirror.getWrapperElement().addEventListener("paste", handleClipboardImage);
   }
 </script>
 

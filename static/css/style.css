@@ -392,30 +392,30 @@ div#home-page figcaption,
  * Note Editor Page- Markdown Editor *
  *************************************/
 
-main div.editor-toolbar {
+ #note-editor-panel div.editor-toolbar {
   max-height: 47.983px;
 }
 
-#note-editor-panel div.CodeMirror span.cm-header.cm-header-1 {
-  line-height: 1.3em;
-  font-size: 2em;
-  padding-top: 0.2em;
-  padding-bottom: 0.2em;
+#note-editor-panel div.CodeMirror {
+  font-size: 1.2rem;
 }
 
-span.cm-header.cm-header-1,
-span.cm-header.cm-header-2,
-span.cm-header.cm-header-3,
-span.cm-header.cm-header-4,
-span.cm-header.cm-header-5,
-span.cm-header.cm-header-6 {
+#note-editor-panel div.CodeMirror span.cm-header.cm-header-1,
+#note-editor-panel div.CodeMirror span.cm-header.cm-header-2,
+#note-editor-panel div.CodeMirror span.cm-header.cm-header-3,
+#note-editor-panel div.CodeMirror span.cm-header.cm-header-4,
+#note-editor-panel div.CodeMirror span.cm-header.cm-header-5,
+#note-editor-panel div.CodeMirror span.cm-header.cm-header-6 {
+  line-height: 1.3em;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
   color: SteelBlue;
   font-weight: 700;
   margin-top: 1em;
   margin-bottom: 1em;
 }
 
-span.cm-em {
+#note-editor-panel div.CodeMirror span.cm-em {
   color: orangered;
 }
 
