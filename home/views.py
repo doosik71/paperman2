@@ -145,8 +145,7 @@ def retrieve_pdf(url: str) -> bytes:
         response = requests.get(url, headers=headers, stream=True)
         response.raise_for_status()
         content = response.content
-        
-        print(content)
+
         cache.set(cache_key, content, timeout=60 * 60 * 24)
         return content
 
@@ -157,7 +156,7 @@ def get_pdf(request):
     """
 
     url = urllib.parse.unquote(request.GET.get("url"))
-    tinylogger.info(f"Getting PDF from {url}")
+    # tinylogger.info(f"Getting PDF from {url}")
 
     try:
         content = retrieve_pdf(url)
