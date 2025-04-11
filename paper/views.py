@@ -302,9 +302,6 @@ def paper_update_annnotation(request, id) -> JsonResponse:
         paper.annotation = request.POST["annotation"]
         paper.save()
 
-        message = f'Annotation updated: "{paper.title}"'
-        tinylogger.info(message)
-
     return JsonResponse({"message": "ok"}, status=200)
 
 

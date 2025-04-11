@@ -524,39 +524,44 @@
   }
 
   async function onSave() {
-    $.ajax({
-      url: "{% url 'paper_update_note' paper.id %}",
-      type: "POST",
-      data: {
-        note: simplemde.value(),
-        csrfmiddlewaretoken: "{{ csrf_token }}"
+    const response1 = await fetch("{% url 'paper_update_note' paper.id %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-CSRFToken": "{{ csrf_token }}"
       },
-      success: function (response) {
-        document.querySelector('div.CodeMirror').style.border = '1px solid lightgray';
-        isNoteChanged = false;
-      },
-      error: function (xhr, msg, err) {
-        alert("Error: " + msg);
-        console.error(err);
-      }
+      body: new URLSearchParams({
+        note: simplemde.value()
+      })
     });
 
-    const annotation_data = JSON.stringify(annotations);
+    if (!response1.ok) {
+      alert("Error: Cannot write note");
+      return;
+    }
 
-    $.ajax({
-      url: "{% url 'paper_update_annnotation' paper.id %}",
-      type: "POST",
-      data: {
-        annotation: annotation_data,
-        csrfmiddlewaretoken: "{{ csrf_token }}"
-      },
-      success: function (response) {
-      },
-      error: function (xhr, msg, err) {
-        alert("Error: " + msg);
-        console.error(err);
+    const clientId = "{{ ADOBE_CLIENT_ID }}";
+    if (clientId !== "") {
+
+      const response2 = await fetch("{% url 'paper_update_annnotation' paper.id %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: new URLSearchParams({
+          annotation: JSON.stringify(annotations)
+        })
+      });
+
+      if (!response2.ok) {
+        alert("Error: Cannot write annotation");
+        return;
       }
-    });
+    }
+
+    document.querySelector('div.CodeMirror').style.border = '1px solid lightgray';
+    isNoteChanged = false;
   }
 
   let currentScale = 1;
@@ -598,11 +603,16 @@
   }
 
   function onAdobeViewerLoaded() {
+    const clientId = "{{ ADOBE_CLIENT_ID }}";
+
+    if (clientId === "") {
+      return;
+    }
+
     document.addEventListener("adobe_dc_view_sdk.ready", function () {
       const filename = "{{ paper.pdf_name|escapejs }}";
       const pdfUrl = "{{ paper.pdf_url }}";
       const url = `{% url 'get_pdf' %}?url=${pdfUrl}`;
-      const clientId = "{{ ADOBE_CLIENT_ID }}";
       const previewConfig = {
         embedMode: "FULL_WINDOW",
         enableAnnotationAPIs: true,
