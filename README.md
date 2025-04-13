@@ -51,15 +51,15 @@ python manage.py runserver 0.0.0.0:8090
 
 ### 서버 접속
 
-- 웹 브라우저에서 <http://127.0.0.1:8090/>에 접속한다.
+- 웹 브라우저에서 <http://localhost:8090/>에 접속한다.
 
 ### 로그인
 
-- 웹 브라우저에서 <http://127.0.0.1:8090/login>에 접속한다.
+- 웹 브라우저에서 <http://localhost:8090/login>에 접속한다.
 
 ### 실행 환경 설정
 
-- 웹 브라우저에서 <http://127.0.0.1:8090/config>에 접속한다.
+- 웹 브라우저에서 <http://localhost:8090/config>에 접속한다.
 
 #### 논문 자동 요약을 위한 URL 및 API 설정
 
@@ -78,6 +78,9 @@ python manage.py runserver 0.0.0.0:8090
   - 프롬프트 예시는 [prompt.md](./prompt.md) 문서를 참조한다.
 - **발표자료 작성을 위한 프롬프트**:
   - 환경 설정 화면에서 발표자료 작성을 위한 프롬프트를 입력한다.
+- **Adobe PDF Viewer의 API 키**:
+  - 환경 설정 화면에서 Adobe PDF Viewer의 API 키를 입력한다.
+  - Adobe PDF Viewer의 API 키는 <https://acrobatservices.adobe.com/dc-integration-creation-app-cdn/main.html?api=pdf-embed-api#>에서 무료로 얻을 수 있다.
 
 ### 자세한 사용 방법
 
