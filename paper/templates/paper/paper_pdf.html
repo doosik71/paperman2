@@ -1,11 +1,16 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
+<!-- PDF 미리보기와 QA 패널을 위한 스플릿 뷰 구현 -->
 <script type="text/javascript" charset="utf8" src="{% static 'js/split.min.js' %}"></script>
 <div id="pdf-preview-page" class="justify-content-center">
+  <!-- PDF와 QA 패널을 나누는 컨테이너 -->
   <div id="pdf-split-container" class="d-flex justify-content-center split">
+    <!-- PDF 미리보기를 위한 iframe -->
     <iframe id="pdf-pdf-preview" title="PDF Preview" class="mx-2"></iframe>
+    <!-- 질문-답변 패널 -->
     <div id="pdf-qa-panel" class="mx-2">
+      <!-- 질문 입력 영역 -->
       <div class="d-flex mt-2 mb-1">
         <label for="pdf-question" class="form-label fw-bold mt-1 mx-1">
           <img src="/static/images/question.png" width="22" height="26" alt="question">
@@ -13,6 +18,7 @@
         <input id="pdf-question" type="text" class="form-control" onkeydown="handleKey(event)" />
         <button type="button" onclick="onSend()" class="btn btn-success px-2 ms-2 border">Send</button>
       </div>
+      <!-- 자주 묻는 질문 선택 영역 -->
       <div class="d-flex mt-1 mb-2">
         <label for="pdf-selected-question" class="form-label fw-bold mt-1 mx-2 text-muted">&#x2630;</label>
         <select id="pdf-selected-question" class="form-control bg-light" onchange="onChangeQuestion()">
@@ -20,6 +26,7 @@
         </select>
         <button type="button" onclick="onClear()" class="btn btn-warning px-2 ms-2 border">Clear</button>
       </div>
+      <!-- 질문-답변 내용 표시 영역 -->
       <div id="pdf-qa-container" class="my-2 border rounded overflow-scroll">
         <div id="pdf-qa-text" class="p-2 m-1">
         </div>
@@ -27,14 +34,20 @@
     </div>
   </div>
 </div>
+
+<!-- 전역 변수 선언 -->
 <script>
+  // DOM 요소 참조
   const questionControl = document.getElementById("pdf-question");
   const selectionControl = document.getElementById("pdf-selected-question");
   const qaControl = document.getElementById("pdf-qa-text");
   const pdfUrlProxy = "{% url 'get_pdf' %}?url={{ paper.pdf_url }}";
-  let pdfText = "";
-  let qaText = "";
+  const SPLITTER_COOKIE_NAME = 'paperman_paper_pdf_splitter_sizes';
+  let pdfText = "";  // PDF 텍스트 내용
+  let qaText = "";   // 질문-답변 내용
 </script>
+
+<!-- 수학 공식 렌더링을 위한 MathJax 설정 -->
 <script type="text/javascript" charset="utf8"
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script type="text/x-mathjax-config">
@@ -47,8 +60,10 @@
     }
   });
 </script>
+
+<!-- 주요 기능 구현 -->
 <script>
-  // Define default prompts
+  // 기본 프롬프트 목록 정의
   const defaultPrompts = [
     "Summarize the paper in three sentences.",
     "Explain the abstract of the paper.",
@@ -72,7 +87,7 @@
     "Print the table of contents of the paper."
   ];
 
-  // Add default prompts to the select element
+  // 기본 프롬프트를 select 요소에 추가
   defaultPrompts.forEach(prompt => {
     let option = document.createElement('option');
     option.value = prompt;
@@ -80,10 +95,10 @@
     selectionControl.add(option);
   });
 
-  // Load user prompts from local storage
+  // 로컬 스토리지에서 사용자 프롬프트 로드
   let userPrompts = JSON.parse(localStorage.getItem('pdfUserPrompts') || '[]');
 
-  // Add user prompts from local storage after default prompts
+  // 로컬 스토리지의 사용자 프롬프트를 select 요소에 추가
   userPrompts.forEach(prompt => {
     let option = document.createElement('option');
     option.value = prompt;
@@ -91,33 +106,37 @@
     selectionControl.add(option);
   });
 
+  // 새로운 프롬프트를 로컬 스토리지에 추가하는 함수
   function addPromptToLocalStorage(prompt) {
     if (!defaultPrompts.includes(prompt)) {
       userPrompts.push(prompt);
       if (userPrompts.length > 10) {
-        userPrompts.shift(); // Remove the oldest prompt
+        userPrompts.shift(); // 가장 오래된 프롬프트 제거
       }
       localStorage.setItem('pdfUserPrompts', JSON.stringify(userPrompts));
 
-      // Add the new prompt to the select element
+      // 새로운 프롬프트를 select 요소에 추가
       let option = document.createElement('option');
       option.value = prompt;
       option.text = prompt;
       selectionControl.add(option);
-      selectionControl.appendChild(option); // Append to the end of the list
+      selectionControl.appendChild(option);
     }
   }
 
+  // Enter 키 입력 처리 함수
   function handleKey(event) {
     if (event.key === "Enter") {
       onSend();
     }
   }
 
+  // 선택된 질문 변경 처리 함수
   function onChangeQuestion() {
     questionControl.value = selectionControl.value;
   }
 
+  // 질문 전송 및 AI 응답 요청 함수
   async function onSend() {
     const question = questionControl.value.trim();
     const prompt = question + "\nPlease answer in Korean based on the TEXT below, but use English for technical terms.\nTEXT: " + pdfText;
@@ -126,7 +145,7 @@
       return;
     }
 
-    // Add the new question to local storage
+    // 새로운 질문을 로컬 스토리지에 추가
     addPromptToLocalStorage(question);
 
     const qImage = '<img src="/static/images/question.png" width="16" height="20" alt="question">';
@@ -135,11 +154,13 @@
     requestGenAI(prompt);
   }
 
+  // QA 패널 초기화 함수
   async function onClear() {
     qaText = "";
     qaControl.innerHTML = "";
   }
 
+  // QA 패널에 텍스트 추가 함수
   function appendToQA(text) {
     qaText += text;
     qaControl.innerHTML = marked(qaText);
@@ -148,6 +169,7 @@
     container.scrollTop = container.scrollHeight;
   }
 
+  // GenAI API 요청 함수
   async function requestGenAI(question) {
     const csrf_token = "{{ csrf_token }}";
     const model_id = "gemini-2.0-flash";
@@ -175,6 +197,7 @@
         return;
       }
 
+      // 스트리밍 응답 처리
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
 
@@ -183,7 +206,6 @@
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-
         appendToQA(chunk);
       }
 
@@ -193,14 +215,34 @@
     }
   }
 
+  // 스플리터 초기화 및 설정
   const splitter = Split(['#pdf-pdf-preview', '#pdf-qa-panel'], {
     sizes: [70, 30],
     minSize: 0,
     gutterSize: 5,
     snapOffset: 60,
-    cursor: 'col-resize'
+    cursor: 'col-resize',
+    onDragEnd: function() {
+      // 스플리터 위치를 쿠키에 저장
+      const sizes = splitter.getSizes();
+      document.cookie = `${SPLITTER_COOKIE_NAME}=${sizes.join(',')}; path=/`;
+    }
   });
 
+  // 쿠키에서 스플리터 위치를 가져오는 함수
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
+  // 저장된 스플리터 위치 적용
+  const savedSizes = getCookie(SPLITTER_COOKIE_NAME);
+  if (savedSizes) {
+    splitter.setSizes(savedSizes.split(',').map(Number));
+  }
+
+  // 페이지 로드 시 초기화
   window.onload = async function () {
     const frame = document.getElementById('pdf-pdf-preview');
     frame.src = pdfUrlProxy;

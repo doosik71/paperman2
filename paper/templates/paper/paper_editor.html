@@ -45,16 +45,20 @@
       class="d-flex w-auto mx-auto toolbar toolbar-border px-3 py-2 shadow-sm bg-light align-items-center">
       <button id="hide-toolbar-button" class="btn border-0 me-2" onclick="onHideToolbar()">&bigtriangledown;</button>
       <span class="vr mx-2"></span>
-      <label class="fw-bold me-2">View Mode: </label>
-      <input type="checkbox" id="check-pdf" name="view-mode" value="pdf" title="Toggle PDF" checked
-        onchange="onViewMode('pdf')">
-      <label for="check-pdf" class="mx-1">PDF</label>
-      <input type="checkbox" id="check-note" name="view-mode" value="note" title="Toggle Note" checked
-        onchange="onViewMode('note')">
-      <label for="check-note" class="mx-1">Note</label>
-      <input type="checkbox" id="check-markdown" name="view-mode" value="markdown" title="Toggle Markdown" checked
-        onchange="onViewMode('markdown')">
-      <label for="check-markdown" class="mx-1">Markdown</label>
+      <div class="btn-group me-2" role="group">
+        <input type="radio" class="btn-check" name="pdf-viewer" id="viewer-default" autocomplete="off" checked>
+        <label class="btn btn-outline-secondary" for="viewer-default">기본 뷰어</label>
+        <input type="radio" class="btn-check" name="pdf-viewer" id="viewer-adobe" autocomplete="off">
+        <label class="btn btn-outline-secondary" for="viewer-adobe">Adobe 뷰어</label>
+      </div>
+      <div class="btn-group me-2" role="group">
+        <input type="checkbox" class="btn-check" id="check-pdf" name="view-mode" value="pdf" title="Toggle PDF" checked onchange="onViewMode('pdf')">
+        <label class="btn btn-outline-secondary" for="check-pdf">PDF</label>
+        <input type="checkbox" class="btn-check" id="check-note" name="view-mode" value="note" title="Toggle Note" checked onchange="onViewMode('note')">
+        <label class="btn btn-outline-secondary" for="check-note">Note</label>
+        <input type="checkbox" class="btn-check" id="check-markdown" name="view-mode" value="markdown" title="Toggle Markdown" checked onchange="onViewMode('markdown')">
+        <label class="btn btn-outline-secondary" for="check-markdown">Markdown</label>
+      </div>
       <span class="vr mx-2"></span>
       <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-success mx-2"
         onclick='onImportPDF(pdfUrlProxy)'>Extract text from PDF</button>
@@ -123,16 +127,64 @@
   const notePanel = $("#note-editor-panel");
   const markdownPanel = $("#note-markdown-panel");
   const OLLAMA_REQUEST_URL = "{{ OLLAMA_REQUEST_URL }}";
+  const SPLITTER_COOKIE_NAME = 'paperman_paper_editor_splitter_sizes';
   let isNoteChanged = false;
   let annotations = [];
   const debouncedUpdateMarkdown = debounce(updateMarkdown, 300);
 
+  /**
+   * 쿠키를 설정하는 함수
+   * @param {string} name - 쿠키 이름
+   * @param {string} value - 쿠키 값
+   * @param {number} days - 쿠키 유효 기간(일)
+   */
+  function setCookie(name, value, days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = "expires=" + date.toUTCString();
+    document.cookie = name + "=" + value + ";" + expires + ";path=/";
+  }
+
+  /**
+   * 쿠키 값을 가져오는 함수
+   * @param {string} name - 쿠키 이름
+   * @returns {string|null} - 쿠키 값 또는 null
+   */
+  function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+      if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+  }
+
+  // 저장된 splitter 크기를 불러오기
+  const savedSizes = getCookie(SPLITTER_COOKIE_NAME);
+  // 저장된 크기가 있으면 사용하고, 없으면 기본값 [40, 30, 30] 사용
+  const initialSizes = savedSizes ? JSON.parse(savedSizes) : [40, 30, 30];
+
+  /**
+   * Split.js를 사용하여 3개의 패널(PDF, 에디터, 마크다운)을 분할
+   * - sizes: 각 패널의 초기 크기 비율
+   * - minSize: 패널의 최소 크기
+   * - gutterSize: 분할선의 크기
+   * - snapOffset: 스냅 거리
+   * - cursor: 분할선 커서 스타일
+   * - onDragEnd: 드래그 종료 시 쿠키에 크기 저장
+   */
   const splitter = Split(['#note-pdf-panel', '#note-editor-panel', '#note-markdown-panel'], {
-    sizes: [40, 30, 30],
+    sizes: initialSizes,
     minSize: 0,
     gutterSize: 5,
     snapOffset: 60,
-    cursor: 'col-resize'
+    cursor: 'col-resize',
+    onDragEnd: function() {
+      // 크기 변경 시 쿠키에 저장 (365일 유효)
+      setCookie(SPLITTER_COOKIE_NAME, JSON.stringify(splitter.getSizes()), 365);
+    }
   });
 
   const simplemde = new SimpleMDE({
@@ -147,12 +199,17 @@
     debouncedUpdateMarkdown();
   });
 
+  /**
+   * 뷰 모드 변경 시 패널 크기 조정
+   * @param {string} mode - 변경할 뷰 모드 ('pdf', 'note', 'markdown')
+   */
   function onViewMode(mode) {
     const checkPdf = document.getElementById("check-pdf").checked;
     const checkNote = document.getElementById("check-note").checked;
     const checkMarkdown = document.getElementById("check-markdown").checked;
     let sizes = splitter.getSizes();
 
+    // PDF 패널 크기 조정
     if (mode == 'pdf')
       if (checkPdf) {
         sizes[0] = (sizes[1] + sizes[2]) / 2;
@@ -160,6 +217,7 @@
         sizes[0] = 0;
       }
 
+    // 에디터 패널 크기 조정
     if (mode == 'note')
       if (checkNote) {
         sizes[1] = (sizes[0] + sizes[2]) / 2;
@@ -167,6 +225,7 @@
         sizes[1] = 0;
       }
 
+    // 마크다운 패널 크기 조정
     if (mode == 'markdown')
       if (checkMarkdown) {
         sizes[2] = (sizes[0] + sizes[1]) / 2;
@@ -174,15 +233,17 @@
         sizes[2] = 0;
       }
 
+    // 전체 크기가 100%가 되도록 정규화
     const sum = sizes[0] + sizes[1] + sizes[2];
-
     if (sum > 1) {
       sizes[0] = 100 * sizes[0] / sum;
       sizes[1] = 100 * sizes[1] / sum;
       sizes[2] = 100 * sizes[2] / sum;
     }
 
+    // 새로운 크기 적용 및 쿠키에 저장
     splitter.setSizes(sizes);
+    setCookie(SPLITTER_COOKIE_NAME, JSON.stringify(sizes), 365);
   }
 
   function debounce(func, delay) {
@@ -616,6 +677,7 @@
       const previewConfig = {
         embedMode: "FULL_WINDOW",
         enableAnnotationAPIs: true,
+        defaultViewMode: "FIT_WIDTH"
       };
       const eventOptions = {
         listenOn: [
@@ -661,6 +723,27 @@
     });
   }
 
+  // PDF 뷰어 전환 함수
+  function switchPDFViewer(viewerType) {
+    const adobeViewer = document.getElementById("adobe-dc-view");
+    const defaultViewer = document.getElementById("note-pdf-preview");
+    
+    if (viewerType === 'adobe') {
+      adobeViewer.style.display = "block";
+      defaultViewer.style.display = "none";
+    } else {
+      adobeViewer.style.display = "none";
+      defaultViewer.style.display = "block";
+    }
+  }
+
+  // PDF 뷰어 선택 이벤트 리스너
+  document.querySelectorAll('input[name="pdf-viewer"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      switchPDFViewer(this.id === 'viewer-adobe' ? 'adobe' : 'default');
+    });
+  });
+
   window.onload = function () {
     const host = window.location.hostname;
     const port = window.location.port;
@@ -669,12 +752,16 @@
     const url = `http://${host}:${port}{% url 'get_pdf' %}?url=${pdfUrl}`;
     const clientId = "{{ ADOBE_CLIENT_ID }}";
 
+    // 초기 뷰어 설정
     if (clientId !== "") {
-      document.getElementById("note-pdf-preview").style.display = "none";
+      document.getElementById("viewer-adobe").checked = true;
+      switchPDFViewer('adobe');
     } else {
-      document.getElementById("adobe-dc-view").style.display = "none";
-      frame.src = url;
+      document.getElementById("viewer-default").checked = true;
+      switchPDFViewer('default');
     }
+
+    frame.src = url;
 
     updateMarkdown();
     onZoomFit();
