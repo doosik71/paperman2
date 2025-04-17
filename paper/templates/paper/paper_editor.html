@@ -603,7 +603,6 @@
 
     const clientId = "{{ ADOBE_CLIENT_ID }}";
     if (clientId !== "") {
-
       const response2 = await fetch("{% url 'paper_update_annnotation' paper.id %}", {
         method: "POST",
         headers: {

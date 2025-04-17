@@ -6,8 +6,19 @@
 <div id="pdf-preview-page" class="justify-content-center">
   <!-- PDF와 QA 패널을 나누는 컨테이너 -->
   <div id="pdf-split-container" class="d-flex justify-content-center split">
-    <!-- PDF 미리보기를 위한 iframe -->
-    <iframe id="pdf-pdf-preview" title="PDF Preview" class="mx-2"></iframe>
+    <div id="pdf-preview-panel" class="mx-2">
+      <!-- PDF 뷰어 선택 버튼 -->
+      <div class="d-flex justify-content-end mb-2">
+        <div class="btn-group" role="group">
+          <input type="radio" class="btn-check" name="pdf-viewer" id="viewer-default" autocomplete="off" checked>
+          <label class="btn btn-outline-secondary" for="viewer-default">기본 뷰어</label>
+          <input type="radio" class="btn-check" name="pdf-viewer" id="viewer-adobe" autocomplete="off">
+          <label class="btn btn-outline-secondary" for="viewer-adobe">Adobe 뷰어</label>
+        </div>
+      </div>
+      <div id="adobe-dc-view" title="PDF Preview" class="border rounded"></div>
+      <iframe id="pdf-pdf-preview" title="PDF Preview" class="border rounded"></iframe>
+    </div>
     <!-- 질문-답변 패널 -->
     <div id="pdf-qa-panel" class="mx-2">
       <!-- 질문 입력 영역 -->
@@ -35,6 +46,8 @@
   </div>
 </div>
 
+{{ paper.annotation|default:"[]"|json_script:"annotation-data" }}
+
 <!-- 전역 변수 선언 -->
 <script>
   // DOM 요소 참조
@@ -45,6 +58,7 @@
   const SPLITTER_COOKIE_NAME = 'paperman_paper_pdf_splitter_sizes';
   let pdfText = "";  // PDF 텍스트 내용
   let qaText = "";   // 질문-답변 내용
+  let annotations = [];
 </script>
 
 <!-- 수학 공식 렌더링을 위한 MathJax 설정 -->
@@ -216,7 +230,7 @@
   }
 
   // 스플리터 초기화 및 설정
-  const splitter = Split(['#pdf-pdf-preview', '#pdf-qa-panel'], {
+  const splitter = Split(['#pdf-preview-panel', '#pdf-qa-panel'], {
     sizes: [70, 30],
     minSize: 0,
     gutterSize: 5,
@@ -242,12 +256,134 @@
     splitter.setSizes(savedSizes.split(',').map(Number));
   }
 
+  async function onSaveAnnotation() {
+    const clientId = "{{ ADOBE_CLIENT_ID }}";
+    if (clientId !== "") {
+      const response = await fetch("{% url 'paper_update_annnotation' paper.id %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: new URLSearchParams({
+          annotation: JSON.stringify(annotations)
+        })
+      });
+
+      if (!response.ok) {
+        alert("Error: Cannot write annotation");
+        return;
+      }
+    }
+  }
+
+  // PDF 뷰어 전환 함수
+  function switchPDFViewer(viewerType) {
+    const adobeViewer = document.getElementById("adobe-dc-view");
+    const defaultViewer = document.getElementById("pdf-pdf-preview");
+    
+    if (viewerType === 'adobe') {
+      adobeViewer.style.display = "block";
+      defaultViewer.style.display = "none";
+    } else {
+      adobeViewer.style.display = "none";
+      defaultViewer.style.display = "block";
+    }
+  }
+
+  // PDF 뷰어 선택 이벤트 리스너
+  document.querySelectorAll('input[name="pdf-viewer"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      switchPDFViewer(this.id === 'viewer-adobe' ? 'adobe' : 'default');
+    });
+  });
+
+  function onAdobeViewerLoaded() {
+    const clientId = "{{ ADOBE_CLIENT_ID }}";
+
+    if (clientId === "") {
+      return;
+    }
+
+    document.addEventListener("adobe_dc_view_sdk.ready", function () {
+      const filename = '{{ paper.pdf_name|escapejs|default:"noname.pdf" }}';
+      const pdfUrl = "{{ paper.pdf_url|urlencode }}";
+      const url = `{% url 'get_pdf' %}?url=${pdfUrl}`;
+      const previewConfig = {
+        embedMode: "FULL_WINDOW",
+        enableAnnotationAPIs: true,
+        defaultViewMode: "FIT_WIDTH"
+      };
+      const eventOptions = {
+        listenOn: [
+          "ANNOTATION_ADDED", "ANNOTATION_UPDATED", "ANNOTATION_DELETED"
+        ]
+      };
+
+      var adobeDCView = new AdobeDC.View({ clientId: clientId, divId: "adobe-dc-view" });
+      var previewFilePromise = adobeDCView.previewFile({
+        content: { location: { url: url } },
+        metaData: { fileName: filename, id: "{{ paper.id }}" },
+      }, previewConfig);
+
+      previewFilePromise.then(adobeViewer => {
+        adobeViewer.getAnnotationManager().then(annotationManager => {
+          const annotation_data = document.getElementById("annotation-data").textContent
+          annotations = JSON.parse(JSON.parse(annotation_data));
+
+          if (annotations.length > 0) {
+            annotationManager.addAnnotations(annotations)
+              .catch(error => {
+                console.log("Error adding annotations:", error);
+                annotations = [];
+              });
+          }
+
+          {% if user.is_authenticated %}
+          annotationManager.registerEventListener(
+            function (event) {
+              let isAnnotationChanged = false;
+              if (event.type === "ANNOTATION_ADDED" || event.type === "ANNOTATION_UPDATED") {
+                const index = annotations.findIndex(annotation => annotation.id === event.data.id);
+                if (index !== -1) {
+                  annotations[index] = event.data;
+                } else {
+                  annotations.push(event.data);
+                }
+                isAnnotationChanged = true;
+              } else if (event.type === "ANNOTATION_DELETED") {
+                annotations = annotations.filter(annotation => annotation.id !== event.data.id);
+                isAnnotationChanged = true;
+              }
+
+              if (isAnnotationChanged) {
+                onSaveAnnotation();
+              }
+            },
+            eventOptions);
+          {% endif %}
+        });
+      });
+    });
+  }
+
   // 페이지 로드 시 초기화
   window.onload = async function () {
     const frame = document.getElementById('pdf-pdf-preview');
-    frame.src = pdfUrlProxy;
+    const clientId = "{{ ADOBE_CLIENT_ID }}";
 
+    // 초기 뷰어 설정
+    if (clientId !== "") {
+      document.getElementById("viewer-adobe").checked = true;
+      switchPDFViewer('adobe');
+    } else {
+      document.getElementById("viewer-default").checked = true;
+      switchPDFViewer('default');
+    }
+
+    frame.src = pdfUrlProxy;
     pdfText = await extractPDF(pdfUrlProxy);
   }
 </script>
+<script src="https://acrobatservices.adobe.com/view-sdk/viewer.js" onload="onAdobeViewerLoaded()"></script>
 {% endblock %}

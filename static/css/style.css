@@ -189,7 +189,11 @@ div.toolbar {
 #pdf-pdf-preview {
   width: 100%;
   border: 1px solid lightgray;
-  height: calc(100vh - 47px);
+  height: calc(100vh - 96px);
+}
+
+#pdf-preview-page #adobe-dc-view {
+  height: calc(100vh - 96px);
 }
 
 #pdf-qa-container {

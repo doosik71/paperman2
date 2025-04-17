@@ -141,8 +141,14 @@ def paper_pdf(request, id) -> HttpResponse:
     """
 
     paper = get_object_or_404(Paper, id=id)
+    ADOBE_CLIENT_ID = get_config_value("ADOBE_CLIENT_ID")
 
-    return render(request, "paper/paper_pdf.html", {"paper": paper})
+    return render(request,
+                  "paper/paper_pdf.html",
+                  {
+                      "paper": paper,
+                      "ADOBE_CLIENT_ID": ADOBE_CLIENT_ID
+                  })
 
 
 def paper_editor(request, id) -> HttpResponse:
@@ -170,8 +176,7 @@ def paper_editor(request, id) -> HttpResponse:
             "SUMMARY_PROMPT": SUMMARY_PROMPT,
             "PRESENTATION_PROMPT": PRESENTATION_PROMPT,
             "ADOBE_CLIENT_ID": ADOBE_CLIENT_ID,
-        },
-    )
+        })
 
 
 def paper_note(request, id) -> HttpResponse:
@@ -401,7 +406,8 @@ def add_paper_to_topic(
         raise Exception("Invalid pdf_url")
 
     publish_date = datetime.strptime(publish_date, "%Y-%m-%d")
-    publish_date = timezone.make_aware(publish_date, timezone.get_current_timezone())
+    publish_date = timezone.make_aware(
+        publish_date, timezone.get_current_timezone())
 
     if Paper.objects.filter(url=url).exists():
         p = Paper.objects.get(url=url)
@@ -509,7 +515,8 @@ def update_paper_citations(paper) -> tuple:
 
             try:
                 paper.save()
-                tinylogger.info(f'{paper.citations} citation(s) for "{paper.title}"')
+                tinylogger.info(
+                    f'{paper.citations} citation(s) for "{paper.title}"')
                 return response, paper
             except Exception as e:
                 tinylogger.error(e)
