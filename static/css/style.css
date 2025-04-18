@@ -634,12 +634,12 @@ think {
 
 .outlined-text {
   text-shadow:
-    -1px -1px 0 gray,
-    1px -1px 0 gray,
-    -1px 1px 0 gray,
-    1px 1px 0 gray,
-    -1px 0px 0 gray,
-    1px 0px 0 gray,
-    0px -1px 0 gray,
-    0px 1px 0 gray;
+    -1px -1px 0 black,
+    -1px 0px 0 black,
+    -1px 1px 0 black,
+    0px -1px 0 black,
+    0px 1px 0 black,
+    1px -1px 0 black,
+    1px 0px 0 black,
+    1px 1px 0 black;
 }
