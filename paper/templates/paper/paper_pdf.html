@@ -162,8 +162,8 @@
     // 새로운 질문을 로컬 스토리지에 추가
     addPromptToLocalStorage(question);
 
-    const qImage = '<img src="/static/images/question.png" width="16" height="20" alt="question">';
-    const aImage = '<img src="/static/images/answer.png" width="16" height="20" alt="answer">';
+    const qImage = '<img src="/static/images/question.png" class="qna-icon" alt="question">';
+    const aImage = '<img src="/static/images/answer.png" class="qna-icon" alt="answer">';
     appendToQA(qImage + " " + question + "\n\n" + aImage + " ");
     requestGenAI(prompt);
   }

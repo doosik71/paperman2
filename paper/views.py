@@ -590,10 +590,6 @@ def _get_image_from_pdf(
     Get image from PDF. Resolution is 300dpi.
     """
 
-    tinylogger.info(
-        f"Get image from PDF: {id}, page: {page}, x: {x}, y: {y}, w: {w}, h: {h}"
-    )
-
     if x < 0 or y < 0:
         raise ValueError("Invalid coordinates")
 
@@ -612,8 +608,6 @@ def _get_image_from_pdf(
             clip_rect = pymupdf.Rect(x, y, x + w, y + h) / zoom
         else:
             clip_rect = page_obj.rect
-
-        print(clip_rect)
 
         pix = page_obj.get_pixmap(
             matrix=mat, clip=clip_rect, alpha=False, colorspace=pymupdf.csRGB

@@ -206,6 +206,16 @@ div.toolbar {
   padding-right: 0.1em;
 }
 
+#pdf-preview-page #pdf-qa-text {
+  font-size: 1.3rem;
+}
+
+#pdf-preview-page #pdf-qa-text img.qna-icon {
+  vertical-align: bottom;
+  width: 30px;
+  height: 34px;
+}
+
 /********************
  * Note Editor Page *
  ********************/
