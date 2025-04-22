@@ -340,7 +340,10 @@ select.inline {
   padding-right: 0.1em;
 }
 
-#note-markdown-preview img {
+#note-markdown-preview p > img:only-child {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
   max-width: 100%;
   height: auto;
 }
@@ -432,6 +435,7 @@ div#home-page figcaption,
 #note-page #note-markdown-container {
   background: lightgray;
   height: calc(100vh - 46px);
+  width: 90%;
   overflow: scroll;
 }
 
