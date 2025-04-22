@@ -522,6 +522,22 @@ div#home-page figcaption,
   background: transparent;
 }
 
+/*********
+ * Topic *
+ *********/
+
+#topic-list th {
+  background-color: ghostwhite;
+}
+
+#topic-list-list-view-panel {
+  display: flex;
+}
+
+#topic-list-tile-view-panel {
+  display: none;
+}
+
 /***********
  * Message *
  ***********/
