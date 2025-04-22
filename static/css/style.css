@@ -210,32 +210,28 @@ div.toolbar {
  * Note Editor Page *
  ********************/
 
-#editor-page #note-pdf-preview {
-  width: 100%;
-  height: calc(100vh - 111.5px);
-  border: 1px solid lightgray;
+#editor-page #note-pdf-panel,
+#editor-page #note-editor-panel,
+#editor-page #note-markdown-panel {
+  height: calc(100vh - 111px);
 }
 
 #editor-page #note-editor-panel div.CodeMirror {
-  height: calc(100vh - 155px);
+  height: calc(100vh - 158px);
 }
 
 #editor-page #note-markdown-container {
   background: lightgray;
-  height: calc(100vh - 108px);
-  overflow: scroll;
 }
 
-#editor-page.no-toolbar #note-pdf-preview {
-  height: calc(100vh - 71.5px);
+#editor-page.no-toolbar #note-pdf-panel,
+#editor-page.no-toolbar #note-editor-panel,
+#editor-page.no-toolbar #note-markdown-panel {
+  height: calc(100vh - 72px);
 }
 
 #editor-page.no-toolbar #note-editor-panel div.CodeMirror {
-  height: calc(100vh - 115px);
-}
-
-#editor-page.no-toolbar #note-markdown-container {
-  height: calc(100vh - 68px);
+  height: calc(100vh - 119px);
 }
 
 select.inline {

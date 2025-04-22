@@ -23,27 +23,12 @@
     {% endif %}
     {% endif %}
   </div>
-  <div id="split-container" class="d-flex justify-content-center split">
-    <div class="mx-2" id="note-pdf-panel">
-      <div id="adobe-dc-view" title="PDF Preview" class="border rounded"></div>
-      <iframe id="note-pdf-preview" class="border rounded" src="" title="PDF Preview"></iframe>
-    </div>
-    <div class="mx-2" id="note-editor-panel">
-      <textarea type="text" class="container-fluid border rounded" id="note" name="note"
-        placeholder="Note">{{ paper.note|safe }}</textarea>
-    </div>
-    <div class="mx-2" id="note-markdown-panel">
-      <div id="note-markdown-container" class="border rounded">
-        <div id="note-markdown-preview" class="p-2 ms-0 me-auto"></div>
-      </div>
-    </div>
-  </div>
   <div class="row d-print-none">
     <button id="show-toolbar-button" class="btn border-0 p-0 me-2 d-none"
-      onclick="onShowToolbar()">&bigtriangleup;</button>
+      onclick="onShowToolbar()">&bigtriangledown;</button>
     <div id="bottom-toolbar"
-      class="d-flex w-auto mx-auto toolbar toolbar-border px-3 py-2 shadow-sm bg-light align-items-center">
-      <button id="hide-toolbar-button" class="btn border-0 me-2" onclick="onHideToolbar()">&bigtriangledown;</button>
+      class="d-flex w-auto mx-auto toolbar toolbar-border px-3 py-2 mb-1 shadow-sm bg-light align-items-center">
+      <button id="hide-toolbar-button" class="btn border-0 me-2" onclick="onHideToolbar()">&bigtriangleup;</button>
       <span class="vr mx-2"></span>
       <div class="btn-group me-2" role="group">
         <input type="radio" class="btn-check" name="pdf-viewer" id="viewer-default" autocomplete="off" checked>
@@ -94,12 +79,27 @@
       <button type="button" class="circle" onclick='onZoomIn()'>+</button>
       <button type="button" class="circle" onclick='onZoomFit()'>&#x27F7;</button>
       <span class="vr mx-2"></span>
-      <a href="{% url 'select_image' paper.id %}" target="_blank" class="mx-1"><img src="{% static 'images/link.png' %}"
+      <a href="{% url 'select_image' paper.id %}" target="_blank" class="mx-1"><img src="{% static 'images/clip.png' %}"
           width="20" alt="Image Clip"></a>
       <a href="{% url 'paper_note' paper.id %}" target="_blank" class="mx-1"><img src="{% static 'images/note.png' %}"
           width="20" alt="Note"></a>
       <a href="{% url 'paper_presentation' paper.id %}" target="_blank" class="mx-1"><img
           src="{% static 'images/presentation.png' %}" width="20" alt="Presentation"></a>
+    </div>
+  </div>
+  <div id="split-container" class="d-flex justify-content-center split">
+    <div class="mx-2" id="note-pdf-panel">
+      <div id="adobe-dc-view" title="PDF Preview" class="w-100 h-100 border rounded"></div>
+      <iframe id="note-pdf-preview" class="w-100 h-100 border rounded" src="" title="PDF Preview"></iframe>
+    </div>
+    <div class="mx-2 h-100" id="note-editor-panel">
+      <textarea type="text" class="container-fluid w-100 h-100 border rounded" id="note" name="note"
+        placeholder="Note">{{ paper.note|safe }}</textarea>
+    </div>
+    <div class="mx-2" id="note-markdown-panel">
+      <div id="note-markdown-container" class="w-100 h-100 border rounded overflow-scroll">
+        <div id="note-markdown-preview" class="p-2 ms-0 me-auto"></div>
+      </div>
     </div>
   </div>
 </div>
