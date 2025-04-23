@@ -4,6 +4,7 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont,
+    "Malgun Gothic", MalgunGothic,
     "Segoe UI", "Droid Sans", "Helvetica Neue",
     "Roboto", "Oxygen", "Ubuntu", "Cantarell",
     "Fira Sans", sans-serif;
@@ -388,7 +389,7 @@ select.inline {
   background-color: ghostwhite;
   border: 1px solid lightgray;
   border-radius: 0.5em;
-  font-family: D2Coding, monospace, "Courier New", Courier;
+  font-family: monospace, D2Coding, "Courier New", Courier;
   margin-top: 1em;
   margin-bottom: 1em;
   padding-left: 1em;
@@ -651,9 +652,8 @@ think {
 
   #note-markdown-preview {
     padding: 1em !important;
-    transform: scale(1) !important;
+    transform: none !important;
     height: auto !important;
-    overflow: hidden !important;
   }
 }
 
