@@ -286,6 +286,9 @@ select.inline {
   max-width: 8.27in;
   min-height: 100%;
   transform-origin: top left;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 #note-markdown-preview h1 {
@@ -352,8 +355,7 @@ select.inline {
 
 #note-markdown-preview p > img:only-child {
   display: block;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 1em auto;
   max-width: 100%;
   height: auto;
 }
@@ -637,6 +639,7 @@ think {
 
   #note-markdown-panel {
     width: 100% !important;
+    height: auto !important;
   }
 
   #note-markdown-container {
