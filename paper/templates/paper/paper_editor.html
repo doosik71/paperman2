@@ -63,9 +63,11 @@
         <option>OpenRouter DeepSeek R1 Zero (free)</option>
         <option>OpenRouter DeepSeek V3 0324 (free)</option>
         <option>OpenRouter DeepSeek V3 (free)</option>
+        <option>OpenRouter Google Gemma 3 27B (free)</option>
         <option>Ollama deepseek-r1:32b (local)</option>
         <option>Ollama deepseek-r1:14b (local)</option>
         <option>Ollama deepseek-r1:7b (local)</option>
+        <option>Ollama gemma3:27b (local)</option>
       </select>
       <span class="vr mx-2"></span>
       <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-secondary mx-2"
@@ -356,9 +358,11 @@
       "OpenRouter DeepSeek R1 Zero (free)": "deepseek/deepseek-r1-zero:free",
       "OpenRouter DeepSeek V3 0324 (free)": "deepseek/deepseek-chat-v3-0324:free",
       "OpenRouter DeepSeek V3 (free)": "deepseek/deepseek-chat:free",
+      "OpenRouter Google Gemma 3 27B (free)": "google/gemma-3-27b-it:free",
       "Ollama deepseek-r1:32b (local)": "deepseek-r1:32b",
       "Ollama deepseek-r1:14b (local)": "deepseek-r1:14b",
       "Ollama deepseek-r1:7b (local)": "deepseek-r1",
+      "Ollama gemma3:27b (local)": "gemma3:27b",
     };
 
     return modelMap[model] || null;

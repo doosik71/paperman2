@@ -101,3 +101,4 @@ python manage.py runserver 0.0.0.0:8090
 | OpenRouter DeepSeek R1 Zero (free)                     |       1.4B |    164K |         164K |       0 / 0       |
 | OpenRouter DeepSeek V3 0324 (free)                     |      84.3B |    131K |         131K |       0 / 0       |
 | OpenRouter DeepSeek V3 (free)                          |      16.8B |    131K |         131K |       0 / 0       |
+| Google Gemma 3 (free)                                  |      27.0B |    128K |           8K |       0 / 0       |
