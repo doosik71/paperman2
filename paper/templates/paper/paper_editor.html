@@ -37,11 +37,14 @@
         <label class="btn btn-outline-secondary" for="viewer-adobe">Adobe 뷰어</label>
       </div>
       <div class="btn-group me-2" role="group">
-        <input type="checkbox" class="btn-check" id="check-pdf" name="view-mode" value="pdf" title="Toggle PDF" checked onchange="onViewMode('pdf')">
+        <input type="checkbox" class="btn-check" id="check-pdf" name="view-mode" value="pdf" title="Toggle PDF" checked
+          onchange="onViewMode('pdf')">
         <label class="btn btn-outline-secondary" for="check-pdf">PDF</label>
-        <input type="checkbox" class="btn-check" id="check-note" name="view-mode" value="note" title="Toggle Note" checked onchange="onViewMode('note')">
+        <input type="checkbox" class="btn-check" id="check-note" name="view-mode" value="note" title="Toggle Note"
+          checked onchange="onViewMode('note')">
         <label class="btn btn-outline-secondary" for="check-note">Note</label>
-        <input type="checkbox" class="btn-check" id="check-markdown" name="view-mode" value="markdown" title="Toggle Markdown" checked onchange="onViewMode('markdown')">
+        <input type="checkbox" class="btn-check" id="check-markdown" name="view-mode" value="markdown"
+          title="Toggle Markdown" checked onchange="onViewMode('markdown')">
         <label class="btn btn-outline-secondary" for="check-markdown">Markdown</label>
       </div>
       <span class="vr mx-2"></span>
@@ -155,7 +158,7 @@
   function getCookie(name) {
     const nameEQ = name + "=";
     const ca = document.cookie.split(';');
-    for(let i = 0; i < ca.length; i++) {
+    for (let i = 0; i < ca.length; i++) {
       let c = ca[i];
       while (c.charAt(0) == ' ') c = c.substring(1, c.length);
       if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
@@ -183,7 +186,7 @@
     gutterSize: 5,
     snapOffset: 60,
     cursor: 'col-resize',
-    onDragEnd: function() {
+    onDragEnd: function () {
       // 크기 변경 시 쿠키에 저장 (365일 유효)
       setCookie(SPLITTER_COOKIE_NAME, JSON.stringify(splitter.getSizes()), 365);
     }
@@ -259,9 +262,15 @@
 
   function updateMarkdown() {
     const regex = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Cyrillic}\p{Script=Devanagari}]/gu;
-    let html = marked(simplemde.value());
-    html = DOMPurify.sanitize(html);
-    html = html.replace(regex, match => `<span style="color: red;">${match}</span>`);
+    let html = '';
+    
+    try {
+      html = marked(simplemde?.value() || '');
+      html = DOMPurify.sanitize(html);
+      html = html.replace(regex, match => `<span style="color: red;">${match}</span>`);
+    } catch (e) {
+      html = e.message || e.toString();
+    }
 
     const hiddenDiv = document.createElement("div");
     hiddenDiv.style.position = "absolute";
@@ -674,55 +683,59 @@
     }
 
     document.addEventListener("adobe_dc_view_sdk.ready", function () {
-      const filename = '{{ paper.pdf_name|escapejs|default:"noname.pdf" }}';
-      const pdfUrl = "{{ paper.pdf_url|urlencode }}";
-      const url = `{% url 'get_pdf' %}?url=${pdfUrl}`;
-      const previewConfig = {
-        embedMode: "FULL_WINDOW",
-        enableAnnotationAPIs: true,
-        defaultViewMode: "FIT_WIDTH"
-      };
-      const eventOptions = {
-        listenOn: [
-          "ANNOTATION_ADDED", "ANNOTATION_UPDATED", "ANNOTATION_DELETED"
-        ]
-      };
+      try {
+        const filename = '{{ paper.pdf_name|escapejs|default:"noname.pdf" }}';
+        const pdfUrl = "{{ paper.pdf_url|urlencode }}";
+        const url = `{% url 'get_pdf' %}?url=${pdfUrl}`;
+        const previewConfig = {
+          embedMode: "FULL_WINDOW",
+          enableAnnotationAPIs: true,
+          defaultViewMode: "FIT_WIDTH"
+        };
+        const eventOptions = {
+          listenOn: [
+            "ANNOTATION_ADDED", "ANNOTATION_UPDATED", "ANNOTATION_DELETED"
+          ]
+        };
 
-      var adobeDCView = new AdobeDC.View({ clientId: clientId, divId: "adobe-dc-view" });
-      var previewFilePromise = adobeDCView.previewFile({
-        content: { location: { url: url } },
-        metaData: { fileName: filename, id: "{{ paper.id }}" },
-      }, previewConfig);
+        var adobeDCView = new AdobeDC.View({ clientId: clientId, divId: "adobe-dc-view" });
+        var previewFilePromise = adobeDCView.previewFile({
+          content: { location: { url: url } },
+          metaData: { fileName: filename, id: "{{ paper.id }}" },
+        }, previewConfig);
 
-      previewFilePromise.then(adobeViewer => {
-        adobeViewer.getAnnotationManager().then(annotationManager => {
-          const annotation_data = document.getElementById("annotation-data").textContent
-          annotations = JSON.parse(JSON.parse(annotation_data));
+        previewFilePromise.then(adobeViewer => {
+          adobeViewer.getAnnotationManager().then(annotationManager => {
+            const annotation_data = document.getElementById("annotation-data").textContent
+            annotations = JSON.parse(JSON.parse(annotation_data));
 
-          if (annotations.length > 0) {
-            annotationManager.addAnnotations(annotations)
-              .catch(error => {
-                console.log("Error adding annotations:", error);
-                annotations = [];
-              });
-          }
+            if (annotations.length > 0) {
+              annotationManager.addAnnotations(annotations)
+                .catch(error => {
+                  console.log("Error adding annotations:", error);
+                  annotations = [];
+                });
+            }
 
-          annotationManager.registerEventListener(
-            function (event) {
-              if (event.type === "ANNOTATION_ADDED" || event.type === "ANNOTATION_UPDATED") {
-                const index = annotations.findIndex(annotation => annotation.id === event.data.id);
-                if (index !== -1) {
-                  annotations[index] = event.data;
-                } else {
-                  annotations.push(event.data);
+            annotationManager.registerEventListener(
+              function (event) {
+                if (event.type === "ANNOTATION_ADDED" || event.type === "ANNOTATION_UPDATED") {
+                  const index = annotations.findIndex(annotation => annotation.id === event.data.id);
+                  if (index !== -1) {
+                    annotations[index] = event.data;
+                  } else {
+                    annotations.push(event.data);
+                  }
+                } else if (event.type === "ANNOTATION_DELETED") {
+                  annotations = annotations.filter(annotation => annotation.id !== event.data.id);
                 }
-              } else if (event.type === "ANNOTATION_DELETED") {
-                annotations = annotations.filter(annotation => annotation.id !== event.data.id);
-              }
-            },
-            eventOptions);
+              },
+              eventOptions);
+          });
         });
-      });
+      } catch (e) {
+        console.error("Error initializing Adobe DC View SDK:", e);
+      }
     });
   }
 
@@ -730,7 +743,7 @@
   function switchPDFViewer(viewerType) {
     const adobeViewer = document.getElementById("adobe-dc-view");
     const defaultViewer = document.getElementById("note-pdf-preview");
-    
+
     if (viewerType === 'adobe') {
       adobeViewer.style.display = "block";
       defaultViewer.style.display = "none";
@@ -742,7 +755,7 @@
 
   // PDF 뷰어 선택 이벤트 리스너
   document.querySelectorAll('input[name="pdf-viewer"]').forEach(radio => {
-    radio.addEventListener('change', function() {
+    radio.addEventListener('change', function () {
       switchPDFViewer(this.id === 'viewer-adobe' ? 'adobe' : 'default');
     });
   });
@@ -764,7 +777,11 @@
       switchPDFViewer('default');
     }
 
-    frame.src = url;
+    try {
+      frame.src = url;
+    } catch (e) {
+      console.error("Error initializing frame:", e);
+    }
 
     updateMarkdown();
     onZoomFit();

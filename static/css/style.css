@@ -367,17 +367,18 @@ select.inline {
 }
 
 #note-markdown-preview table {
-  border-bottom: 2px solid gray;
+  border-bottom: 2px solid SteelBlue;
   margin: 1em auto 1em auto;
 }
 
 #note-markdown-preview table th {
-  border-top: 2px solid gray;
-  border-bottom: 2px solid gray;
+  color: SteelBlue;
+  border-top: 2px solid SteelBlue;
+  border-bottom: 2px solid SteelBlue;
 }
 
 #note-markdown-preview table td {
-  border-bottom: 1px solid gray;
+  border-bottom: 1px solid SteelBlue;
 }
 
 #note-markdown-preview table th,
