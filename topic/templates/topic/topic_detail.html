@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load note_filters %}
 {% block content %}
 <script>
   function setFormAction(actionUrl) {
@@ -127,7 +128,9 @@
           </td>
           <td id="author">{{ paper.author }}</td>
           <td id="title"><a href="{% url 'paper_detail' paper.id %}" target="_blank">{{ paper.title }}</a></td>
-          <td id="publisher" class=" text-center"><a href="{{ paper.url }}" target="_blank">{{ paper.publisher }}</a></td>
+          <td id="publisher" class=" text-center">
+            <a href="{{ paper.url }}" target="_blank">{{ paper.publisher }}</a>
+          </td>
           <td id="publish_date" class="text-center">{{ paper.publish_date|date:"Y.m.d"|default:"-" }}</td>
           <td id="citations" class="text-end">
             <span id="citations-{{ paper.id }}" class="px-2">{{ paper.citations|default_if_none:"-" }}</span>
@@ -141,9 +144,11 @@
             <a href="{% url 'paper_editor' paper.id %}" title="Note Editor" target="_blank">
               <img src="{% static 'images/editor.png' %}" class="icon" alt="Note Editor"></a>
             <a href="{% url 'paper_note' paper.id %}" title="Note" target="_blank">
-              <img src="{% static 'images/note.png' %}" class="icon {% if not paper.note %}opacity-25{% endif %}" alt="Note"></a>
+              <img src="{% static 'images/note.png' %}" class="icon {% if not paper.note %}opacity-25{% endif %}"
+                alt="Note"></a>
             <a href="{% url 'paper_presentation' paper.id %}" title="Presentation" target="_blank">
-              <img src="{% static 'images/presentation.png' %}" class="icon {% if not paper.note %}opacity-25{% elif '---' not in paper.note %}opacity-25{% endif %}" alt="Presentation"></a>
+              <img src="{% static 'images/presentation.png' %}"
+                class="icon {% if not paper.note|has_split_marker %}opacity-25{% endif %}" alt="Presentation"></a>
             <a href="https://scholar.google.com/scholar?q={{paper.title|safe}},+{{paper.author|safe}}"
               title="Google scholar" target="_blank" rel="noopener">
               <img src="{% static 'images/google_scholar.png' %}" alt="Google Scholar" class="icon">
