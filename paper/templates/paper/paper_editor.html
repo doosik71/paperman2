@@ -93,17 +93,17 @@
     </div>
   </div>
   <div id="split-container" class="d-flex justify-content-center split">
-    <div class="mx-2" id="note-pdf-panel">
+    <div id="note-pdf-panel" class="mx-2">
       <div id="adobe-dc-view" title="PDF Preview" class="w-100 h-100 border rounded"></div>
       <iframe id="note-pdf-preview" class="w-100 h-100 border rounded" src="" title="PDF Preview"></iframe>
     </div>
-    <div class="mx-2 h-100" id="note-editor-panel">
+    <div id="note-editor-panel" class="mx-2 h-100">
       <textarea type="text" class="container-fluid w-100 h-100 border rounded" id="note" name="note"
         placeholder="Note">{{ paper.note|safe }}</textarea>
     </div>
-    <div class="mx-2" id="note-markdown-panel">
-      <div id="note-markdown-container" class="w-100 h-100 border rounded overflow-scroll">
-        <div id="note-markdown-preview" class="p-2 ms-0 me-auto"></div>
+    <div id="note-markdown-panel" class="mx-2">
+      <div id="note-markdown-container" class="h-100 border rounded overflow-scroll">
+        <div id="note-markdown-preview" class="p-2"></div>
       </div>
     </div>
   </div>
@@ -784,7 +784,6 @@
     }
 
     updateMarkdown();
-    onZoomFit();
   }
 </script>
 
