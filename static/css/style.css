@@ -387,15 +387,8 @@ select.inline {
   padding: 0.3em;
 }
 
-#note-markdown-preview div.code {
+#note-markdown-preview code {
   background-color: ghostwhite;
-  border: 1px solid lightgray;
-  border-radius: 0.5em;
-  font-family: monospace, D2Coding, "Courier New", Courier;
-  margin-top: 1em;
-  margin-bottom: 1em;
-  padding-left: 1em;
-  padding-right: 1em;
   white-space: pre;
 }
 
@@ -405,6 +398,16 @@ div#home-page figcaption,
   font-weight: bold;
   margin-top: 1em;
   margin-bottom: 1em;
+}
+
+
+#note-markdown-preview blockquote,
+#note-markdown-preview pre {
+  background-color: ghostwhite;
+  border-left: 3px solid SteelBlue;
+  color: SteelBlue;
+  padding: 0.5em;
+  margin: 0.5em 0;
 }
 
 /*************************************
@@ -441,6 +444,11 @@ div#home-page figcaption,
 #note-editor-panel div.CodeMirror span.cm-link {
   color: dodgerblue;
   text-decoration: none;
+}
+
+#note-editor-panel pre:has(> span > span.cm-quote) {
+  color: SteelBlue;
+  border-left: 3px solid SteelBlue;
 }
 
 /*************
