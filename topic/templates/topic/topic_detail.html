@@ -32,7 +32,6 @@
 
     alert("Starting background tasks!");
   }
-
 </script>
 <div class="justify-content-center">
   <div class="container">
@@ -48,29 +47,28 @@
     </div>
     {% endif %}
     {% endif %}
-    <div class="row">
-      <form id="topic-form" method="POST">
+    <div class="row d-flex mx-auto mb-2 toolbar toolbar-border shadow-sm bg-light d-print-none">
+      <form id="topic-form" method="POST" class="container my-2">
         {% csrf_token %}
-        <div class="container my-2">
-          <div class="row my-2">
-            <div class="col-1 text-end">
-              <label for="title" class="form-label fw-bold mt-1">Title</label>
-            </div>
-            <div class="col-4">
-              <input type="text" class="form-control" id="title" name="title" placeholder="Title" required
-                value="{{ topic.title }}">
-            </div>
-            <div class="col-1 text-end">
-              <label for="keywords" class="form-label fw-bold mt-1">Keywords</label>
-            </div>
-            <div class="col-4">
-              <input type="text" class="form-control" id="keywords" name="keywords" placeholder="Keywords"
-                value="{{ topic.keywords }}" required>
-            </div>
-            <div class="col-2 d-print-none">
-              <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-primary mx-2"
-                onclick="setFormAction('{% url 'topic_update' topic.id %}')">Update Topic</button>
-            </div>
+        <div class="row">
+          <div class="col-1 text-end">
+            <label for="title" class="form-label fw-bold mt-1">Title</label>
+          </div>
+          <div class="col-4">
+            <input type="text" class="form-control" id="title" name="title" placeholder="Title" required
+              value="{{ topic.title }}">
+          </div>
+          <div class="col-1 text-end">
+            <label for="keywords" class="form-label fw-bold mt-1">Keywords</label>
+          </div>
+          <div class="col-4">
+            <input type="text" class="form-control" id="keywords" name="keywords" placeholder="Keywords"
+              value="{{ topic.keywords }}" required>
+          </div>
+          <div class="col-2 d-print-none">
+            <button {% if not user.is_authenticated %} disabled {% endif %} type="button" class="btn btn-primary mx-2"
+              onclick="setFormAction('{% url 'topic_update' topic.id %}')">Update
+              Topic</button>
           </div>
         </div>
       </form>
@@ -101,6 +99,10 @@
         <label class="form-label mt-2 mx-2">Citations:</label>
         <button {% if not user.is_authenticated %} disabled {% endif %} class="btn btn-secondary mx-2 py-0"
           onclick='onAllCitation({{ topic.id }})'>All &#8634;</button>
+        {% if user.is_authenticated %}
+        <div class="vr mx-3"></div>
+        <a href="{% url 'paper_create' %}" class="btn btn-primary mx-2">Add Paper</a>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -120,15 +122,6 @@
       <tbody>
       </tbody>
     </table>
-  </div>
-  <div class="row">
-    <div class="col-12 d-flex justify-content-center">
-      {% if user.is_authenticated %}
-      <a href="{% url 'paper_create' %}" class="btn btn-primary mx-2">Add Paper</a>
-      {% else %}
-      <button disabled type="submit" class="btn btn-primary mx-2">Add Paper</button>
-      {% endif %}
-    </div>
   </div>
 </div>
 <script>
@@ -204,21 +197,21 @@
 
   const tableData = [
     {% for paper in papers %}
-    [
-      // Tags
-      `<span id="tags-{{ paper.id }}"></span>`,
-      // Author
-      "{{ paper.author|escapejs }}",
-      // Title
-      `<a href="{% url 'paper_detail' paper.id %}" target="_blank">{{ paper.title|escapejs }}</a>`,
-      // Publisher
-      `<a href="{{ paper.url }}" target="_blank">{{ paper.publisher|escapejs }}</a>`,
-      // Date
-      "{{ paper.publish_date|date:'Y.m.d'|default:'-' }}",
-      // Citations
-      `<span id="citations-{{ paper.id }}" class="px-2">{{ paper.citations|default_if_none:"-" }}</span>`,
-      // Links
-      `<a href="{% url 'paper_pdf' paper.id %}" title="PDF" target="_blank">
+  [
+    // Tags
+    `<span id="tags-{{ paper.id }}"></span>`,
+    // Author
+    "{{ paper.author|escapejs }}",
+    // Title
+    `<a href="{% url 'paper_detail' paper.id %}" target="_blank">{{ paper.title|escapejs }}</a>`,
+    // Publisher
+    `<a href="{{ paper.url }}" target="_blank">{{ paper.publisher|escapejs }}</a>`,
+    // Date
+    "{{ paper.publish_date|date:'Y.m.d'|default:'-' }}",
+    // Citations
+    `<span id="citations-{{ paper.id }}" class="px-2">{{ paper.citations|default_if_none:"-" }}</span>`,
+    // Links
+    `<a href="{% url 'paper_pdf' paper.id %}" title="PDF" target="_blank">
         <img src="{% static 'images/pdf.png' %}" class="icon" alt="PDF"></a>
       <a href="{% url 'paper_editor' paper.id %}" title="Note Editor" target="_blank">
         <img src="{% static 'images/editor.png' %}" class="icon" alt="Note Editor"></a>
@@ -236,7 +229,7 @@
         title="Semantic Scholar" target="_blank" rel="noopener">
         <img src="{% static 'images/semantic_scholar.png' %}" alt="Semantic Scholar" class="icon">
       </a>`
-    ],
+  ],
     {% endfor %}
   ];
 
@@ -255,16 +248,16 @@
         { title: "Citations", className: 'dt-right' },
         { title: "Links", className: 'dt-center' }
       ],
-      initComplete: function(settings, json) {
+      initComplete: function (settings, json) {
         renderAllTags();
-    }
+      }
     });
   });
 
   function renderAllTags() {
     {% for paper in papers %}
     renderTags({{ paper.id }}, '{{ paper.tags|escapejs }}');
-    {% endfor %}
+  {% endfor %}
   }
 </script>
 {% endblock %}
