@@ -108,58 +108,16 @@
     <table id="papers" class="table table-bordered table-hover">
       <thead>
         <tr>
-          <th id="th-tag" class="text-center  d-print-none" width="11%">Tags</th>
+          <th id="th-tag" class="text-center" width="11%">Tags</th>
           <th id="th-author" class="text-center" width="18%">Author</th>
           <th id="th-title" class="text-center" width="38%">Title</th>
           <th id="th-publisher" class="text-center" width="10%">Publisher</th>
           <th id="th-date" class="text-center" width="7%">Date</th>
           <th id="th-citations" class="text-center" width="7%">Citations</th>
-          <th id="th-links" class="text-center d-print-none" width="9%">Links</th>
+          <th id="th-links" class="text-center" width="9%">Links</th>
         </tr>
       </thead>
       <tbody>
-        {% for paper in papers %}
-        <tr data-paper-id="{{ paper.id }}">
-          <td id="tags" width="50px" class="text-center d-print-none">
-            <span id="tags-{{ paper.id }}"></span>
-            <script>
-              renderTags({{ paper.id }}, '{{ paper.tags|escapejs }}');
-            </script>
-          </td>
-          <td id="author">{{ paper.author }}</td>
-          <td id="title"><a href="{% url 'paper_detail' paper.id %}" target="_blank">{{ paper.title }}</a></td>
-          <td id="publisher" class=" text-center">
-            <a href="{{ paper.url }}" target="_blank">{{ paper.publisher }}</a>
-          </td>
-          <td id="publish_date" class="text-center">{{ paper.publish_date|date:"Y.m.d"|default:"-" }}</td>
-          <td id="citations" class="text-end">
-            <span id="citations-{{ paper.id }}" class="px-2">{{ paper.citations|default_if_none:"-" }}</span>
-            {% if user.is_authenticated %}
-            <button class="mx-2 circle d-print-none" onclick='onCitation({{ paper.id }})'>&#8634;</button>
-            {% endif %}
-          </td>
-          <td id="links" class="text-center d-print-none">
-            <a href="{% url 'paper_pdf' paper.id %}" title="PDF" target="_blank">
-              <img src="{% static 'images/pdf.png' %}" class="icon" alt="PDF"></a>
-            <a href="{% url 'paper_editor' paper.id %}" title="Note Editor" target="_blank">
-              <img src="{% static 'images/editor.png' %}" class="icon" alt="Note Editor"></a>
-            <a href="{% url 'paper_note' paper.id %}" title="Note" target="_blank">
-              <img src="{% static 'images/note.png' %}" class="icon {% if not paper.note %}opacity-25{% endif %}"
-                alt="Note"></a>
-            <a href="{% url 'paper_presentation' paper.id %}" title="Presentation" target="_blank">
-              <img src="{% static 'images/presentation.png' %}"
-                class="icon {% if not paper.note|has_split_marker %}opacity-25{% endif %}" alt="Presentation"></a>
-            <a href="https://scholar.google.com/scholar?q={{paper.title|safe}},+{{paper.author|safe}}"
-              title="Google scholar" target="_blank" rel="noopener">
-              <img src="{% static 'images/google_scholar.png' %}" alt="Google Scholar" class="icon">
-            </a>
-            <a href="https://www.semanticscholar.org/search?q={{paper.title|safe}},+{{paper.author|safe}}"
-              title="Semantic Scholar" target="_blank" rel="noopener">
-              <img src="{% static 'images/semantic_scholar.png' %}" alt="Semantic Scholar" class="icon">
-            </a>
-          </td>
-        </tr>
-        {% endfor %}
       </tbody>
     </table>
   </div>
@@ -244,11 +202,69 @@
       .catch(error => reportError(error));
   }
 
+  const tableData = [
+    {% for paper in papers %}
+    [
+      // Tags
+      `<span id="tags-{{ paper.id }}"></span>`,
+      // Author
+      "{{ paper.author|escapejs }}",
+      // Title
+      `<a href="{% url 'paper_detail' paper.id %}" target="_blank">{{ paper.title|escapejs }}</a>`,
+      // Publisher
+      `<a href="{{ paper.url }}" target="_blank">{{ paper.publisher|escapejs }}</a>`,
+      // Date
+      "{{ paper.publish_date|date:'Y.m.d'|default:'-' }}",
+      // Citations
+      `<span id="citations-{{ paper.id }}" class="px-2">{{ paper.citations|default_if_none:"-" }}</span>`,
+      // Links
+      `<a href="{% url 'paper_pdf' paper.id %}" title="PDF" target="_blank">
+        <img src="{% static 'images/pdf.png' %}" class="icon" alt="PDF"></a>
+      <a href="{% url 'paper_editor' paper.id %}" title="Note Editor" target="_blank">
+        <img src="{% static 'images/editor.png' %}" class="icon" alt="Note Editor"></a>
+      <a href="{% url 'paper_note' paper.id %}" title="Note" target="_blank">
+        <img src="{% static 'images/note.png' %}" class="icon {% if not paper.note %}opacity-25{% endif %}"
+          alt="Note"></a>
+      <a href="{% url 'paper_presentation' paper.id %}" title="Presentation" target="_blank">
+        <img src="{% static 'images/presentation.png' %}"
+          class="icon {% if not paper.note|has_split_marker %}opacity-25{% endif %}" alt="Presentation"></a>
+      <a href="https://scholar.google.com/scholar?q={{paper.title|escapejs|safe}},+{{paper.author|escapejs|safe}}"
+        title="Google scholar" target="_blank" rel="noopener">
+        <img src="{% static 'images/google_scholar.png' %}" alt="Google Scholar" class="icon">
+      </a>
+      <a href="https://www.semanticscholar.org/search?q={{paper.title|escapejs|safe}},+{{paper.author|escapejs|safe}}"
+        title="Semantic Scholar" target="_blank" rel="noopener">
+        <img src="{% static 'images/semantic_scholar.png' %}" alt="Semantic Scholar" class="icon">
+      </a>`
+    ],
+    {% endfor %}
+  ];
+
   $(document).ready(function () {
     $('#papers').DataTable({
-      "paging": false,
-      "order": []
+      paging: false,
+      order: [],
+      data: tableData,
+      deferRender: true,
+      columns: [
+        { title: "Tags", className: 'dt-center' },
+        { title: "Author" },
+        { title: "Title" },
+        { title: "Publisher", className: 'dt-center' },
+        { title: "Date", className: 'dt-center' },
+        { title: "Citations", className: 'dt-right' },
+        { title: "Links", className: 'dt-center' }
+      ],
+      initComplete: function(settings, json) {
+        renderAllTags();
+    }
     });
   });
+
+  function renderAllTags() {
+    {% for paper in papers %}
+    renderTags({{ paper.id }}, '{{ paper.tags|escapejs }}');
+    {% endfor %}
+  }
 </script>
 {% endblock %}
