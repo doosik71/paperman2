@@ -9,7 +9,7 @@
     <div id="pdf-preview-panel" class="mx-2">
       <!-- PDF 뷰어 선택 버튼 -->
       <div class="d-flex justify-content-end mb-2">
-        <div class="btn-group" role="group">
+        <div class="btn-group" role="group" aria-hidden="true">
           <input type="radio" class="btn-check" name="pdf-viewer" id="viewer-default" autocomplete="off" checked>
           <label class="btn btn-outline-secondary" for="viewer-default">기본 뷰어</label>
           <input type="radio" class="btn-check" name="pdf-viewer" id="viewer-adobe" autocomplete="off">
@@ -22,7 +22,7 @@
     <!-- 질문-답변 패널 -->
     <div id="pdf-qa-panel" class="mx-2">
       <!-- 질문 입력 영역 -->
-      <div class="d-flex mt-2 mb-1">
+      <div class="d-flex mt-2 mb-1" aria-hidden="true">
         <label for="pdf-question" class="form-label fw-bold mt-1 mx-1">
           <img src="/static/images/question.png" width="22" height="26" alt="question">
         </label>
@@ -30,7 +30,7 @@
         <button type="button" onclick="onSend()" class="btn btn-success px-2 ms-2 border">Send</button>
       </div>
       <!-- 자주 묻는 질문 선택 영역 -->
-      <div class="d-flex mt-1 mb-2">
+      <div class="d-flex mt-1 mb-2" aria-hidden="true">
         <label for="pdf-selected-question" class="form-label fw-bold mt-1 mx-2 text-muted">&#x2630;</label>
         <select id="pdf-selected-question" class="form-control bg-light" onchange="onChangeQuestion()">
           <option value="" selected disabled hidden>Select frequently asked questions</option>
@@ -98,6 +98,8 @@
     "Recommend other papers that help understand this paper.",
     "Explain the background knowledge that can help understand the paper.",
     "Explain the main abbreviations used in the paper.",
+    "Write an in-depth research and analysis article for the paper.",
+    "Write a one-hour lecture script for the paper.",
     "Print the table of contents of the paper."
   ];
 
@@ -164,7 +166,7 @@
 
     const qImage = '<img src="/static/images/question.png" class="qna-icon" alt="question">';
     const aImage = '<img src="/static/images/answer.png" class="qna-icon" alt="answer">';
-    appendToQA(qImage + " " + question + "\n\n" + aImage + " ");
+    appendToQA(qImage + "\n\n<span class=\"text-primary\">" + question + "</span>\n\n" + aImage + "\n\n");
     requestGenAI(prompt);
   }
 
