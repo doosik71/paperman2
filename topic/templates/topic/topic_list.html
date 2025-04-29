@@ -8,24 +8,30 @@
 </style>
 <div id="topic-list">
   <h1 class="m-3 text-center">Topic List</h1>
-  <div class="row justify-content-center">
-    <div class="col-2 text-center">
+  <div class="d-flex justify-content-center">
+    <!-- Search Bar -->
+    <div class="col-2 text-center mx-3">
       <div class="input-group">
         <input type="text" id="topic-list-search" class="form-control" placeholder="Search for topics..."
           onkeyup="onfilterTopics()" />
         <button class="clear-btn input-group-text" id="topic-list-clear-button">&times;</button>
       </div>
     </div>
-  </div>
-  <div class="d-flex justify-content-center my-2">
-    <div class="btn-group" role="group">
+    <!-- View Mode -->
+    <div class="btn-group mx-3" role="group">
       <input type="radio" class="btn-check" name="topic-list-view-mode" id="topic-list-list-view" autocomplete="off"
         checked>
       <label class="btn btn-outline-secondary" for="topic-list-list-view">List View</label>
       <input type="radio" class="btn-check" name="topic-list-view-mode" id="topic-list-tile-view" autocomplete="off">
       <label class="btn btn-outline-secondary" for="topic-list-tile-view">Tile View</label>
     </div>
+    <!-- Create Topic Button -->  
+    <form action="{% url 'topic_create' %}" method="get" class="mx-3">
+      <button {% if not user.is_authenticated %}disabled{% endif %} type="submit" class="btn btn-primary">Create new
+        topic</button>
+    </form>
   </div>
+  <!-- Topic List -->
   <div id="topic-list-list-view-panel" class="row my-3 justify-content-center">
     <div class="col-8 text-center mb-3 border p-0">
       <table id="topic-list-table" class="table table-hover m-0" width="100%">
@@ -100,12 +106,6 @@
       </div>
     </div>
     {% endfor %}
-  </div>
-  <div class="m-3 text-center d-print-none">
-    <form action="{% url 'topic_create' %}" method="get">
-      <button {% if not user.is_authenticated %}disabled{% endif %} type="submit" class="btn btn-primary">Create new
-        topic</button>
-    </form>
   </div>
 </div>
 <script>
