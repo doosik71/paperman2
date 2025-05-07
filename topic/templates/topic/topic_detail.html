@@ -101,7 +101,7 @@
           onclick='onAllCitation({{ topic.id }})'>All &#8634;</button>
         {% if user.is_authenticated %}
         <div class="vr mx-3"></div>
-        <a href="{% url 'paper_create' %}" class="btn btn-primary mx-2">Add Paper</a>
+        <a href="{% url 'paper_create' %}" class="btn btn-primary mx-2" target="_blank">Add Paper</a>
         {% endif %}
       </div>
     </div>

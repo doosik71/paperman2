@@ -343,6 +343,11 @@ select.inline {
 #note-markdown-preview ol,
 #note-markdown-preview ul {
   padding-left: 1.5em;
+  margin: 0.2em 0;
+}
+
+#note-markdown-preview li {
+  margin: 0.2em 0;
 }
 
 #note-markdown-preview a {
@@ -400,13 +405,12 @@ div#home-page figcaption,
   margin-bottom: 1em;
 }
 
-
 #note-markdown-preview blockquote,
 #note-markdown-preview pre {
   background-color: ghostwhite;
-  border-left: 3px solid SteelBlue;
+  border-left: 0.1em, solid SteelBlue;
   color: SteelBlue;
-  padding: 0.5em;
+  padding: 0.5em 0;
   margin: 0.5em 0;
 }
 
@@ -522,16 +526,32 @@ div#home-page figcaption,
   margin-bottom: 0.5em;
 }
 
+#presentation-page div.reveal ul,
+#presentation-page div.reveal ol {
+  margin-left: 0;
+  padding-left: 1.5em;
+  width: 100%;
+}
+
+#presentation-page div.reveal blockquote {
+  background-color: ghostwhite;
+  border-left: 0.1em solid SteelBlue;
+  color: SteelBlue;
+  font-style: normal;
+  padding: 0.5em 0;
+  margin: 0.5em 0;
+  text-align: left;
+  width: 100%;
+  overflow-wrap: break-word;
+}
+
 #presentation-page div.reveal .MathJax_Display {
   margin: 0.5em 0em;
 }
 
 #presentation-page section {
-  overflow-y: scroll;
   height: 100%;
-}
-
-#presentation-page section {
+  overflow-y: scroll;
   scrollbar-width: none;
 }
 
