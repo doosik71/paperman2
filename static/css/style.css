@@ -110,6 +110,10 @@ table#papers td {
   vertical-align: middle;
 }
 
+table#papers tbody tr.highlight td {
+  background-color: yellow;
+}
+
 div.toolbar {
   vertical-align: middle;
 }
@@ -143,9 +147,17 @@ div.toolbar {
   height: 17em;
 }
 
-/************
- * Image Page *
- ************/
+/**************
+ * Topic Page *
+ **************/
+
+#topic-list-table tbody tr.highlight td {
+  background-color: yellow;
+}
+
+/******************
+ * PDF Image Page *
+ ******************/
 
 #pdf-image-preview img {
   cursor: crosshair;
@@ -668,6 +680,10 @@ think {
     width: 48%;
   }
 
+  main table#papers tbody tr.selected td {
+    background-color: yellow;
+  }
+  
   #note-markdown-panel {
     width: 100% !important;
     height: auto !important;

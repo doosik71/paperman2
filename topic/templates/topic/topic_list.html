@@ -109,6 +109,7 @@
   </div>
 </div>
 <script>
+  // 주제 리스트 초기화
   document.getElementById("topic-list-clear-button").addEventListener("click", function () {
     const input = document.getElementById("topic-list-search");
     input.value = "";
@@ -116,6 +117,7 @@
     input.focus();
   });
 
+  // 주제 필터 입력 처리 이벤트.
   function onfilterTopics() {
     const input = document.getElementById("topic-list-search");
     const filter = input.value.toLowerCase();
@@ -143,7 +145,18 @@
     });
   }
 
-  // PDF 뷰어 선택 이벤트 리스너
+  // 주제 목록 테이블 행 클릭 이벤트
+  document.querySelectorAll("#topic-list-table tbody tr").forEach(row => {
+    row.addEventListener("click", function () {
+      if (this.classList.contains("highlight")) {
+        this.classList.remove("highlight");
+      } else {
+        this.classList.add("highlight");
+      }
+    });
+  });
+
+  // 주제 뷰어 선택 이벤트
   document.querySelectorAll('input[name="topic-list-view-mode"]').forEach(radio => {
     radio.addEventListener('change', function () {
       switchTopicListViewMode(this.id === 'topic-list-list-view' ? 'list' : 'tile');

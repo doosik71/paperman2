@@ -250,6 +250,7 @@
       ],
       initComplete: function (settings, json) {
         renderAllTags();
+        addPaperSelectionEvent()
       }
     });
   });
@@ -258,6 +259,19 @@
     {% for paper in papers %}
     renderTags({{ paper.id }}, '{{ paper.tags|escapejs }}');
   {% endfor %}
+  }
+  
+  function addPaperSelectionEvent() {
+    // 논문 목록 테이블 행 클릭 이벤트
+    document.querySelectorAll("#papers tr").forEach(row => {
+      row.addEventListener("click", function () {
+        if (this.classList.contains("highlight")) {
+          this.classList.remove("highlight");
+        } else {
+          this.classList.add("highlight");
+        }
+      });
+    });
   }
 </script>
 {% endblock %}

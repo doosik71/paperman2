@@ -152,6 +152,8 @@ def topic_citations(request, id) -> JsonResponse:
     # 작업을 큐에 추가
     topic_task_queue.put(topic)
 
+    tinylogger.info(f'Queueing citations on the topic: "{topic.title}"')
+
     # 스레드가 실행 중이 아니면 새로 시작
     if not topic_thread_running:
         topic_thread_running = True
