@@ -1,10 +1,7 @@
 @echo off
 
-python --version >nul 2>&1
-
-IF %ERRORLEVEL% NEQ 0 (
-    call conda activate python
-)
+cd %~dp0
+call %~dp0\.venv\Scripts\activate
 
 echo Running at http://localhost:8090
 

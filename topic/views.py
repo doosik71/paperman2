@@ -4,6 +4,7 @@ import threading
 import time
 import urllib.request
 import xml.etree.ElementTree as ET
+import queue
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
@@ -11,6 +12,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Topic
 from paper.models import Paper
 from paper.views import update_paper_citations, add_paper_to_topic
+
+
+topic_task_queue = queue.Queue()
+topic_thread_running = False
 
 
 def topic_list(request) -> HttpResponse:
@@ -137,14 +142,34 @@ def topic_citations(request, id) -> JsonResponse:
     Update citations for all papers in topic.
     """
 
+    global topic_thread_running
+
     topic = get_object_or_404(Topic, id=id)
 
-    if request.method == "POST":
-        threading.Thread(target=__update_topic_citations, args=(topic,)).start()
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request"}, status=400)
 
-        return JsonResponse({"message": "ok"}, status=200)
+    # 작업을 큐에 추가
+    topic_task_queue.put(topic)
 
-    return JsonResponse({"error": "Invalid request"}, status=400)
+    # 스레드가 실행 중이 아니면 새로 시작
+    if not topic_thread_running:
+        topic_thread_running = True
+
+        def thread_target():
+            global topic_thread_running
+            try:
+                while not topic_task_queue.empty():
+                    current_topic = topic_task_queue.get()
+                    __update_topic_citations(current_topic)
+                    topic_task_queue.task_done()
+            finally:
+                topic_thread_running = False
+
+        topic_thread = threading.Thread(target=thread_target)
+        topic_thread.start()
+
+    return JsonResponse({"message": "Topic added to the queue."}, status=200)
 
 
 def __update_topic_citations(topic):
