@@ -42,28 +42,53 @@
   }
 
   let currentScale = 1;
+  const CURRENT_SCALE_COOKIE_NAME = 'paperNoteCurrentScale';
+  const MAX_SCALE = 10;
+
+  // Function to set a cookie
+  function setCookie(name, value, days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/`;
+  }
+
+  // Function to get a cookie
+  function getCookie(name) {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.startsWith(name + '=')) {
+        return cookie.substring(name.length + 1);
+      }
+    }
+    return null;
+  }
 
   async function onZoomOut() {
     if (currentScale > 0.4) {
       currentScale -= 0.2;
+      setCookie(CURRENT_SCALE_COOKIE_NAME, currentScale, 7); // Save to cookie
       updateZoom();
     }
   }
 
   async function onZoomReset() {
     currentScale = 1;
+    setCookie(CURRENT_SCALE_COOKIE_NAME, currentScale, 7); // Save to cookie
     updateZoom();
   }
 
   async function onZoomIn() {
-    if (currentScale < 10) {
+    if (currentScale < MAX_SCALE) {
       currentScale += 0.2;
+      setCookie(CURRENT_SCALE_COOKIE_NAME, currentScale, 7); // Save to cookie
       updateZoom();
     }
   }
 
   async function onZoomFit() {
-    currentScale = 10;
+    currentScale = MAX_SCALE;
+    setCookie(CURRENT_SCALE_COOKIE_NAME, currentScale, 7); // Save to cookie
     updateZoom();
   }
 
@@ -80,8 +105,15 @@
   }
 
   window.onload = function () {
+    // Load currentScale from cookie
+    const savedScale = getCookie(CURRENT_SCALE_COOKIE_NAME);
+    if (savedScale) {
+      currentScale = parseFloat(savedScale);
+    }
+
     updateMarkdown();
-    
+    updateZoom();
+
     document.addEventListener('keydown', (event) => {
       if (event.key === '+') {
         onZoomIn();

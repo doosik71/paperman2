@@ -40,8 +40,8 @@ h6 {
 }
 
 p {
-  margin-top: 6px;
-  margin-bottom: 6px;
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
 }
 
 a {
@@ -352,6 +352,11 @@ select.inline {
   margin-top: 0;
 }
 
+#note-markdown-preview p {
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+}
+
 #note-markdown-preview ol,
 #note-markdown-preview ul {
   padding-left: 1.5em;
@@ -381,7 +386,8 @@ select.inline {
 
 #note-markdown-preview hr {
   border-color: SteelBlue;
-  border-width: 2px;
+  border-width: 0.1em;
+  margin: 1em;
 }
 
 #note-markdown-preview table {
@@ -391,6 +397,7 @@ select.inline {
 
 #note-markdown-preview table th {
   color: SteelBlue;
+  text-align: center;
   border-top: 2px solid SteelBlue;
   border-bottom: 2px solid SteelBlue;
 }
@@ -411,6 +418,7 @@ select.inline {
 
 div#home-page figcaption,
 #note-markdown-preview figcaption {
+  color: SteelBlue;
   text-align: center;
   font-weight: bold;
   margin-top: 1em;
@@ -420,10 +428,10 @@ div#home-page figcaption,
 #note-markdown-preview blockquote,
 #note-markdown-preview pre {
   background-color: ghostwhite;
-  border-left: 0.1em, solid SteelBlue;
+  border-left: 0.1em solid SteelBlue;
   color: SteelBlue;
-  padding: 0.5em 0;
-  margin: 0.5em 0;
+  padding: 0 0.5em;
+  margin: 1em 0;
 }
 
 /*************************************
@@ -511,6 +519,11 @@ div#home-page figcaption,
   margin: 0.5em 0;
 }
 
+#presentation-page div.reveal p {
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+}
+
 #presentation-page div.reveal i,
 #presentation-page div.reveal em {
   color: orangered;
@@ -519,7 +532,7 @@ div#home-page figcaption,
 
 #presentation-page div.reveal img {
   max-width: 100%;
-  max-height: 50vh;
+  max-height: 600px;
   margin: 0.5em auto;
   width: auto;
   height: auto;
@@ -530,12 +543,29 @@ div#home-page figcaption,
 }
 
 #presentation-page div.reveal figcaption {
+  color: SteelBlue;
   font-weight: bold;
 }
 
 #presentation-page div.reveal table {
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
+  border-bottom: 2px solid SteelBlue;
+  margin: 1em auto 1em auto;
+}
+
+#presentation-page div.reveal table th {
+  color: SteelBlue;
+  text-align: center;
+  border-top: 2px solid SteelBlue;
+  border-bottom: 2px solid SteelBlue;
+}
+
+#presentation-page div.reveal table td {
+  border-bottom: 1px solid SteelBlue;
+}
+
+#presentation-page div.reveal table th,
+#presentation-page div.reveal table td {
+  padding: 0.3em;
 }
 
 #presentation-page div.reveal ul,
@@ -550,11 +580,17 @@ div#home-page figcaption,
   border-left: 0.1em solid SteelBlue;
   color: SteelBlue;
   font-style: normal;
-  padding: 0.5em 0;
-  margin: 0.5em 0;
+  padding: 0 0.5em;
+  margin: 1em 0;
   text-align: left;
   width: 100%;
   overflow-wrap: break-word;
+}
+
+#presentation-page div.reveal hr {
+  border-color: SteelBlue;
+  border-width: 0.1em;
+  margin: 1em;
 }
 
 #presentation-page div.reveal .MathJax_Display {
