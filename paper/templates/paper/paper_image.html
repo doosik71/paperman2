@@ -3,7 +3,9 @@
 {% block content %}
 <div id="pdf-image-preview" class="justify-content-center">
   <div class="justify-content-center text-center my-2">
-    <h2 class="m-3 p-2"><span class="border rounded m-2 px-3 py-2">![](<a href="" id="image_url" target="_blank">/paper/image/0/</a>)</span></h2>
+    <h2 class="m-3 p-2">
+      <span id="image_markdown" class="border rounded m-2 px-3 py-2">![](<a href="" id="image_url" target="_blank">/paper/image/0/</a>)</span>
+    </h2>
   </div>
   <div class="d-flex justify-content-center mt-2 mb-3">
     {% for i in page_range %}
@@ -22,6 +24,7 @@
   let totalPages = {{ page_range| length }};
   const image = document.getElementById('image');
   const imageUrlDiv = document.getElementById('image_url');
+  const imageMarkdownSpan = document.getElementById('image_markdown');
   const vLine = document.getElementById('v-line');
   const hLine = document.getElementById('h-line');
   const selectionBox = document.getElementById('selection-box');
@@ -105,7 +108,13 @@
 
     url = `/paper/image/${paperId}/${currentPage}/?r=${startX},${startY},${width},${height}`
     imageUrlDiv.innerHTML = url;
-    imageUrlDiv.href = url;
+
+    // Update the selection.
+    const range = document.createRange();
+    range.selectNodeContents(imageMarkdownSpan);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
   });
 
   document.addEventListener('keydown', function (e) {

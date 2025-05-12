@@ -111,7 +111,7 @@ table#papers td {
 }
 
 table#papers tbody tr.highlight td {
-  background-color: yellow;
+  background-color: cornsilk;
 }
 
 div.toolbar {
@@ -152,7 +152,7 @@ div.toolbar {
  **************/
 
 #topic-list-table tbody tr.highlight td {
-  background-color: yellow;
+  background-color: cornsilk;
 }
 
 /******************
@@ -717,7 +717,7 @@ think {
   }
 
   main table#papers tbody tr.selected td {
-    background-color: yellow;
+    background-color: cornsilk;
   }
   
   #note-markdown-panel {
