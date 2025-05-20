@@ -90,6 +90,7 @@
           width="20" alt="Note"></a>
       <a href="{% url 'paper_presentation' paper.id %}" target="_blank" class="mx-1"><img
           src="{% static 'images/presentation.png' %}" width="20" alt="Presentation"></a>
+      <div id="markdown-temp"></div>
     </div>
   </div>
   <div id="split-container" class="d-flex justify-content-center split">
@@ -272,16 +273,17 @@
       html = e.message || e.toString();
     }
 
+    const tempDiv = document.getElementById("markdown-temp");
     const hiddenDiv = document.createElement("div");
     hiddenDiv.style.position = "absolute";
     hiddenDiv.style.left = "-9999px";
     hiddenDiv.style.top = "-9999px";
     hiddenDiv.innerHTML = html;
-    document.body.appendChild(hiddenDiv);
+    tempDiv.appendChild(hiddenDiv);
     MathJax.Hub.Queue(["Typeset", MathJax.Hub, hiddenDiv]);
     MathJax.Hub.Queue(function () {
       markdownControl.innerHTML = hiddenDiv.innerHTML;
-      document.body.removeChild(hiddenDiv);
+      tempDiv.removeChild(hiddenDiv);
     });
   }
 

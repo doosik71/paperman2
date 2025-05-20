@@ -1,0 +1,136 @@
+/* This file is part of the VSCode Markdown Preview Enhanced extension.
+ * D:\dev\python\paperman2\static\css\vscode.css
+ * D:\\dev\\python\\paperman2\\static\\css\\vscode.css
+ * file:///D:/dev/python/paperman2/static/css/vscode.css
+ */
+
+h1 {
+  font-size: 2em;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+}
+
+h2 {
+  font-size: 1.6em;
+}
+
+h3 {
+  font-size: 1.4em;
+}
+
+h4 {
+  font-size: 1.2em;
+}
+
+h5 {
+  font-size: 1.1em;
+}
+
+h6 {
+  font-size: 1em;
+}
+
+.vscode-light h1,
+.vscode-light h2,
+.vscode-light h3,
+.vscode-light h4,
+.vscode-light h5,
+.vscode-light h6 {
+  color: SteelBlue !important;
+  font-weight: 700;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+h1:first-child,
+h2:first-child,
+h3:first-child,
+h4:first-child,
+h5:first-child,
+h6:first-child {
+  margin-top: 0;
+}
+
+p {
+  color: red;
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+}
+
+ol,
+ul {
+  padding-left: 1.5em;
+  margin: 0.2em 0;
+}
+
+li {
+  color: red;
+  margin: 0.2em 0;
+}
+
+a {
+  color: dodgerblue;
+  text-decoration: none;
+}
+
+i,
+em {
+  color: orangered;
+  padding-right: 0.1em;
+}
+
+p > img:only-child {
+  display: block;
+  margin: 1em auto;
+  max-width: 100%;
+  height: auto;
+}
+
+hr {
+  border-color: SteelBlue;
+  border-width: 0.1em;
+  margin: 1em;
+}
+
+table {
+  border-bottom: 2px solid SteelBlue;
+  margin: 1em auto 1em auto;
+}
+
+table th {
+  color: SteelBlue;
+  text-align: center;
+  border-top: 2px solid SteelBlue;
+  border-bottom: 2px solid SteelBlue;
+}
+
+table td {
+  border-bottom: 1px solid SteelBlue;
+}
+
+table th,
+table td {
+  padding: 0.3em;
+}
+
+code {
+  background-color: ghostwhite;
+  white-space: pre;
+}
+
+figcaption {
+  color: SteelBlue;
+  text-align: center;
+  font-weight: bold;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+blockquote,
+pre {
+  background-color: ghostwhite;
+  border-left: 0.1em solid SteelBlue;
+  color: SteelBlue;
+  padding: 0 0.5em;
+  margin: 1em 0;
+}

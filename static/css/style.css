@@ -232,6 +232,17 @@ div.toolbar {
  * Note Editor Page *
  ********************/
 
+#editor-page #bottom-toolbar {
+  max-height: 3.5em;
+}
+
+#editor-page #markdown-temp {
+  max-height: 1em;
+  max-width: 1em;
+  overflow: hidden;
+  display: none;
+}
+
 #editor-page #note-pdf-panel,
 #editor-page #note-editor-panel,
 #editor-page #note-markdown-panel {
