@@ -11,8 +11,9 @@ authors = [
 dependencies = [
   "beautifulsoup4",
   "django",
+  "django-sslserver",
   "google-genai",
   "openai",
-  "pypdf",
-  "PyMuPDF"
+  "PyMuPDF",
+  "pypdf"
 ]

@@ -4,3 +4,5 @@ db.sqlite3
 .venv
 *.pyc
 *.idea
+/localhost.pem
+/localhost-key.pem
