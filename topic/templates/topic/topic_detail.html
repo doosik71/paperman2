@@ -26,7 +26,8 @@
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrf_token
-      }
+      },
+      credentials: "include"
     })
       .catch(error => reportError(error));
 
@@ -136,6 +137,7 @@
         'Content-Type': 'application/json',
         'X-CSRFToken': "{{ csrf_token }}"
       },
+      credentials: "include",
       body: JSON.stringify({
         topic_id: topic_id,
         keywords: keywords,
@@ -158,6 +160,7 @@
         'Content-Type': 'application/json',
         'X-CSRFToken': "{{ csrf_token }}"
       },
+      credentials: "include",
       body: JSON.stringify({
         topic_id: topic_id,
         keywords: keywords,
@@ -187,7 +190,8 @@
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrf_token
-      }
+      },
+      credentials: "include"
     }).then(response => response.json())
       .then(data => {
         document.getElementById(`citations-${paper_id}`).innerHTML = data.citations;

@@ -197,6 +197,7 @@
           "Content-Type": "application/json",
           "X-CSRFToken": csrf_token
         },
+        credentials: "include",
         body: JSON.stringify({
           model: model_id,
           question: question,
@@ -238,7 +239,7 @@
     gutterSize: 5,
     snapOffset: 60,
     cursor: 'col-resize',
-    onDragEnd: function() {
+    onDragEnd: function () {
       // 스플리터 위치를 쿠키에 저장
       const sizes = splitter.getSizes();
       document.cookie = `${SPLITTER_COOKIE_NAME}=${sizes.join(',')}; path=/`;
@@ -267,6 +268,7 @@
           "Content-Type": "application/x-www-form-urlencoded",
           "X-CSRFToken": "{{ csrf_token }}"
         },
+        credentials: "include",
         body: new URLSearchParams({
           annotation: JSON.stringify(annotations)
         })
@@ -283,7 +285,7 @@
   function switchPDFViewer(viewerType) {
     const adobeViewer = document.getElementById("adobe-dc-view");
     const defaultViewer = document.getElementById("pdf-pdf-preview");
-    
+
     if (viewerType === 'adobe') {
       adobeViewer.style.display = "block";
       defaultViewer.style.display = "none";
@@ -295,7 +297,7 @@
 
   // PDF 뷰어 선택 이벤트 리스너
   document.querySelectorAll('input[name="pdf-viewer"]').forEach(radio => {
-    radio.addEventListener('change', function() {
+    radio.addEventListener('change', function () {
       switchPDFViewer(this.id === 'viewer-adobe' ? 'adobe' : 'default');
     });
   });

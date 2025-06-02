@@ -264,7 +264,7 @@
   function updateMarkdown() {
     const regex = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Cyrillic}\p{Script=Devanagari}]/gu;
     let html = '';
-    
+
     try {
       html = marked(simplemde?.value() || '');
       html = DOMPurify.sanitize(html);
@@ -395,6 +395,7 @@
           "Content-Type": "application/json",
           "X-CSRFToken": csrf_token
         },
+        credentials: "include",
         body: JSON.stringify({
           model: model_id,
           question: question,
@@ -446,6 +447,7 @@
           "Content-Type": "application/json",
           "X-CSRFToken": csrf_token
         },
+        credentials: "include",
         body: JSON.stringify({
           model: model_id,
           key: OPENROUTER_API_KEY,
@@ -495,6 +497,7 @@
         headers: {
           "Content-Type": "application/json"
         },
+        credentials: "include",
         body: JSON.stringify({
           model: model_id,
           prompt: question,
@@ -606,6 +609,7 @@
         "Content-Type": "application/x-www-form-urlencoded",
         "X-CSRFToken": "{{ csrf_token }}"
       },
+      credentials: "include",
       body: new URLSearchParams({
         note: simplemde.value()
       })
@@ -624,6 +628,7 @@
           "Content-Type": "application/x-www-form-urlencoded",
           "X-CSRFToken": "{{ csrf_token }}"
         },
+        credentials: "include",
         body: new URLSearchParams({
           annotation: JSON.stringify(annotations)
         })

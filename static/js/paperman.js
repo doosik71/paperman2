@@ -39,6 +39,7 @@ function toggleTag(paper_id, tag, post_url, csrf_token) {
       'Content-Type': 'application/json',
       'X-CSRFToken': csrf_token
     },
+    credentials: "include",
     body: JSON.stringify({
       paper_id: paper_id,
       tag: tag
@@ -82,7 +83,10 @@ function onTagFilter(table_id, tag) {
 }
 
 async function renderPDF(frame, pdfUrl, scale) {
-  const pdfBytes = await fetch(pdfUrl).then(res => res.arrayBuffer());
+  const pdfBytes = await fetch(pdfUrl, {
+    method: "GET",
+    credentials: "include"
+  }).then(res => res.arrayBuffer());
   const pdfjsDoc = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
   const numPages = pdfjsDoc.numPages;
   const iframeDocument = frame.contentDocument || frame.contentWindow.document;
@@ -152,7 +156,10 @@ async function renderPDF(frame, pdfUrl, scale) {
 }
 
 async function extractPDF(pdfUrl) {
-  const pdfBytes = await fetch(pdfUrl).then(res => res.arrayBuffer());
+  const pdfBytes = await fetch(pdfUrl, {
+    method: "GET",
+    credentials: "include"
+  }).then(res => res.arrayBuffer());
   const pdfjsDoc = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
   let fullText = '';
 
@@ -176,7 +183,10 @@ function reportError(error) {
 function updateStatus() {
   const status = document.getElementById("header-status-bar")
 
-  fetch("/home/status/")
+  fetch("/home/status/", {
+    method: "GET",
+    credentials: "include"
+  })
     .then(response => {
       if (!response.ok) {
         throw new Error(`HTTP Error(${response.status})`);
