@@ -3,11 +3,14 @@
  ********/
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont,
-    "Malgun Gothic", MalgunGothic,
+  font-family:
+    "Noto Sans", "Noto Sans KR",
+    Rubik, Helvetica, Arial, Verdana, sans-serif,
+    -apple-system, BlinkMacSystemFont,
+    "Malgun Gothic",
     "Segoe UI", "Droid Sans", "Helvetica Neue",
     "Roboto", "Oxygen", "Ubuntu", "Cantarell",
-    "Fira Sans", sans-serif;
+    "Fira Sans";
   overflow-x: hidden;
 }
 
@@ -388,7 +391,7 @@ select.inline {
   padding-right: 0.1em;
 }
 
-#note-markdown-preview p > img:only-child {
+#note-markdown-preview p>img:only-child {
   display: block;
   margin: 1em auto;
   max-width: 100%;
@@ -455,6 +458,10 @@ div#home-page figcaption,
 
 #note-editor-panel div.CodeMirror {
   font-size: 1.2rem;
+}
+
+#note-editor-panel div.CodeMirror-lines {
+  margin: 1em;
 }
 
 #note-editor-panel div.CodeMirror span.cm-header.cm-header-1,
@@ -730,7 +737,7 @@ think {
   main table#papers tbody tr.selected td {
     background-color: cornsilk;
   }
-  
+
   #note-markdown-panel {
     width: 100% !important;
     height: auto !important;
