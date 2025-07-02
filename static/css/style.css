@@ -369,6 +369,7 @@ select.inline {
 #note-markdown-preview p {
   margin-top: 0.2em;
   margin-bottom: 0.2em;
+  line-height: 1.6em;
 }
 
 #note-markdown-preview ol,
@@ -379,6 +380,9 @@ select.inline {
 
 #note-markdown-preview li {
   margin: 0.2em 0;
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+  line-height: 1.6em;
 }
 
 #note-markdown-preview a {
@@ -462,6 +466,12 @@ div#home-page figcaption,
 
 #note-editor-panel div.CodeMirror-lines {
   margin: 1em;
+}
+
+#note-editor-panel pre.CodeMirror-line {
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  line-height: 1.6em;
 }
 
 #note-editor-panel div.CodeMirror span.cm-header.cm-header-1,
