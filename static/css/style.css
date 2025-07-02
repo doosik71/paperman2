@@ -639,8 +639,12 @@ div#home-page figcaption,
   background-color: ghostwhite;
 }
 
-#topic-list-list-view-panel {
+#topic-list-simple-view-panel {
   display: flex;
+}
+
+#topic-list-list-view-panel {
+  display: none;
 }
 
 #topic-list-tile-view-panel {

@@ -19,19 +19,32 @@
     </div>
     <!-- View Mode -->
     <div class="btn-group mx-3" role="group">
-      <input type="radio" class="btn-check" name="topic-list-view-mode" id="topic-list-list-view" autocomplete="off"
+      <input type="radio" class="btn-check" name="topic-list-view-mode" id="topic-list-simple-view" autocomplete="off"
         checked>
-      <label class="btn btn-outline-secondary" for="topic-list-list-view">List View</label>
+      <label class="btn btn-outline-secondary" for="topic-list-simple-view">Simple</label>
+      <input type="radio" class="btn-check" name="topic-list-view-mode" id="topic-list-list-view" autocomplete="off">
+      <label class="btn btn-outline-secondary" for="topic-list-list-view">List</label>
       <input type="radio" class="btn-check" name="topic-list-view-mode" id="topic-list-tile-view" autocomplete="off">
-      <label class="btn btn-outline-secondary" for="topic-list-tile-view">Tile View</label>
+      <label class="btn btn-outline-secondary" for="topic-list-tile-view">Tile</label>
     </div>
-    <!-- Create Topic Button -->  
+    <!-- Create Topic Button -->
     <form action="{% url 'topic_create' %}" method="get" class="mx-3">
       <button {% if not user.is_authenticated %}disabled{% endif %} type="submit" class="btn btn-primary">Create new
         topic</button>
     </form>
   </div>
   <!-- Topic List -->
+  <div id="topic-list-simple-view-panel" class="justify-content-center m-3">
+    <div class="col-8">
+      <div id="topic-list-simple" class="d-flex flex-wrap gap-3">
+        {% for topic in topics %}
+        <div class="border rounded p-2">
+          <a href="{% url 'topic_detail' topic.id %}">{{ topic.title }}</a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
   <div id="topic-list-list-view-panel" class="row my-3 justify-content-center">
     <div class="col-8 text-center mb-3 border p-0">
       <table id="topic-list-table" class="table table-hover m-0" width="100%">
@@ -119,29 +132,29 @@
 
   // 주제 필터 입력 처리 이벤트.
   function onfilterTopics() {
-    const input = document.getElementById("topic-list-search");
-    const filter = input.value.toLowerCase();
-    const cards = document.querySelectorAll("#topic-list div.card");
+    const filter = document.getElementById("topic-list-search").value.toLowerCase();
 
-    cards.forEach(card => {
-      const title = card.querySelector(".card-title a").textContent.toLowerCase();
-      const keywords = card.querySelector(".card-subtitle").textContent.toLowerCase();
-      if (title.includes(filter) || keywords.includes(filter)) {
-        card.style.display = "block";
-      } else {
-        card.style.display = "none";
-      }
+    const divs = document.querySelectorAll("#topic-list-simple div");
+    divs.forEach(item => {
+      const title = item.querySelector("a").textContent.toLowerCase();
+      const show = title.includes(filter);
+      item.style.display = show ? "block" : "none";
     });
 
-    const rows = document.querySelectorAll("#topic-list-table tr[data-topic]");
+    const rows = document.querySelectorAll("#topic-list-list-view-panel table tr[data-topic]");
     rows.forEach(row => {
       const title = row.dataset.topic.toLowerCase();
       const keywords = row.dataset.keywords.toLowerCase();
-      if (title.includes(filter) || keywords.includes(filter)) {
-        row.style.display = "table-row";
-      } else {
-        row.style.display = "none";
-      }
+      const show = title.includes(filter) || keywords.includes(filter);
+      row.style.display = show ? "table-row" : "none";
+    });
+
+    const cards = document.querySelectorAll("#topic-list-tile-view-panel div.card");
+    cards.forEach(card => {
+      const title = card.querySelector(".card-title a").textContent.toLowerCase();
+      const keywords = card.querySelector(".card-subtitle").textContent.toLowerCase();
+      const show = title.includes(filter) || keywords.includes(filter);
+      card.style.display = show ? "block" : "none";
     });
   }
 
@@ -159,23 +172,22 @@
   // 주제 뷰어 선택 이벤트
   document.querySelectorAll('input[name="topic-list-view-mode"]').forEach(radio => {
     radio.addEventListener('change', function () {
-      switchTopicListViewMode(this.id === 'topic-list-list-view' ? 'list' : 'tile');
+      const panels = [
+        document.getElementById("topic-list-simple-view-panel"),
+        document.getElementById("topic-list-list-view-panel"),
+        document.getElementById("topic-list-tile-view-panel")
+      ];
+      const modes = {
+        "topic-list-simple-view": ['flex', 'none', 'none'],
+        "topic-list-list-view": ['none', 'flex', 'none'],
+        "topic-list-tile-view": ['none', 'none', 'flex'],
+      };
+      const selectedMode = modes[this.id];
+
+      panels[0].style.display = selectedMode[0];
+      panels[1].style.display = selectedMode[1];
+      panels[2].style.display = selectedMode[2];
     });
   });
-
-  function switchTopicListViewMode(mode) {
-    console.log("Switching to " + mode + " view mode");
-
-    const listViewPanel = document.getElementById("topic-list-list-view-panel");
-    const tileViewPanel = document.getElementById("topic-list-tile-view-panel");
-
-    if (mode === 'list') {
-      listViewPanel.style.display = "flex";
-      tileViewPanel.style.display = "none";
-    } else {
-      listViewPanel.style.display = "none";
-      tileViewPanel.style.display = "flex";
-    }
-  }
 </script>
 {% endblock %}
